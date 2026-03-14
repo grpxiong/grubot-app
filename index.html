@@ -192,6 +192,22 @@
         const dateVal = document.getElementById('p-date').value;
         const quota = document.getElementById('p-quota').value;
         const count = parseInt(document.getElementById('p-count').value);
+        const saveToDb = async () => {
+          await fetch(`${SUPABASE_URL}/rest/v1/pichangas`, {
+              method: 'POST',
+              headers: {
+                  'apikey': SUPABASE_KEY,
+                  'Authorization': `Bearer ${SUPABASE_KEY}`,
+                  'Content-Type': 'application/json'
+              },
+              body: JSON.stringify({
+                  title: title,
+                  lugar: lugar,
+                  fecha: capDate,
+                  quota: quota
+              })
+          });
+        };
 
         if(!dateVal) return alert("Selecciona una fecha");
 
