@@ -44,6 +44,7 @@
 
     .p-input {
       width: 100%;
+      max-width: 100%;
       padding: 10px 32px 10px 10px;
       border: 1.5px solid #e0e0e0;
       border-radius: 10px;
@@ -51,6 +52,18 @@
       box-sizing: border-box;
       outline: none;
       min-height: 44px;
+      /* iOS Safari: prevent date/time inputs from overflowing */
+      -webkit-appearance: none;
+      appearance: none;
+    }
+
+    input[type="date"].p-input,
+    input[type="time"].p-input {
+      /* Explicitly constrain native date/time pickers on iOS */
+      display: block;
+      width: 100%;
+      max-width: 100%;
+      min-width: 0;
     }
 
     .p-input:focus {
@@ -59,6 +72,9 @@
 
     .input-wrapper {
       position: relative;
+      width: 100%;
+      min-width: 0;
+      box-sizing: border-box;
     }
 
     .clear-btn {
@@ -362,6 +378,12 @@
         const count   = parseInt(document.getElementById('p-count').value);
 
         if (!dateVal) return alert('Selecciona una fecha');
+
+        // iOS Safari ignores the `min` attribute on date inputs — validate manually
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        const selected = new Date(dateVal + 'T12:00:00');
+        if (selected <= today) return alert('La fecha debe ser a partir de mañana');
 
         const dateObj = new Date(dateVal + 'T12:00:00');
         let fDate = dateObj.toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long' });
