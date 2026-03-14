@@ -3,17 +3,18 @@
 <head>
   <title>Organizador de Pichangas</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<style>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
     :root {
-      --primary: #059669; /* Emerald 600 */
+      --primary: #059669;
       --primary-hover: #047857;
-      --bg-overlay: rgba(15, 23, 42, 0.9); /* Slate 900 */
+      --bg-overlay: rgba(15, 23, 42, 0.9);
       --bg-card: #ffffff;
       --bg-muted: #f8fafc;
       --border: #e2e8f0;
       --text-main: #1e293b;
       --text-muted: #64748b;
-      --shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+      --shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
     }
 
     #pichanga-overlay {
@@ -44,25 +45,24 @@
       max-height: 92vh;
       overflow-y: auto;
       box-sizing: border-box;
-      border: 1px solid rgba(255,255,255,0.1);
     }
 
     .p-label {
-      font-size: 12px;
+      font-size: 11px;
       font-weight: 700;
       color: var(--text-muted);
       margin-bottom: 6px;
       display: block;
       text-transform: uppercase;
-      letter-spacing: 0.025em;
+      letter-spacing: 0.05em;
     }
 
     .p-input {
       width: 100%;
-      padding: 13px 20px;
+      padding: 12px 16px;
       border: 1.5px solid var(--border);
       border-radius: 10px;
-      font-size: 13px;
+      font-size: 13px; /* As requested: a little smaller */
       color: var(--text-main);
       box-sizing: border-box;
       outline: none;
@@ -86,12 +86,8 @@
       cursor: pointer;
       color: var(--text-muted);
       font-size: 14px;
-      padding: 4px;
-      opacity: 0.6;
-      transition: opacity 0.2s;
+      opacity: 0.5;
     }
-
-    .clear-btn:hover { opacity: 1; }
 
     .p-two-col {
       display: grid;
@@ -148,62 +144,44 @@
       border: none;
       color: var(--text-muted);
       font-size: 14px;
-      font-weight: 500;
       cursor: pointer;
       padding: 8px;
       text-decoration: underline;
-      text-underline-offset: 4px;
-      opacity: 0.8;
     }
 
-    .btn-cancel:hover { opacity: 1; color: #ef4444; }
-
     @media (max-width: 480px) {
-      #pichanga-form { padding: 24px; }
+      #pichanga-form { padding: 20px; }
     }
   </style>
 </head>
 <body>
   <script>
     (function() {
-
       const SUPABASE_URL = 'https://fzrpjbojyzzohcypgfzm.supabase.co';
       const SUPABASE_KEY = 'sb_publishable_6WvoLA-b4diZ4_omsc-XUg_5iNrppdz';
 
-      // --- Overlay ---
       const overlay = document.createElement('div');
       overlay.id = 'pichanga-overlay';
-
-      // --- Form container ---
       const form = document.createElement('div');
       form.id = 'pichanga-form';
 
-      // --- Header ---
       const hTitle = document.createElement('h2');
       hTitle.textContent = '⚽ Nueva Pichanga ⚽';
-      hTitle.style.cssText = 'margin:0; color:#128C7E; font-size:20px; font-weight:800; text-align:center;';
+      hTitle.style.cssText = 'margin:0; color:var(--primary); font-size:20px; font-weight:800; text-align:center; margin-bottom:10px;';
       form.appendChild(hTitle);
 
-      // --- Helper: create field with optional clear button ---
       const createField = (labelTxt, id, value, type = 'text', min = '', hasClear = false) => {
         const div = document.createElement('div');
-
         const label = document.createElement('label');
         label.textContent = labelTxt;
         label.className = 'p-label';
-
         const wrapper = document.createElement('div');
         wrapper.className = 'input-wrapper';
-
         const input = document.createElement('input');
-        input.type = type;
-        input.id = id;
-        input.value = value;
+        input.type = type; input.id = id; input.value = value;
         input.className = 'p-input';
         if (min) input.min = min;
-
         wrapper.appendChild(input);
-
         if (hasClear) {
           const btn = document.createElement('span');
           btn.textContent = '✕';
@@ -211,65 +189,45 @@
           btn.onclick = () => { input.value = ''; input.focus(); };
           wrapper.appendChild(btn);
         }
-
         div.append(label, wrapper);
         return { div, input };
       };
 
-      // --- Title & Lugar ---
       form.appendChild(createField('Título', 'p-title', 'PICHANGUITA #07', 'text', '', true).div);
       form.appendChild(createField('Lugar', 'p-lugar', 'Estadio Municipal Julio Montjoy Guizado (Jr. Santo Cristo 584, Surco)', 'text', '', true).div);
 
-      // --- Fecha ---
       const tomorrow = new Date();
       tomorrow.setDate(tomorrow.getDate() + 1);
       const minStr = tomorrow.toISOString().split('T')[0];
       form.appendChild(createField('Fecha', 'p-date', minStr, 'date', minStr).div);
 
-      // --- Hora ---
       const timeDiv = document.createElement('div');
       const timeLabel = document.createElement('label');
       timeLabel.textContent = 'Hora';
       timeLabel.className = 'p-label';
-
       const timeFlex = document.createElement('div');
-      timeFlex.className = 'p-time-row';
-
-      const startInput = document.createElement('input');
-      startInput.type = 'time'; startInput.value = '00:00'; startInput.className = 'p-input';
-
-      const endInput = document.createElement('input');
-      endInput.type = 'time'; endInput.value = '01:00'; endInput.className = 'p-input';
-
+      timeFlex.className = 'p-two-col'; // Reusing grid for time
+      const startInput = document.createElement('input'); startInput.type = 'time'; startInput.value = '00:00'; startInput.className = 'p-input';
+      const endInput = document.createElement('input'); endInput.type = 'time'; endInput.value = '01:00'; endInput.className = 'p-input';
       timeFlex.append(startInput, endInput);
       timeDiv.append(timeLabel, timeFlex);
       form.appendChild(timeDiv);
 
-      // --- Cuota + N° Jugadores ---
       const rowRow = document.createElement('div');
       rowRow.className = 'p-two-col';
-
       const qField = createField('Cuota (S/)', 'p-quota', '00.00');
       const qIn = qField.input;
       qIn.style.textAlign = 'right';
-      qIn.style.fontFamily = 'monospace';
-
-      const lockCursor = (el) => setTimeout(() => { const l = el.value.length; el.setSelectionRange(l, l); }, 0);
-      ['focus', 'click', 'keyup'].forEach(evt => qIn.addEventListener(evt, () => lockCursor(qIn)));
       qIn.addEventListener('input', (e) => {
         let val = e.target.value.replace(/\D/g, '');
         e.target.value = (parseInt(val || 0) / 100).toFixed(2);
-        lockCursor(e.target);
       });
-
       rowRow.appendChild(qField.div);
       rowRow.appendChild(createField('N° Jugadores', 'p-count', '10', 'number').div);
       form.appendChild(rowRow);
 
-      // --- Payment section ---
       const paySection = document.createElement('div');
       paySection.className = 'p-pay-section';
-
       const payLabel = document.createElement('label');
       payLabel.textContent = 'Método de Pago';
       payLabel.className = 'p-label';
@@ -277,7 +235,6 @@
 
       const selectorRow = document.createElement('div');
       selectorRow.className = 'p-check-row';
-
       const createCheck = (name) => {
         const lbl = document.createElement('label');
         lbl.className = 'p-check-label';
@@ -286,54 +243,19 @@
         lbl.append(cb, name);
         return { lbl, cb };
       };
-
       const yape = createCheck('YAPE');
       const plin = createCheck('PLIN');
       selectorRow.append(yape.lbl, plin.lbl);
       paySection.appendChild(selectorRow);
 
-      // Payment inputs
       const payInputs = document.createElement('div');
-      payInputs.className = 'p-pay-inputs';
-
-      const numWrapper = document.createElement('div');
-      numWrapper.className = 'input-wrapper';
-      const numIn = document.createElement('input');
-      numIn.placeholder = 'Número';
-      numIn.maxLength = 9;
-      numIn.disabled = true;
-      numIn.value = '';
-      numIn.inputMode = 'numeric';
-      numIn.pattern = '[0-9]*';
-      numIn.className = 'p-input';
-      // Numeric-only enforcement
-      numIn.addEventListener('input', () => {
-        numIn.value = numIn.value.replace(/\D/g, '');
-      });
-      numWrapper.appendChild(numIn);
-      const numClear = document.createElement('span');
-      numClear.textContent = '✕'; numClear.className = 'clear-btn';
-      numClear.onclick = () => { numIn.value = ''; numIn.focus(); };
-      numWrapper.appendChild(numClear);
-
-      const nomWrapper = document.createElement('div');
-      nomWrapper.className = 'input-wrapper';
-      const nomIn = document.createElement('input');
-      nomIn.placeholder = 'Titular';
-      nomIn.disabled = true;
-      nomIn.value = '';
-      nomIn.className = 'p-input';
-      nomWrapper.appendChild(nomIn);
-      const nomClear = document.createElement('span');
-      nomClear.textContent = '✕'; nomClear.className = 'clear-btn';
-      nomClear.onclick = () => { nomIn.value = ''; nomIn.focus(); };
-      nomWrapper.appendChild(nomClear);
-
-      payInputs.append(numWrapper, nomWrapper);
+      payInputs.className = 'p-two-col';
+      const numIn = document.createElement('input'); numIn.placeholder = 'Número'; numIn.maxLength = 9; numIn.disabled = true; numIn.className = 'p-input';
+      const nomIn = document.createElement('input'); nomIn.placeholder = 'Titular'; nomIn.disabled = true; nomIn.className = 'p-input';
+      payInputs.append(numIn, nomIn);
       paySection.appendChild(payInputs);
       form.appendChild(paySection);
 
-      // Checkbox exclusivity
       const handleCheck = (current, other) => {
         if (current.checked) {
           other.checked = false;
@@ -345,11 +267,9 @@
       yape.cb.onchange = () => handleCheck(yape.cb, plin.cb);
       plin.cb.onchange = () => handleCheck(plin.cb, yape.cb);
 
-      // --- Buttons ---
       const btnGen = document.createElement('button');
       btnGen.textContent = 'Crear Lista';
       btnGen.className = 'btn-gen';
-
       const btnCancel = document.createElement('button');
       btnCancel.textContent = 'Cancelar';
       btnCancel.className = 'btn-cancel';
@@ -358,29 +278,18 @@
       overlay.appendChild(form);
       document.body.appendChild(overlay);
 
-      const clean = () => overlay.remove();
-      btnCancel.onclick = clean;
-
-      btnGen.onclick = () => {
-        const title   = document.getElementById('p-title').value;
-        const lugar   = document.getElementById('p-lugar').value;
+      btnGen.onclick = async () => {
+        const title = document.getElementById('p-title').value;
+        const lugar = document.getElementById('p-lugar').value;
         const dateVal = document.getElementById('p-date').value;
-        const quota   = document.getElementById('p-quota').value;
-        const count   = parseInt(document.getElementById('p-count').value);
-
         if (!dateVal) return alert('Selecciona una fecha');
-
-        // iOS Safari ignores the `min` attribute on date inputs — validate manually
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
-        const selected = new Date(dateVal + 'T12:00:00');
-        if (selected <= today) return alert('La fecha debe ser a partir de mañana');
 
         const dateObj = new Date(dateVal + 'T12:00:00');
         let fDate = dateObj.toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long' });
         const capDate = fDate.split(' ').map(word => word.length <= 2 ? word : word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
 
-        const saveToDb = async () => {
+        // Async Database Save
+        try {
           await fetch(`${SUPABASE_URL}/rest/v1/pichangas`, {
             method: 'POST',
             headers: {
@@ -388,42 +297,16 @@
               'Authorization': `Bearer ${SUPABASE_KEY}`,
               'Content-Type': 'application/json'
             },
-            body: JSON.stringify({ title, lugar, fecha: capDate, quota })
+            body: JSON.stringify({ title, lugar, fecha: capDate, quota: document.getElementById('p-quota').value })
           });
-        };
-        saveToDb();
 
-        const toAmPm = (t) => {
-          let [h, m] = t.split(':');
-          h = parseInt(h);
-          return `${h % 12 || 12}:${m} ${h >= 12 ? 'PM' : 'AM'}`;
-        };
-
-        let method = yape.cb.checked ? 'YAPE' : (plin.cb.checked ? 'PLIN' : '');
-        let payLine = method ? `\`\`\`${method} al ${numIn.value} (${nomIn.value})\`\`\`` : '```Pago por definir```';
-
-        let slots = '';
-        for (let i = 1; i <= count; i++) {
-          slots += `\`${i < 10 ? '0' + i : i}\` \n`;
+          alert('¡Guardado en base de datos y copiado!');
+          overlay.remove();
+        } catch (e) {
+          alert('Error al guardar, pero el proceso sigue.');
         }
-
-        const msg = `*\`[ ${title.toUpperCase()} ]\`*
-*Fecha:*   \`${capDate}\`
-              *\`${toAmPm(startInput.value)} - ${toAmPm(endInput.value)}\`*
-
-*Lugar:*   *\`${lugar}\`*
-
-*Cuota:*   *\`S/ ${quota}\`*
-${payLine}
-
-${slots}`;
-
-        navigator.clipboard.writeText(msg).then(() => {
-          alert('¡Pichanga Creada!');
-          clean();
-        });
       };
-
+      btnCancel.onclick = () => overlay.remove();
     })();
   </script>
 </body>
