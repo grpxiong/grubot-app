@@ -297,7 +297,16 @@
               'Authorization': `Bearer ${SUPABASE_KEY}`,
               'Content-Type': 'application/json'
             },
-            body: JSON.stringify({ title, lugar, fecha: capDate, quota: document.getElementById('p-quota').value })
+            body: JSON.stringify({ 
+              titulo: title,            // Matches 'titulo' in your image
+              lugar: lugar,             // NOTE: Your image doesn't show a 'lugar' column!
+              fecha_pichanga: dateVal,  // Matches 'fecha_pichanga' (use dateVal for YYYY-MM-DD)
+              hora_inicio: startInput.value, // Matches 'hora_inicio'
+              hora_fin: endInput.value,     // Matches 'hora_fin'
+              cuota: parseFloat(quota),     // Matches 'cuota' (numeric)
+              metodo_pago: yape.cb.checked ? 'YAPE' : (plin.cb.checked ? 'PLIN' : 'Otro'), // Matches 'metodo_pago'
+              cantidad: count           // Matches 'cantidad' (numeric)
+            })
           });
 
           alert('¡Guardado en base de datos y copiado!');
