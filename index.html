@@ -62,7 +62,7 @@
       padding: 12px 16px;
       border: 1.5px solid var(--border);
       border-radius: 10px;
-      font-size: 13px; /* As requested: a little smaller */
+      font-size: 13px;
       color: var(--text-main);
       box-sizing: border-box;
       outline: none;
@@ -206,7 +206,7 @@
       timeLabel.textContent = 'Hora';
       timeLabel.className = 'p-label';
       const timeFlex = document.createElement('div');
-      timeFlex.className = 'p-two-col'; // Reusing grid for time
+      timeFlex.className = 'p-two-col';
       const startInput = document.createElement('input'); startInput.type = 'time'; startInput.value = '00:00'; startInput.className = 'p-input';
       const endInput = document.createElement('input'); endInput.type = 'time'; endInput.value = '01:00'; endInput.className = 'p-input';
       timeFlex.append(startInput, endInput);
@@ -215,13 +215,29 @@
 
       const rowRow = document.createElement('div');
       rowRow.className = 'p-two-col';
+
       const qField = createField('Cuota (S/)', 'p-quota', '00.00');
       const qIn = qField.input;
       qIn.style.textAlign = 'right';
+      qIn.style.fontFamily = 'monospace';
+
+      // --- CUOTA: lock cursor to end (right-to-left typing) ---
+      const lockCursor = (el) => {
+        setTimeout(() => {
+          const len = el.value.length;
+          el.setSelectionRange(len, len);
+        }, 0);
+      };
+      ['focus', 'click', 'keyup'].forEach(evt => {
+        qIn.addEventListener(evt, () => lockCursor(qIn));
+      });
       qIn.addEventListener('input', (e) => {
         let val = e.target.value.replace(/\D/g, '');
         e.target.value = (parseInt(val || 0) / 100).toFixed(2);
+        lockCursor(e.target);
       });
+      // --------------------------------------------------------
+
       rowRow.appendChild(qField.div);
       rowRow.appendChild(createField('N° Jugadores', 'p-count', '10', 'number').div);
       form.appendChild(rowRow);
@@ -250,8 +266,25 @@
 
       const payInputs = document.createElement('div');
       payInputs.className = 'p-two-col';
-      const numIn = document.createElement('input'); numIn.placeholder = 'Número'; numIn.maxLength = 9; numIn.disabled = true; numIn.className = 'p-input';
-      const nomIn = document.createElement('input'); nomIn.placeholder = 'Titular'; nomIn.disabled = true; nomIn.className = 'p-input';
+
+      const numIn = document.createElement('input');
+      numIn.placeholder = 'Número';
+      numIn.maxLength = 9;
+      numIn.disabled = true;
+      numIn.className = 'p-input';
+      // --- NÚMERO: numeric characters only ---
+      numIn.inputMode = 'numeric';
+      numIn.pattern = '[0-9]*';
+      numIn.addEventListener('input', () => {
+        numIn.value = numIn.value.replace(/\D/g, '');
+      });
+      // ----------------------------------------
+
+      const nomIn = document.createElement('input');
+      nomIn.placeholder = 'Titular';
+      nomIn.disabled = true;
+      nomIn.className = 'p-input';
+
       payInputs.append(numIn, nomIn);
       paySection.appendChild(payInputs);
       form.appendChild(paySection);
@@ -278,70 +311,72 @@
       overlay.appendChild(form);
       document.body.appendChild(overlay);
 
-btnGen.onclick = async () => {
-  const title   = document.getElementById('p-title').value;
-  const lugar   = document.getElementById('p-lugar').value;
-  const dateVal = document.getElementById('p-date').value;
-  const quota   = document.getElementById('p-quota').value;
-  const count   = parseInt(document.getElementById('p-count').value);
+      btnCancel.onclick = () => overlay.remove();
 
-  if (!dateVal) return alert('Selecciona una fecha');
+      btnGen.onclick = async () => {
+        const title   = document.getElementById('p-title').value;
+        const lugar   = document.getElementById('p-lugar').value;
+        const dateVal = document.getElementById('p-date').value;
+        const quota   = document.getElementById('p-quota').value;
+        const count   = parseInt(document.getElementById('p-count').value);
 
-  // 1. FORMAT DATE
-  const dateObj = new Date(dateVal + 'T12:00:00');
-  let fDate = dateObj.toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long' });
-  const capDate = fDate.split(' ').map(word =>
-    word.length <= 2 ? word : word.charAt(0).toUpperCase() + word.slice(1)
-  ).join(' ');
+        if (!dateVal) return alert('Selecciona una fecha');
 
-  // 2. SAVE TO DB
-  try {
-    const res = await fetch(`${SUPABASE_URL}/rest/v1/pichangas`, {
-      method: 'POST',
-      headers: {
-        'apikey': SUPABASE_KEY,
-        'Authorization': `Bearer ${SUPABASE_KEY}`,
-        'Content-Type': 'application/json',
-        'Prefer': 'return=minimal'
-      },
-      body: JSON.stringify({
-        titulo: title,
-        lugar: lugar,
-        fecha_pichanga: dateVal,
-        hora_inicio: startInput.value,
-        hora_fin: endInput.value,
-        cuota: parseFloat(quota),
-        metodo_pago: yape.cb.checked ? 'YAPE' : (plin.cb.checked ? 'PLIN' : 'Otro'),
-        cantidad: count
-      })
-    });
+        // 1. FORMAT DATE
+        const dateObj = new Date(dateVal + 'T12:00:00');
+        let fDate = dateObj.toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long' });
+        const capDate = fDate.split(' ').map(word =>
+          word.length <= 2 ? word : word.charAt(0).toUpperCase() + word.slice(1)
+        ).join(' ');
 
-    if (!res.ok) {
-      const errText = await res.text();
-      return alert(`Error al guardar ${res.status}:\n${errText}`);
-    }
-  } catch (e) {
-    return alert(`Error de red:\n${e.message}`);
-  }
+        // 2. SAVE TO DB
+        try {
+          const res = await fetch(`${SUPABASE_URL}/rest/v1/pichangas`, {
+            method: 'POST',
+            headers: {
+              'apikey': SUPABASE_KEY,
+              'Authorization': `Bearer ${SUPABASE_KEY}`,
+              'Content-Type': 'application/json',
+              'Prefer': 'return=minimal'
+            },
+            body: JSON.stringify({
+              titulo: title,
+              lugar: lugar,
+              fecha_pichanga: dateVal,
+              hora_inicio: startInput.value,
+              hora_fin: endInput.value,
+              cuota: parseFloat(quota),
+              metodo_pago: yape.cb.checked ? 'YAPE' : (plin.cb.checked ? 'PLIN' : 'Otro'),
+              cantidad: count
+            })
+          });
 
-  // 3. GENERATE WHATSAPP MESSAGE
-  const toAmPm = (t) => {
-    let [h, m] = t.split(':');
-    h = parseInt(h);
-    return `${h % 12 || 12}:${m} ${h >= 12 ? 'PM' : 'AM'}`;
-  };
+          if (!res.ok) {
+            const errText = await res.text();
+            return alert(`Error al guardar ${res.status}:\n${errText}`);
+          }
+        } catch (e) {
+          return alert(`Error de red:\n${e.message}`);
+        }
 
-  let method = yape.cb.checked ? 'YAPE' : (plin.cb.checked ? 'PLIN' : '');
-  let payLine = method
-    ? `\`\`\`${method} al ${numIn.value} (${nomIn.value})\`\`\``
-    : '```Pago por definir```';
+        // 3. GENERATE WHATSAPP MESSAGE
+        const toAmPm = (t) => {
+          let [h, m] = t.split(':');
+          h = parseInt(h);
+          return `${h % 12 || 12}:${m} ${h >= 12 ? 'PM' : 'AM'}`;
+        };
 
-  let slots = '';
-  for (let i = 1; i <= count; i++) {
-    slots += `\`${i < 10 ? '0' + i : i}\` \n`;
-  }
+        let method = yape.cb.checked ? 'YAPE' : (plin.cb.checked ? 'PLIN' : '');
+        let payLine = method
+          ? `\`\`\`${method} al ${numIn.value} (${nomIn.value})\`\`\``
+          : '```Pago por definir```';
 
-  const msg =
+        let slots = '';
+        for (let i = 1; i <= count; i++) {
+          slots += `\`${i < 10 ? '0' + i : i}\` \n`;
+        }
+
+        const msg =
 `*\`[ ${title.toUpperCase()} ]\`*
 *Fecha:* \`${capDate}\`
               *\`${toAmPm(startInput.value)} - ${toAmPm(endInput.value)}\`*
@@ -350,12 +385,14 @@ btnGen.onclick = async () => {
 ${payLine}
 ${slots}`;
 
-  // 4. COPY & CLOSE
-  navigator.clipboard.writeText(msg).then(() => {
-    alert('¡Copiado y guardado!');
-    overlay.remove();
-  });
-};
+        // 4. COPY & CLOSE
+        navigator.clipboard.writeText(msg).then(() => {
+          alert('¡Copiado y guardado!');
+          overlay.remove();
+        });
+      };
+
+    })();
   </script>
 </body>
 </html>
