@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Inscribirse a Pichanga</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #059669;
+      --primary-hover: #047857;
+      --bg-overlay: rgba(15, 23, 42, 0.9);
+      --bg-card: #ffffff;
+      --bg-muted: #f8fafc;
+      --border: #e2e8f0;
+      --text-main: #1e293b;
+      --text-muted: #64748b;
+      --shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+    }
+    #pichanga-overlay {
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      background: var(--bg-overlay); z-index: 10000;
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'Inter', sans-serif; box-sizing: border-box; padding: 20px;
+      backdrop-filter: blur(4px);
+    }
+    #pichanga-form {
+      background: var(--bg-card); padding: 32px; border-radius: 24px;
+      width: 100%; max-width: 440px; display: flex; flex-direction: column;
+      gap: 18px; box-shadow: var(--shadow);
+    }
+    .p-header { text-align: center; margin-bottom: 10px; }
+    .p-title-main { margin:0; color:var(--primary); font-size:22px; font-weight:800; }
+    .p-info-sub { color: var(--text-muted); font-size: 14px; margin-top: 5px; }
+    .p-label { font-size: 11px; font-weight: 700; color: var(--text-muted); margin-bottom: 6px; display: block; text-transform: uppercase; }
+    .p-input { width: 100%; padding: 14px 16px; border: 1.5px solid var(--border); border-radius: 12px; font-size: 15px; color: var(--text-main); background: var(--bg-muted); outline: none; transition: all 0.2s; }
+    .p-input:focus { border-color: var(--primary); background: white; box-shadow: 0 0 0 4px rgba(5, 150, 105, 0.1); }
+    .btn-gen { width: 100%; padding: 16px; border: none; border-radius: 14px; background: var(--primary); color: white; font-weight: 700; cursor: pointer; font-size: 16px; transition: transform 0.1s; }
+    .btn-gen:active { transform: scale(0.98); }
+    .loading-msg { text-align: center; color: var(--primary); font-weight: 600; }
+  </style>
+</head>
+<body>
+  <script>
+    (async function() {
+      const SUPABASE_URL = 'https://fzrpjbojyzzohcypgfzm.supabase.co';
+      const SUPABASE_KEY = 'sb_publishable_6WvoLA-b4diZ4_omsc-XUg_5iNrppdz';
+      
+      const params = new URLSearchParams(window.location.search);
+      const recordId = params.get('id');
+
+      const overlay = document.createElement('div'); overlay.id = 'pichanga-overlay';
+      const form = document.createElement('div'); form.id = 'pichanga-form';
+      document.body.appendChild(overlay);
+      overlay.appendChild(form);
+
+      if (!recordId) {
+        form.innerHTML = '<p class="loading-msg">⚠️ No se encontró la pichanga.</p>';
+        return;
+      }
+
+      form.innerHTML = '<p class="loading-msg">Cargando pichanga...</p>';
+
+      try {
+        // 1. Fetch pichanga info to show the user what they are joining
+        const res = await fetch(`${SUPABASE_URL}/rest/v1/pichangas?id_pichanga=eq.${recordId}`, {
+          headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` }
+        });
+        const data = await res.json();
+        const pichanga = data[0];
+
+        if (!pichanga) throw new Error("No existe esta pichanga");
+
+        // 2. Render UI
+        form.innerHTML = `
+          <div class="p-header">
+            <h2 class="p-title-main">🙌 ¡Súmate a la lista!</h2>
+            <p class="p-info-sub"><strong>${pichanga.titulo}</strong><br>${pichanga.fecha_pichanga}</p>
+          </div>
+          <div>
+            <label class="p-label">Tu Nombre o Apodo</label>
+            <input type="text" id="p-name" class="p-input" placeholder="Ej: Paolo Guerrero" autocomplete="off">
+          </div>
+          <button id="btn-join" class="btn-gen">Confirmar Asistencia</button>
+        `;
+
+        const btnJoin = document.getElementById('btn-join');
+        const inputName = document.getElementById('p-name');
+
+        // 3. Update Logic (Array Append)
+        btnJoin.onclick = async () => {
+          const name = inputName.value.trim();
+          if (!name) return alert("Escribe tu nombre para anotarte");
+
+          btnJoin.disabled = true;
+          btnJoin.textContent = 'Anotándote...';
+
+          const patchRes = await fetch(`${SUPABASE_URL}/rest/v1/rpc/add_participant`, {
+            method: 'POST',
+            headers: {
+              'apikey': SUPABASE_KEY,
+              'Authorization': `Bearer ${SUPABASE_KEY}`,
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ 
+              row_id: recordId, 
+              new_name: name 
+            })
+          });
+
+          // Fallback if you haven't created the RPC yet:
+          // You can try a standard PATCH if you are careful with concurrency,
+          // but RPC is safer for arrays.
+          
+          if (patchRes.ok) {
+            form.innerHTML = `
+              <div style="text-align:center">
+                <h2 style="color:var(--primary)">✅ ¡Listo!</h2>
+                <p>Ya estás en la lista, <strong>${name}</strong>.</p>
+                <button class="btn-gen" onclick="window.close()">Cerrar</button>
+              </div>`;
+          } else {
+            alert('Error al anotarte. Inténtalo de nuevo.');
+            btnJoin.disabled = false;
+            btnJoin.textContent = 'Confirmar Asistencia';
+          }
+        };
+
+      } catch (err) {
+        form.innerHTML = `<p class="loading-msg">Error: ${err.message}</p>`;
+      }
+    })();
+  </script>
+</body>
+</html>
