@@ -373,16 +373,19 @@
 
         let slots = '';
         for (let i = 1; i <= count; i++) {
-          slots += `\`${i < 10 ? '0' + i : i}\` \n`;
+          slots += `*\`${i < 10 ? '0' + i : i}\*`  \n`;
         }
 
         const msg =
 `*\`[ ${title.toUpperCase()} ]\`*
-*Fecha:* \`${capDate}\`
+*Fecha:*  \`${capDate}\`
               *\`${toAmPm(startInput.value)} - ${toAmPm(endInput.value)}\`*
-*Lugar:* *\`${lugar}\`*
-*Cuota:* *\`S/ ${quota}\`*
+              
+*Lugar:*  *\`${lugar}\`*
+
+*Cuota:*  *\`S/ ${quota}\`*
 ${payLine}
+
 ${slots}`;
 
         // 4. COPY & CLOSE
