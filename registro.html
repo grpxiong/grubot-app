@@ -30,12 +30,13 @@
     }
     .p-header { text-align: center; margin-bottom: 10px; }
     .p-title-main { margin:0; color:var(--primary); font-size:22px; font-weight:800; }
-    .p-info-sub { color: var(--text-muted); font-size: 14px; margin-top: 5px; }
+    .p-info-sub { color: var(--text-muted); font-size: 14px; margin-top: 8px; line-height: 1.4; }
     .p-label { font-size: 11px; font-weight: 700; color: var(--text-muted); margin-bottom: 6px; display: block; text-transform: uppercase; }
     .p-input { width: 100%; padding: 14px 16px; border: 1.5px solid var(--border); border-radius: 12px; font-size: 15px; color: var(--text-main); background: var(--bg-muted); outline: none; transition: all 0.2s; }
     .p-input:focus { border-color: var(--primary); background: white; box-shadow: 0 0 0 4px rgba(5, 150, 105, 0.1); }
     .btn-gen { width: 100%; padding: 16px; border: none; border-radius: 14px; background: var(--primary); color: white; font-weight: 700; cursor: pointer; font-size: 16px; transition: transform 0.1s; }
     .btn-gen:active { transform: scale(0.98); }
+    .btn-gen:disabled { background: #94a3b8; cursor: not-allowed; }
     .loading-msg { text-align: center; color: var(--primary); font-weight: 600; }
   </style>
 </head>
@@ -54,31 +55,31 @@
       overlay.appendChild(form);
 
       if (!recordId) {
-        form.innerHTML = '<p class="loading-msg">⚠️ No se encontró la pichanga.</p>';
+        form.innerHTML = '<p class="loading-msg">⚠️ No se encontró el ID de la pichanga.</p>';
         return;
       }
 
-      form.innerHTML = '<p class="loading-msg">Cargando pichanga...</p>';
+      form.innerHTML = '<p class="loading-msg">Cargando detalles...</p>';
 
       try {
-        // 1. Fetch pichanga info to show the user what they are joining
+        // 1. Obtener info para mostrar al usuario
         const res = await fetch(`${SUPABASE_URL}/rest/v1/pichangas?id_pichanga=eq.${recordId}`, {
           headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` }
         });
         const data = await res.json();
         const pichanga = data[0];
 
-        if (!pichanga) throw new Error("No existe esta pichanga");
+        if (!pichanga) throw new Error("Esta pichanga ya no existe.");
 
-        // 2. Render UI
+        // 2. Renderizar formulario
         form.innerHTML = `
           <div class="p-header">
-            <h2 class="p-title-main">🙌 ¡Súmate a la lista!</h2>
-            <p class="p-info-sub"><strong>${pichanga.titulo}</strong><br>${pichanga.fecha_pichanga}</p>
+            <h2 class="p-title-main">⚽ ¡Anotate!</h2>
+            <p class="p-info-sub"><strong>${pichanga.titulo}</strong><br>${pichanga.lugar}</p>
           </div>
           <div>
-            <label class="p-label">Tu Nombre o Apodo</label>
-            <input type="text" id="p-name" class="p-input" placeholder="Ej: Paolo Guerrero" autocomplete="off">
+            <label class="p-label">Tu Nombre</label>
+            <input type="text" id="p-name" class="p-input" placeholder="Escribe tu nombre aquí..." autocomplete="off">
           </div>
           <button id="btn-join" class="btn-gen">Confirmar Asistencia</button>
         `;
@@ -86,42 +87,45 @@
         const btnJoin = document.getElementById('btn-join');
         const inputName = document.getElementById('p-name');
 
-        // 3. Update Logic (Array Append)
+        // 3. Lógica de registro usando RPC (soporta UUID)
         btnJoin.onclick = async () => {
           const name = inputName.value.trim();
-          if (!name) return alert("Escribe tu nombre para anotarte");
+          if (!name) return alert("Por favor, ingresa tu nombre.");
 
           btnJoin.disabled = true;
-          btnJoin.textContent = 'Anotándote...';
+          btnJoin.textContent = 'Guardando...';
 
-          const patchRes = await fetch(`${SUPABASE_URL}/rest/v1/rpc/add_participant`, {
-            method: 'POST',
-            headers: {
-              'apikey': SUPABASE_KEY,
-              'Authorization': `Bearer ${SUPABASE_KEY}`,
-              'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ 
-              row_id: recordId, 
-              new_name: name 
-            })
-          });
+          try {
+            const patchRes = await fetch(`${SUPABASE_URL}/rest/v1/rpc/add_participant`, {
+              method: 'POST',
+              headers: {
+                'apikey': SUPABASE_KEY,
+                'Authorization': `Bearer ${SUPABASE_KEY}`,
+                'Content-Type': 'application/json'
+              },
+              body: JSON.stringify({ 
+                row_id: recordId, // El UUID se envía como string
+                new_name: name 
+              })
+            });
 
-          // Fallback if you haven't created the RPC yet:
-          // You can try a standard PATCH if you are careful with concurrency,
-          // but RPC is safer for arrays.
-          
-          if (patchRes.ok) {
-            form.innerHTML = `
-              <div style="text-align:center">
-                <h2 style="color:var(--primary)">✅ ¡Listo!</h2>
-                <p>Ya estás en la lista, <strong>${name}</strong>.</p>
-                <button class="btn-gen" onclick="window.close()">Cerrar</button>
-              </div>`;
-          } else {
-            alert('Error al anotarte. Inténtalo de nuevo.');
+            if (patchRes.ok) {
+              form.innerHTML = `
+                <div style="text-align:center">
+                  <h2 style="color:var(--primary); font-size: 24px;">✅ ¡Listo!</h2>
+                  <p style="color: var(--text-main); margin: 15px 0;">Ya estás en la lista, <strong>${name}</strong>.</p>
+                  <p style="font-size: 12px; color: var(--text-muted);">Puedes cerrar esta ventana.</p>
+                </div>`;
+            } else {
+              const errorText = await patchRes.text();
+              console.error("Error Supabase:", errorText);
+              alert('No se pudo completar el registro. Inténtalo de nuevo.');
+              btnJoin.disabled = false;
+              btnJoin.textContent = 'Confirmar Asistencia';
+            }
+          } catch (e) {
+            alert('Error de conexión.');
             btnJoin.disabled = false;
-            btnJoin.textContent = 'Confirmar Asistencia';
           }
         };
 
