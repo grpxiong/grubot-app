@@ -282,22 +282,27 @@ btnGen.onclick = async () => {
   const title   = document.getElementById('p-title').value;
   const lugar   = document.getElementById('p-lugar').value;
   const dateVal = document.getElementById('p-date').value;
-  const quota   = document.getElementById('p-quota').value;  // FIX: was undeclared
-  const count   = parseInt(document.getElementById('p-count').value); // FIX: was undeclared
+  const quota   = document.getElementById('p-quota').value;
+  const count   = parseInt(document.getElementById('p-count').value);
 
   if (!dateVal) return alert('Selecciona una fecha');
 
+  // 1. FORMAT DATE
   const dateObj = new Date(dateVal + 'T12:00:00');
   let fDate = dateObj.toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long' });
-  const capDate = fDate.split(' ').map(word => word.length <= 2 ? word : word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
+  const capDate = fDate.split(' ').map(word =>
+    word.length <= 2 ? word : word.charAt(0).toUpperCase() + word.slice(1)
+  ).join(' ');
 
+  // 2. SAVE TO DB
   try {
     const res = await fetch(`${SUPABASE_URL}/rest/v1/pichangas`, {
       method: 'POST',
       headers: {
         'apikey': SUPABASE_KEY,
         'Authorization': `Bearer ${SUPABASE_KEY}`,
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
+        'Prefer': 'return=minimal'
       },
       body: JSON.stringify({
         titulo: title,
@@ -311,21 +316,46 @@ btnGen.onclick = async () => {
       })
     });
 
-    // FIX: fetch() never throws on HTTP errors — must check res.ok manually
     if (!res.ok) {
       const errText = await res.text();
-      return alert(`Error ${res.status}:\n${errText}`);
+      return alert(`Error al guardar ${res.status}:\n${errText}`);
     }
-
-    alert('¡Guardado!');
-    overlay.remove();
   } catch (e) {
-    // Only reaches here on actual network failures (no internet, CORS block, etc.)
-    alert(`Error de red:\n${e.message}`);
+    return alert(`Error de red:\n${e.message}`);
   }
+
+  // 3. GENERATE WHATSAPP MESSAGE
+  const toAmPm = (t) => {
+    let [h, m] = t.split(':');
+    h = parseInt(h);
+    return `${h % 12 || 12}:${m} ${h >= 12 ? 'PM' : 'AM'}`;
+  };
+
+  let method = yape.cb.checked ? 'YAPE' : (plin.cb.checked ? 'PLIN' : '');
+  let payLine = method
+    ? `\`\`\`${method} al ${numIn.value} (${nomIn.value})\`\`\``
+    : '```Pago por definir```';
+
+  let slots = '';
+  for (let i = 1; i <= count; i++) {
+    slots += `\`${i < 10 ? '0' + i : i}\` \n`;
+  }
+
+  const msg =
+`*\`[ ${title.toUpperCase()} ]\`*
+*Fecha:* \`${capDate}\`
+              *\`${toAmPm(startInput.value)} - ${toAmPm(endInput.value)}\`*
+*Lugar:* *\`${lugar}\`*
+*Cuota:* *\`S/ ${quota}\`*
+${payLine}
+${slots}`;
+
+  // 4. COPY & CLOSE
+  navigator.clipboard.writeText(msg).then(() => {
+    alert('¡Copiado y guardado!');
+    overlay.remove();
+  });
 };
-      btnCancel.onclick = () => overlay.remove();
-    })();
   </script>
 </body>
 </html>
