@@ -278,43 +278,52 @@
       overlay.appendChild(form);
       document.body.appendChild(overlay);
 
-      btnGen.onclick = async () => {
-        const title = document.getElementById('p-title').value;
-        const lugar = document.getElementById('p-lugar').value;
-        const dateVal = document.getElementById('p-date').value;
-        if (!dateVal) return alert('Selecciona una fecha');
+btnGen.onclick = async () => {
+  const title   = document.getElementById('p-title').value;
+  const lugar   = document.getElementById('p-lugar').value;
+  const dateVal = document.getElementById('p-date').value;
+  const quota   = document.getElementById('p-quota').value;  // FIX: was undeclared
+  const count   = parseInt(document.getElementById('p-count').value); // FIX: was undeclared
 
-        const dateObj = new Date(dateVal + 'T12:00:00');
-        let fDate = dateObj.toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long' });
-        const capDate = fDate.split(' ').map(word => word.length <= 2 ? word : word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
+  if (!dateVal) return alert('Selecciona una fecha');
 
-        // Async Database Save
-        try {
-          await fetch(`${SUPABASE_URL}/rest/v1/pichangas`, {
-            method: 'POST',
-            headers: {
-              'apikey': SUPABASE_KEY,
-              'Authorization': `Bearer ${SUPABASE_KEY}`,
-              'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ 
-              titulo: title,            // Matches 'titulo' in your image
-              lugar: lugar,             // NOTE: Your image doesn't show a 'lugar' column!
-              fecha_pichanga: dateVal,  // Matches 'fecha_pichanga' (use dateVal for YYYY-MM-DD)
-              hora_inicio: startInput.value, // Matches 'hora_inicio'
-              hora_fin: endInput.value,     // Matches 'hora_fin'
-              cuota: parseFloat(quota),     // Matches 'cuota' (numeric)
-              metodo_pago: yape.cb.checked ? 'YAPE' : (plin.cb.checked ? 'PLIN' : 'Otro'), // Matches 'metodo_pago'
-              cantidad: count           // Matches 'cantidad' (numeric)
-            })
-          });
+  const dateObj = new Date(dateVal + 'T12:00:00');
+  let fDate = dateObj.toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long' });
+  const capDate = fDate.split(' ').map(word => word.length <= 2 ? word : word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
 
-          alert('¡Guardado en base de datos y copiado!');
-          overlay.remove();
-        } catch (e) {
-          alert('Error al guardar, pero el proceso sigue.');
-        }
-      };
+  try {
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/pichangas`, {
+      method: 'POST',
+      headers: {
+        'apikey': SUPABASE_KEY,
+        'Authorization': `Bearer ${SUPABASE_KEY}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        titulo: title,
+        lugar: lugar,
+        fecha_pichanga: dateVal,
+        hora_inicio: startInput.value,
+        hora_fin: endInput.value,
+        cuota: parseFloat(quota),
+        metodo_pago: yape.cb.checked ? 'YAPE' : (plin.cb.checked ? 'PLIN' : 'Otro'),
+        cantidad: count
+      })
+    });
+
+    // FIX: fetch() never throws on HTTP errors — must check res.ok manually
+    if (!res.ok) {
+      const errText = await res.text();
+      return alert(`Error ${res.status}:\n${errText}`);
+    }
+
+    alert('¡Guardado!');
+    overlay.remove();
+  } catch (e) {
+    // Only reaches here on actual network failures (no internet, CORS block, etc.)
+    alert(`Error de red:\n${e.message}`);
+  }
+};
       btnCancel.onclick = () => overlay.remove();
     })();
   </script>
