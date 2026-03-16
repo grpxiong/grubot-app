@@ -319,16 +319,16 @@
         const dateVal = document.getElementById('p-date').value;
         const quota   = document.getElementById('p-quota').value;
         const count   = parseInt(document.getElementById('p-count').value);
-
+      
         if (!dateVal) return alert('Selecciona una fecha');
-
+      
         // 1. FORMAT DATE
         const dateObj = new Date(dateVal + 'T12:00:00');
         let fDate = dateObj.toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long' });
         const capDate = fDate.split(' ').map(word =>
           word.length <= 2 ? word : word.charAt(0).toUpperCase() + word.slice(1)
         ).join(' ');
-
+      
         // 2. SAVE TO DB
         try {
           const res = await fetch(`${SUPABASE_URL}/rest/v1/pichangas`, {
@@ -351,25 +351,23 @@
               cantidad: count
             })
           });
-
+      
           if (!res.ok) {
             const errText = await res.text();
             return alert(`Error al crear la lista ${res.status}:\n${errText}`);
           }
-
+      
           const created = await res.json();
           const uuid = created[0].id_pichanga;
-          
+          console.log('Pichanga creada:', uuid);
+      
+          alert('¡Pichanga creada! El bot enviará la lista al grupo en breve.');
+          overlay.remove();
+      
         } catch (e) {
           return alert(`Error de red:\n${e.message}`);
         }
-
-          alert('¡Pichanga creada! El bot enviará la lista al grupo en breve.');
-          overlay.remove();
-        });
       };
-
-    })();
   </script>
 </body>
 </html>
