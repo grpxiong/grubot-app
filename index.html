@@ -362,7 +362,7 @@
           console.log('Pichanga creada:', uuid);
 
           alert('¡Pichanga creada! El bot enviará la lista al grupo en breve.');
-          overlay.remove();
+          window.close();
 
         } catch (e) {
           return alert(`Error de red:\n${e.message}`);
