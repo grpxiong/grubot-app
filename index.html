@@ -21,6 +21,8 @@
       --text-muted: #64748b;
       --text-light: #94a3b8;
       --error: #ef4444;
+      --error-bg: #fef2f2;
+      --error-border: #fecaca;
       --shadow: 0 20px 60px -10px rgba(5, 150, 105, 0.15), 0 4px 16px rgba(0, 0, 0, 0.06);
       --shadow-button: 0 10px 20px -8px rgba(5, 150, 105, 0.28);
       --radius-lg: 28px;
@@ -29,6 +31,7 @@
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+    html { -webkit-text-size-adjust: 100%; }
     body {
       min-height: 100vh;
       background: var(--bg);
@@ -63,9 +66,10 @@
 
     .ui-input, .btn-option, .btn-brand-primary, .btn-secondary { width: 100%; min-height: 52px; font-family: inherit; font-size: 16px; border-radius: var(--radius-md); }
     .ui-input { padding: 14px 12px; border: 1.5px solid var(--border); background: var(--bg-muted); color: var(--text-main); transition: all 0.2s ease; outline: none; min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+    .ui-input::placeholder { color: var(--text-light); }
     .ui-input:focus { border-color: var(--border-focus); background: white; box-shadow: 0 0 0 4px var(--primary-glow); }
 
-    /* Estilo específico para la cuota tipo cajero */
+    input[type="date"], input[type="time"] { -webkit-appearance: none; appearance: none; max-width: 100%; }
     #p-quota { text-align: right; letter-spacing: 1px; }
 
     .segmented { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 10px; }
@@ -74,13 +78,26 @@
     .segmented input:checked + .btn-option { border-color: var(--border-focus); background: var(--primary-light); color: var(--primary); }
 
     .actions { display: flex; flex-direction: column; gap: 10px; padding-top: 4px; }
-    .btn-brand-primary { background: var(--primary); color: white; border: none; padding: 16px; font-weight: 700; box-shadow: var(--shadow-button); transition: transform 0.1s, background 0.2s; cursor: pointer; }
+    .btn-brand-primary { background: var(--primary); color: white; border: none; padding: 16px; font-weight: 700; box-shadow: var(--shadow-button); transition: transform 0.1s, background 0.2s, opacity 0.2s; cursor: pointer; }
     .btn-brand-primary:hover { background: var(--primary-hover); }
     .btn-brand-primary:active { transform: scale(0.98); }
+    .btn-brand-primary:disabled { opacity: 0.7; cursor: not-allowed; }
     .btn-secondary { background: transparent; border: none; color: var(--text-muted); font-weight: 600; cursor: pointer; }
+
+    .error-box { background: var(--error-bg); border: 1.5px solid var(--error-border); border-radius: var(--radius-md); padding: 14px 16px; display: none; }
+    .error-box.visible { display: block; }
+    .error-box strong { display: block; font-size: 13px; font-weight: 700; color: var(--error); margin-bottom: 4px; }
+    .error-box code { display: block; font-size: 12px; color: #b91c1c; word-break: break-all; white-space: pre-wrap; font-family: monospace; line-height: 1.5; }
 
     .success { display: flex; flex-direction: column; align-items: center; text-align: center; padding: 36px 8px 8px; }
     .success-icon { width: 72px; height: 72px; border-radius: 50%; display: grid; place-items: center; background: var(--primary-light); color: var(--primary); font-size: 32px; margin-bottom: 18px; }
+    .success h2 { font-family: 'DM Serif Display', serif; font-size: 30px; line-height: 1.15; margin-bottom: 8px; }
+    .success p { color: var(--text-muted); font-size: 15px; line-height: 1.5; max-width: 28ch; }
+
+    @media (max-width: 380px) {
+      .grid-2 { grid-template-columns: 1fr; }
+      .h1-brand, .success h2 { font-size: 28px; }
+    }
   </style>
 </head>
 <body>
@@ -96,7 +113,7 @@
         <section class="section">
           <div class="field">
             <label class="label-caps" for="p-title">Nombre</label>
-            <input type="text" id="p-title" class="ui-input" value="PICHANGUITA #07" />
+            <input type="text" id="p-title" class="ui-input" value="PICHANGUITA #07" placeholder="Ej: Los Galácticos" />
           </div>
           <div class="field">
             <label class="label-caps" for="p-lugar">Lugar</label>
@@ -157,6 +174,12 @@
           </div>
         </section>
 
+        <!-- Error box shows the real Supabase error message -->
+        <div class="error-box" id="error-box">
+          <strong>Error al publicar</strong>
+          <code id="error-detail"></code>
+        </div>
+
         <div class="actions">
           <button type="submit" class="btn-brand-primary" id="btn-crear">Publicar lista</button>
           <button type="button" class="btn-secondary" id="btn-cancel">Cancelar</button>
@@ -174,43 +197,42 @@
     const quotaInput = document.getElementById('p-quota');
     const phoneInput = document.getElementById('p-num');
     const dateInput = document.getElementById('p-date');
+    const errorBox = document.getElementById('error-box');
+    const errorDetail = document.getElementById('error-detail');
 
-    // Configurar fecha mínima
     const tomorrow = new Date();
     tomorrow.setDate(tomorrow.getDate() + 1);
     dateInput.value = tomorrow.toISOString().split('T')[0];
     dateInput.min = new Date().toISOString().split('T')[0];
 
-    // --- LÓGICA DE CUOTA (Right-to-Left / Cajero) ---
-    const lockCursor = (el) => {
-      setTimeout(() => {
-        const len = el.value.length;
-        el.setSelectionRange(len, len);
-      }, 0);
-    };
-
-    ['focus', 'click', 'keyup'].forEach(evt => {
-      quotaInput.addEventListener(evt, () => lockCursor(quotaInput));
-    });
-
+    const lockCursor = (el) => setTimeout(() => { const l = el.value.length; el.setSelectionRange(l, l); }, 0);
+    ['focus', 'click', 'keyup'].forEach(evt => quotaInput.addEventListener(evt, () => lockCursor(quotaInput)));
     quotaInput.addEventListener('input', (e) => {
       let val = e.target.value.replace(/\D/g, '');
       e.target.value = (parseInt(val || 0, 10) / 100).toFixed(2);
       lockCursor(e.target);
     });
 
-    // --- FIN LÓGICA CUOTA ---
-
     phoneInput.addEventListener('input', (e) => {
       e.target.value = e.target.value.replace(/\D/g, '').slice(0, 9);
     });
 
-    document.getElementById('btn-cancel').addEventListener('click', () => {
-      window.close();
-    });
+    document.getElementById('btn-cancel').addEventListener('click', () => window.close());
+
+    function showError(msg) {
+      errorDetail.textContent = msg;
+      errorBox.classList.add('visible');
+      errorBox.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+
+    function hideError() {
+      errorBox.classList.remove('visible');
+    }
 
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
+      hideError();
+
       const payload = {
         titulo: document.getElementById('p-title').value.trim(),
         lugar: document.getElementById('p-lugar').value.trim(),
@@ -225,7 +247,7 @@
       };
 
       if (!payload.lugar || !payload.numero_pago) {
-        alert('Completa el lugar y el número de pago.');
+        showError('Completa el lugar y el número de pago.');
         return;
       }
 
@@ -244,7 +266,15 @@
           body: JSON.stringify(payload)
         });
 
-        if (!res.ok) throw new Error('No se pudo publicar la lista');
+        // Read the body regardless so we can show the real Supabase error
+        const body = await res.json().catch(() => null);
+
+        if (!res.ok) {
+          const msg = body?.message || body?.error || JSON.stringify(body) || `HTTP ${res.status}`;
+          const hint = body?.hint ? `\nHint: ${body.hint}` : '';
+          const detail = body?.details ? `\nDetalle: ${body.details}` : '';
+          throw new Error(`[${res.status}] ${msg}${hint}${detail}`);
+        }
 
         document.querySelector('.ui-card').innerHTML = `
           <section class="success">
@@ -255,7 +285,8 @@
           </section>
         `;
       } catch (error) {
-        alert(`Error: ${error.message}`);
+        console.error('Supabase error:', error);
+        showError(error.message);
         createBtn.disabled = false;
         createBtn.textContent = 'Publicar lista';
       }
