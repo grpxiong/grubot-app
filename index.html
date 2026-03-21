@@ -12,37 +12,23 @@
       --primary-hover: #047857;
       --primary-light: rgba(5, 150, 105, 0.08);
       --primary-glow: rgba(5, 150, 105, 0.2);
-
       --bg: #f0fdf4;
       --bg-card: #ffffff;
       --bg-muted: #f8fafc;
-
       --border: #d1fae5;
       --border-focus: #059669;
       --text-main: #1e293b;
       --text-muted: #64748b;
       --text-light: #94a3b8;
       --error: #ef4444;
-
       --shadow: 0 20px 60px -10px rgba(5, 150, 105, 0.15), 0 4px 16px rgba(0, 0, 0, 0.06);
       --shadow-button: 0 10px 20px -8px rgba(5, 150, 105, 0.28);
-
       --radius-lg: 28px;
       --radius-md: 14px;
       --radius-sm: 12px;
     }
 
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-      -webkit-tap-highlight-color: transparent;
-    }
-
-    html {
-      -webkit-text-size-adjust: 100%;
-    }
-
+    * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
     body {
       min-height: 100vh;
       background: var(--bg);
@@ -53,285 +39,48 @@
         radial-gradient(ellipse at 80% 80%, rgba(4,120,87,0.06) 0%, transparent 60%);
     }
 
-    .page {
-      width: 100%;
-      max-width: 480px;
-      margin: 0 auto;
-      min-height: 100vh;
-      padding: 18px;
-      display: flex;
-      align-items: stretch;
-    }
-
-    .ui-card {
-      width: 100%;
-      background: var(--bg-card);
-      border-radius: 0;
-      padding: 28px 18px 24px;
-      border: none;
-    }
+    .page { width: 100%; max-width: 480px; margin: 0 auto; min-height: 100vh; padding: 18px; display: flex; align-items: stretch; }
+    .ui-card { width: 100%; background: var(--bg-card); border-radius: 0; padding: 28px 18px 24px; border: none; }
 
     @media (min-width: 640px) {
-      body {
-        padding: 32px 16px;
-      }
-
-      .page {
-        min-height: auto;
-        align-items: center;
-      }
-
-      .ui-card {
-        border-radius: var(--radius-lg);
-        padding: 40px 36px;
-        border: 1px solid var(--border);
-        box-shadow: var(--shadow);
-      }
+      body { padding: 32px 16px; }
+      .page { min-height: auto; align-items: center; }
+      .ui-card { border-radius: var(--radius-lg); padding: 40px 36px; border: 1px solid var(--border); box-shadow: var(--shadow); }
     }
 
-    .header {
-      margin-bottom: 24px;
-    }
+    .header { margin-bottom: 24px; }
+    .badge { display: inline-flex; align-items: center; gap: 8px; min-height: 32px; padding: 0 12px; border-radius: 999px; background: var(--primary-light); color: var(--primary); font-size: 12px; font-weight: 600; margin-bottom: 14px; }
+    .h1-brand { font-family: 'DM Serif Display', serif; font-size: 30px; line-height: 1.15; letter-spacing: -0.02em; margin-bottom: 8px; }
+    .h1-brand span { color: var(--primary); }
+    .subtitle { font-size: 14px; line-height: 1.5; color: var(--text-muted); max-width: 32ch; }
+    .form { display: flex; flex-direction: column; gap: 20px; }
+    .section { display: flex; flex-direction: column; gap: 16px; }
+    .section-card { background: linear-gradient(180deg, rgba(255,255,255,1) 0%, rgba(248,250,252,0.85) 100%); border: 1px solid var(--border); border-radius: 20px; padding: 18px; display: flex; flex-direction: column; gap: 16px; }
+    .field { display: flex; flex-direction: column; gap: 8px; min-width: 0; overflow: hidden; }
+    .label-caps { font-size: 11px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.07em; }
+    .grid { display: grid; gap: 12px; }
+    .grid-2 { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
 
-    .badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      min-height: 32px;
-      padding: 0 12px;
-      border-radius: 999px;
-      background: var(--primary-light);
-      color: var(--primary);
-      font-size: 12px;
-      font-weight: 600;
-      margin-bottom: 14px;
-    }
+    .ui-input, .btn-option, .btn-brand-primary, .btn-secondary { width: 100%; min-height: 52px; font-family: inherit; font-size: 16px; border-radius: var(--radius-md); }
+    .ui-input { padding: 14px 12px; border: 1.5px solid var(--border); background: var(--bg-muted); color: var(--text-main); transition: all 0.2s ease; outline: none; min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+    .ui-input:focus { border-color: var(--border-focus); background: white; box-shadow: 0 0 0 4px var(--primary-glow); }
 
-    .h1-brand {
-      font-family: 'DM Serif Display', serif;
-      font-size: 30px;
-      line-height: 1.15;
-      letter-spacing: -0.02em;
-      margin-bottom: 8px;
-    }
+    /* Estilo específico para la cuota tipo cajero */
+    #p-quota { text-align: right; letter-spacing: 1px; }
 
-    .h1-brand span {
-      color: var(--primary);
-    }
+    .segmented { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 10px; }
+    .segmented input { display: none; }
+    .btn-option { display: inline-flex; align-items: center; justify-content: center; padding: 0 16px; background: var(--bg-muted); border: 1.5px solid var(--border); color: var(--text-muted); font-weight: 700; transition: all 0.2s ease; cursor: pointer; }
+    .segmented input:checked + .btn-option { border-color: var(--border-focus); background: var(--primary-light); color: var(--primary); }
 
-    .subtitle {
-      font-size: 14px;
-      line-height: 1.5;
-      color: var(--text-muted);
-      max-width: 32ch;
-    }
+    .actions { display: flex; flex-direction: column; gap: 10px; padding-top: 4px; }
+    .btn-brand-primary { background: var(--primary); color: white; border: none; padding: 16px; font-weight: 700; box-shadow: var(--shadow-button); transition: transform 0.1s, background 0.2s; cursor: pointer; }
+    .btn-brand-primary:hover { background: var(--primary-hover); }
+    .btn-brand-primary:active { transform: scale(0.98); }
+    .btn-secondary { background: transparent; border: none; color: var(--text-muted); font-weight: 600; cursor: pointer; }
 
-    .form {
-      display: flex;
-      flex-direction: column;
-      gap: 20px;
-    }
-
-    .section {
-      display: flex;
-      flex-direction: column;
-      gap: 16px;
-    }
-
-    .section-card {
-      background: linear-gradient(180deg, rgba(255,255,255,1) 0%, rgba(248,250,252,0.85) 100%);
-      border: 1px solid var(--border);
-      border-radius: 20px;
-      padding: 18px;
-      display: flex;
-      flex-direction: column;
-      gap: 16px;
-    }
-
-    .field {
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-      /* KEY FIX: prevent field from overflowing its grid cell */
-      min-width: 0;
-      overflow: hidden;
-    }
-
-    .label-caps {
-      font-size: 11px;
-      font-weight: 600;
-      color: var(--text-muted);
-      text-transform: uppercase;
-      letter-spacing: 0.07em;
-    }
-
-    .grid {
-      display: grid;
-      gap: 12px;
-    }
-
-    /* KEY FIX: use minmax(0, 1fr) so cells can shrink below content width */
-    .grid-2 {
-      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-    }
-
-    .ui-input,
-    .btn-option,
-    .btn-brand-primary,
-    .btn-secondary {
-      width: 100%;
-      min-height: 52px;
-      font-family: inherit;
-      font-size: 16px;
-      border-radius: var(--radius-md);
-    }
-
-    .ui-input {
-      padding: 14px 12px;
-      border: 1.5px solid var(--border);
-      background: var(--bg-muted);
-      color: var(--text-main);
-      transition: all 0.2s ease;
-      outline: none;
-      /* KEY FIX: allow input to shrink and clip native date/time widget */
-      min-width: 0;
-      overflow: hidden;
-      /* Prevent text overflow from spilling out */
-      text-overflow: ellipsis;
-    }
-
-    .ui-input::placeholder {
-      color: var(--text-light);
-    }
-
-    .ui-input:focus {
-      border-color: var(--border-focus);
-      background: white;
-      box-shadow: 0 0 0 4px var(--primary-glow);
-    }
-
-    /* Extra help for date/time inputs on mobile */
-    input[type="date"],
-    input[type="time"] {
-      -webkit-appearance: none;
-      appearance: none;
-      /* Constrain the inner widget to not exceed the box */
-      max-width: 100%;
-    }
-
-    .segmented {
-      display: grid;
-      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-      gap: 10px;
-    }
-
-    .segmented input {
-      display: none;
-    }
-
-    .btn-option {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      padding: 0 16px;
-      background: var(--bg-muted);
-      border: 1.5px solid var(--border);
-      color: var(--text-muted);
-      font-weight: 700;
-      transition: all 0.2s ease;
-      cursor: pointer;
-    }
-
-    .segmented input:checked + .btn-option {
-      border-color: var(--border-focus);
-      background: var(--primary-light);
-      color: var(--primary);
-    }
-
-    .actions {
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-      padding-top: 4px;
-    }
-
-    .btn-brand-primary {
-      background: var(--primary);
-      color: white;
-      border: none;
-      padding: 16px;
-      font-weight: 700;
-      box-shadow: var(--shadow-button);
-      transition: transform 0.1s, background 0.2s, opacity 0.2s;
-      cursor: pointer;
-    }
-
-    .btn-brand-primary:hover {
-      background: var(--primary-hover);
-    }
-
-    .btn-brand-primary:active,
-    .btn-secondary:active {
-      transform: scale(0.98);
-    }
-
-    .btn-brand-primary:disabled {
-      opacity: 0.7;
-      cursor: not-allowed;
-    }
-
-    .btn-secondary {
-      background: transparent;
-      border: none;
-      color: var(--text-muted);
-      font-weight: 600;
-      cursor: pointer;
-    }
-
-    .success {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      text-align: center;
-      padding: 36px 8px 8px;
-    }
-
-    .success-icon {
-      width: 72px;
-      height: 72px;
-      border-radius: 50%;
-      display: grid;
-      place-items: center;
-      background: var(--primary-light);
-      color: var(--primary);
-      font-size: 32px;
-      margin-bottom: 18px;
-    }
-
-    .success h2 {
-      font-family: 'DM Serif Display', serif;
-      font-size: 30px;
-      line-height: 1.15;
-      margin-bottom: 8px;
-    }
-
-    .success p {
-      color: var(--text-muted);
-      font-size: 15px;
-      line-height: 1.5;
-      max-width: 28ch;
-    }
-
-    @media (max-width: 380px) {
-      .grid-2 {
-        grid-template-columns: 1fr;
-      }
-
-      .h1-brand,
-      .success h2 {
-        font-size: 28px;
-      }
-    }
+    .success { display: flex; flex-direction: column; align-items: center; text-align: center; padding: 36px 8px 8px; }
+    .success-icon { width: 72px; height: 72px; border-radius: 50%; display: grid; place-items: center; background: var(--primary-light); color: var(--primary); font-size: 32px; margin-bottom: 18px; }
   </style>
 </head>
 <body>
@@ -347,9 +96,8 @@
         <section class="section">
           <div class="field">
             <label class="label-caps" for="p-title">Nombre</label>
-            <input type="text" id="p-title" class="ui-input" value="PICHANGUITA #07" placeholder="Ej: Los Galácticos" />
+            <input type="text" id="p-title" class="ui-input" value="PICHANGUITA #07" />
           </div>
-
           <div class="field">
             <label class="label-caps" for="p-lugar">Lugar</label>
             <input type="text" id="p-lugar" class="ui-input" placeholder="Cancha o dirección" />
@@ -362,7 +110,6 @@
               <label class="label-caps" for="p-date">Fecha</label>
               <input type="date" id="p-date" class="ui-input" />
             </div>
-
             <div class="field">
               <label class="label-caps" for="p-count">Jugadores</label>
               <input type="number" id="p-count" class="ui-input" value="10" min="2" />
@@ -374,7 +121,6 @@
               <label class="label-caps" for="p-start">Inicio</label>
               <input type="time" id="p-start" class="ui-input" value="19:00" />
             </div>
-
             <div class="field">
               <label class="label-caps" for="p-end">Fin</label>
               <input type="time" id="p-end" class="ui-input" value="20:00" />
@@ -390,7 +136,6 @@
         <section class="section section-card">
           <div class="field">
             <label class="label-caps">Pago</label>
-
             <div class="segmented">
               <div>
                 <input type="radio" name="pay-method" id="cb-yape" checked />
@@ -402,12 +147,10 @@
               </div>
             </div>
           </div>
-
           <div class="field">
             <label class="label-caps" for="p-num">Número</label>
             <input type="text" id="p-num" class="ui-input" placeholder="999888777" inputmode="numeric" maxlength="9" />
           </div>
-
           <div class="field">
             <label class="label-caps" for="p-nom">Titular</label>
             <input type="text" id="p-nom" class="ui-input" placeholder="Nombre del titular" />
@@ -432,15 +175,31 @@
     const phoneInput = document.getElementById('p-num');
     const dateInput = document.getElementById('p-date');
 
+    // Configurar fecha mínima
     const tomorrow = new Date();
     tomorrow.setDate(tomorrow.getDate() + 1);
     dateInput.value = tomorrow.toISOString().split('T')[0];
     dateInput.min = new Date().toISOString().split('T')[0];
 
-    quotaInput.addEventListener('input', (e) => {
-      const raw = e.target.value.replace(/\D/g, '');
-      e.target.value = (parseInt(raw || 0, 10) / 100).toFixed(2);
+    // --- LÓGICA DE CUOTA (Right-to-Left / Cajero) ---
+    const lockCursor = (el) => {
+      setTimeout(() => {
+        const len = el.value.length;
+        el.setSelectionRange(len, len);
+      }, 0);
+    };
+
+    ['focus', 'click', 'keyup'].forEach(evt => {
+      quotaInput.addEventListener(evt, () => lockCursor(quotaInput));
     });
+
+    quotaInput.addEventListener('input', (e) => {
+      let val = e.target.value.replace(/\D/g, '');
+      e.target.value = (parseInt(val || 0, 10) / 100).toFixed(2);
+      lockCursor(e.target);
+    });
+
+    // --- FIN LÓGICA CUOTA ---
 
     phoneInput.addEventListener('input', (e) => {
       e.target.value = e.target.value.replace(/\D/g, '').slice(0, 9);
@@ -452,7 +211,6 @@
 
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
-
       const payload = {
         titulo: document.getElementById('p-title').value.trim(),
         lugar: document.getElementById('p-lugar').value.trim(),
@@ -486,9 +244,7 @@
           body: JSON.stringify(payload)
         });
 
-        if (!res.ok) {
-          throw new Error('No se pudo publicar la lista');
-        }
+        if (!res.ok) throw new Error('No se pudo publicar la lista');
 
         document.querySelector('.ui-card').innerHTML = `
           <section class="success">
@@ -499,7 +255,7 @@
           </section>
         `;
       } catch (error) {
-        alert(\`Error: \${error.message}\`);
+        alert(`Error: ${error.message}`);
         createBtn.disabled = false;
         createBtn.textContent = 'Publicar lista';
       }
