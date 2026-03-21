@@ -179,7 +179,7 @@
     }
 
     .grid-2 {
-      grid-template-columns: 1fr 1fr;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
     }
 
     .ui-input,
@@ -200,6 +200,7 @@
       color: var(--text-main);
       transition: all 0.2s ease;
       outline: none;
+      min-width: 0;
     }
 
     .ui-input::placeholder {
