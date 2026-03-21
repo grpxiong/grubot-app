@@ -8,18 +8,15 @@
 
   <style>
     :root {
-      /* Brand Colors */
       --primary: #059669;
       --primary-hover: #047857;
       --primary-light: rgba(5, 150, 105, 0.08);
       --primary-glow: rgba(5, 150, 105, 0.2);
 
-      /* Backgrounds */
       --bg: #f0fdf4;
       --bg-card: #ffffff;
       --bg-muted: #f8fafc;
 
-      /* Accents & UI */
       --border: #d1fae5;
       --border-focus: #059669;
       --text-main: #1e293b;
@@ -27,23 +24,12 @@
       --text-light: #94a3b8;
       --error: #ef4444;
 
-      /* Elevation */
       --shadow: 0 20px 60px -10px rgba(5, 150, 105, 0.15), 0 4px 16px rgba(0, 0, 0, 0.06);
       --shadow-button: 0 10px 20px -8px rgba(5, 150, 105, 0.28);
 
-      /* Border Radius */
       --radius-lg: 28px;
       --radius-md: 14px;
       --radius-sm: 12px;
-
-      /* Spacing */
-      --space-1: 8px;
-      --space-2: 12px;
-      --space-3: 16px;
-      --space-4: 20px;
-      --space-5: 24px;
-      --space-6: 32px;
-      --space-7: 40px;
     }
 
     * {
@@ -104,7 +90,7 @@
     }
 
     .header {
-      margin-bottom: var(--space-5);
+      margin-bottom: 24px;
     }
 
     .badge {
@@ -143,13 +129,13 @@
     .form {
       display: flex;
       flex-direction: column;
-      gap: var(--space-4);
+      gap: 20px;
     }
 
     .section {
       display: flex;
       flex-direction: column;
-      gap: var(--space-3);
+      gap: 16px;
     }
 
     .section-card {
@@ -157,12 +143,18 @@
       border: 1px solid var(--border);
       border-radius: 20px;
       padding: 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
     }
 
     .field {
       display: flex;
       flex-direction: column;
       gap: 8px;
+      /* KEY FIX: prevent field from overflowing its grid cell */
+      min-width: 0;
+      overflow: hidden;
     }
 
     .label-caps {
@@ -178,6 +170,7 @@
       gap: 12px;
     }
 
+    /* KEY FIX: use minmax(0, 1fr) so cells can shrink below content width */
     .grid-2 {
       grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
     }
@@ -194,13 +187,17 @@
     }
 
     .ui-input {
-      padding: 14px 16px;
+      padding: 14px 12px;
       border: 1.5px solid var(--border);
       background: var(--bg-muted);
       color: var(--text-main);
       transition: all 0.2s ease;
       outline: none;
+      /* KEY FIX: allow input to shrink and clip native date/time widget */
       min-width: 0;
+      overflow: hidden;
+      /* Prevent text overflow from spilling out */
+      text-overflow: ellipsis;
     }
 
     .ui-input::placeholder {
@@ -213,9 +210,18 @@
       box-shadow: 0 0 0 4px var(--primary-glow);
     }
 
+    /* Extra help for date/time inputs on mobile */
+    input[type="date"],
+    input[type="time"] {
+      -webkit-appearance: none;
+      appearance: none;
+      /* Constrain the inner widget to not exceed the box */
+      max-width: 100%;
+    }
+
     .segmented {
       display: grid;
-      grid-template-columns: 1fr 1fr;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
       gap: 10px;
     }
 
