@@ -1,375 +1,502 @@
 <!DOCTYPE html>
-<html>
+<html lang="es">
 <head>
+  <meta charset="UTF-8" />
   <title>Organizador de Pichangas</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
   <style>
     :root {
+      /* Brand Colors */
       --primary: #059669;
       --primary-hover: #047857;
-      --bg-overlay: rgba(15, 23, 42, 0.9);
+      --primary-light: rgba(5, 150, 105, 0.08);
+      --primary-glow: rgba(5, 150, 105, 0.2);
+
+      /* Backgrounds */
+      --bg: #f0fdf4;
       --bg-card: #ffffff;
       --bg-muted: #f8fafc;
-      --border: #e2e8f0;
+
+      /* Accents & UI */
+      --border: #d1fae5;
+      --border-focus: #059669;
       --text-main: #1e293b;
       --text-muted: #64748b;
-      --shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+      --text-light: #94a3b8;
+      --error: #ef4444;
+
+      /* Elevation */
+      --shadow: 0 20px 60px -10px rgba(5, 150, 105, 0.15), 0 4px 16px rgba(0, 0, 0, 0.06);
+      --shadow-button: 0 10px 20px -8px rgba(5, 150, 105, 0.28);
+
+      /* Border Radius */
+      --radius-lg: 28px;
+      --radius-md: 14px;
+      --radius-sm: 12px;
+
+      /* Spacing */
+      --space-1: 8px;
+      --space-2: 12px;
+      --space-3: 16px;
+      --space-4: 20px;
+      --space-5: 24px;
+      --space-6: 32px;
+      --space-7: 40px;
     }
 
-    #pichanga-overlay {
-      position: fixed;
-      top: 0; left: 0;
-      width: 100%; height: 100%;
-      background: var(--bg-overlay);
-      z-index: 10000;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-family: 'Inter', -apple-system, sans-serif;
+    * {
       box-sizing: border-box;
-      padding: 20px;
-      backdrop-filter: blur(4px);
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
     }
 
-    #pichanga-form {
-      background: var(--bg-card);
-      padding: 32px;
-      border-radius: 24px;
-      width: 100%;
-      max-width: 440px;
-      display: flex;
-      flex-direction: column;
-      gap: 18px;
-      box-shadow: var(--shadow);
-      max-height: 92vh;
-      overflow-y: auto;
-      box-sizing: border-box;
+    html {
+      -webkit-text-size-adjust: 100%;
     }
 
-    .p-label {
-      font-size: 11px;
-      font-weight: 700;
-      color: var(--text-muted);
-      margin-bottom: 6px;
-      display: block;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-    }
-
-    .p-input {
-      width: 100%;
-      padding: 12px 16px;
-      border: 1.5px solid var(--border);
-      border-radius: 10px;
-      font-size: 13px;
+    body {
+      min-height: 100vh;
+      background: var(--bg);
       color: var(--text-main);
-      box-sizing: border-box;
-      outline: none;
-      transition: all 0.2s ease;
-      background: var(--bg-muted);
+      font-family: 'DM Sans', sans-serif;
+      background-image:
+        radial-gradient(ellipse at 20% 20%, rgba(5,150,105,0.08) 0%, transparent 60%),
+        radial-gradient(ellipse at 80% 80%, rgba(4,120,87,0.06) 0%, transparent 60%);
     }
 
-    .p-input:focus {
-      border-color: var(--primary);
-      background: white;
-      box-shadow: 0 0 0 4px rgba(5, 150, 105, 0.1);
+    .page {
+      width: 100%;
+      max-width: 480px;
+      margin: 0 auto;
+      min-height: 100vh;
+      padding: 18px;
+      display: flex;
+      align-items: stretch;
     }
 
-    .input-wrapper { position: relative; }
+    .ui-card {
+      width: 100%;
+      background: var(--bg-card);
+      border-radius: 0;
+      padding: 28px 18px 24px;
+      border: none;
+    }
 
-    .clear-btn {
-      position: absolute;
-      right: 12px;
-      top: 50%;
-      transform: translateY(-50%);
-      cursor: pointer;
-      color: var(--text-muted);
+    @media (min-width: 640px) {
+      body {
+        padding: 32px 16px;
+      }
+
+      .page {
+        min-height: auto;
+        align-items: center;
+      }
+
+      .ui-card {
+        border-radius: var(--radius-lg);
+        padding: 40px 36px;
+        border: 1px solid var(--border);
+        box-shadow: var(--shadow);
+      }
+    }
+
+    .header {
+      margin-bottom: var(--space-5);
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      min-height: 32px;
+      padding: 0 12px;
+      border-radius: 999px;
+      background: var(--primary-light);
+      color: var(--primary);
+      font-size: 12px;
+      font-weight: 600;
+      margin-bottom: 14px;
+    }
+
+    .h1-brand {
+      font-family: 'DM Serif Display', serif;
+      font-size: 30px;
+      line-height: 1.15;
+      letter-spacing: -0.02em;
+      margin-bottom: 8px;
+    }
+
+    .h1-brand span {
+      color: var(--primary);
+    }
+
+    .subtitle {
       font-size: 14px;
-      opacity: 0.5;
+      line-height: 1.5;
+      color: var(--text-muted);
+      max-width: 32ch;
     }
 
-    .p-two-col {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 16px;
-    }
-
-    .p-pay-section {
-      background: var(--bg-muted);
-      padding: 20px;
-      border-radius: 16px;
-      border: 1.5px dashed var(--border);
+    .form {
       display: flex;
       flex-direction: column;
+      gap: var(--space-4);
+    }
+
+    .section {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-3);
+    }
+
+    .section-card {
+      background: linear-gradient(180deg, rgba(255,255,255,1) 0%, rgba(248,250,252,0.85) 100%);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 18px;
+    }
+
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .label-caps {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+    }
+
+    .grid {
+      display: grid;
       gap: 12px;
     }
 
-    .p-check-row {
-      display: flex;
-      gap: 24px;
-      margin-bottom: 4px;
+    .grid-2 {
+      grid-template-columns: 1fr 1fr;
     }
 
-    .p-check-label {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      font-size: 14px;
-      font-weight: 600;
+    .ui-input,
+    .btn-option,
+    .btn-brand-primary,
+    .btn-secondary {
+      width: 100%;
+      min-height: 52px;
+      font-family: inherit;
+      font-size: 16px;
+      border-radius: var(--radius-md);
+    }
+
+    .ui-input {
+      padding: 14px 16px;
+      border: 1.5px solid var(--border);
+      background: var(--bg-muted);
       color: var(--text-main);
+      transition: all 0.2s ease;
+      outline: none;
+    }
+
+    .ui-input::placeholder {
+      color: var(--text-light);
+    }
+
+    .ui-input:focus {
+      border-color: var(--border-focus);
+      background: white;
+      box-shadow: 0 0 0 4px var(--primary-glow);
+    }
+
+    .segmented {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .segmented input {
+      display: none;
+    }
+
+    .btn-option {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0 16px;
+      background: var(--bg-muted);
+      border: 1.5px solid var(--border);
+      color: var(--text-muted);
+      font-weight: 700;
+      transition: all 0.2s ease;
       cursor: pointer;
     }
 
-    .btn-gen {
-      width: 100%;
-      padding: 16px;
-      border: none;
-      border-radius: 14px;
+    .segmented input:checked + .btn-option {
+      border-color: var(--border-focus);
+      background: var(--primary-light);
+      color: var(--primary);
+    }
+
+    .actions {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      padding-top: 4px;
+    }
+
+    .btn-brand-primary {
       background: var(--primary);
       color: white;
+      border: none;
+      padding: 16px;
       font-weight: 700;
-      font-size: 16px;
+      box-shadow: var(--shadow-button);
+      transition: transform 0.1s, background 0.2s, opacity 0.2s;
       cursor: pointer;
-      margin-top: 8px;
-      transition: transform 0.1s, background 0.2s;
     }
 
-    .btn-gen:hover { background: var(--primary-hover); }
-    .btn-gen:active { transform: scale(0.98); }
+    .btn-brand-primary:hover {
+      background: var(--primary-hover);
+    }
 
-    .btn-cancel {
-      width: 100%;
-      background: none;
+    .btn-brand-primary:active,
+    .btn-secondary:active {
+      transform: scale(0.98);
+    }
+
+    .btn-brand-primary:disabled {
+      opacity: 0.7;
+      cursor: not-allowed;
+    }
+
+    .btn-secondary {
+      background: transparent;
       border: none;
       color: var(--text-muted);
-      font-size: 14px;
+      font-weight: 600;
       cursor: pointer;
-      padding: 8px;
-      text-decoration: underline;
     }
 
-    @media (max-width: 480px) {
-      #pichanga-form { padding: 20px; }
+    .success {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      padding: 36px 8px 8px;
+    }
+
+    .success-icon {
+      width: 72px;
+      height: 72px;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      background: var(--primary-light);
+      color: var(--primary);
+      font-size: 32px;
+      margin-bottom: 18px;
+    }
+
+    .success h2 {
+      font-family: 'DM Serif Display', serif;
+      font-size: 30px;
+      line-height: 1.15;
+      margin-bottom: 8px;
+    }
+
+    .success p {
+      color: var(--text-muted);
+      font-size: 15px;
+      line-height: 1.5;
+      max-width: 28ch;
+    }
+
+    @media (max-width: 380px) {
+      .grid-2 {
+        grid-template-columns: 1fr;
+      }
+
+      .h1-brand,
+      .success h2 {
+        font-size: 28px;
+      }
     }
   </style>
 </head>
 <body>
+  <main class="page">
+    <section class="ui-card">
+      <header class="header">
+        <div class="badge">⚽ Nueva pichanga</div>
+        <h1 class="h1-brand">Organiza tu <span>partido</span></h1>
+        <p class="subtitle">Completa lo esencial y publica la lista en segundos.</p>
+      </header>
+
+      <form class="form" id="pichanga-form">
+        <section class="section">
+          <div class="field">
+            <label class="label-caps" for="p-title">Nombre</label>
+            <input type="text" id="p-title" class="ui-input" value="PICHANGUITA #07" placeholder="Ej: Los Galácticos" />
+          </div>
+
+          <div class="field">
+            <label class="label-caps" for="p-lugar">Lugar</label>
+            <input type="text" id="p-lugar" class="ui-input" placeholder="Cancha o dirección" />
+          </div>
+        </section>
+
+        <section class="section">
+          <div class="grid grid-2">
+            <div class="field">
+              <label class="label-caps" for="p-date">Fecha</label>
+              <input type="date" id="p-date" class="ui-input" />
+            </div>
+
+            <div class="field">
+              <label class="label-caps" for="p-count">Jugadores</label>
+              <input type="number" id="p-count" class="ui-input" value="10" min="2" />
+            </div>
+          </div>
+
+          <div class="grid grid-2">
+            <div class="field">
+              <label class="label-caps" for="p-start">Inicio</label>
+              <input type="time" id="p-start" class="ui-input" value="19:00" />
+            </div>
+
+            <div class="field">
+              <label class="label-caps" for="p-end">Fin</label>
+              <input type="time" id="p-end" class="ui-input" value="20:00" />
+            </div>
+          </div>
+
+          <div class="field">
+            <label class="label-caps" for="p-quota">Cuota por persona (S/)</label>
+            <input type="text" id="p-quota" class="ui-input" value="0.00" inputmode="decimal" />
+          </div>
+        </section>
+
+        <section class="section section-card">
+          <div class="field">
+            <label class="label-caps">Pago</label>
+
+            <div class="segmented">
+              <div>
+                <input type="radio" name="pay-method" id="cb-yape" checked />
+                <label class="btn-option" for="cb-yape">Yape</label>
+              </div>
+              <div>
+                <input type="radio" name="pay-method" id="cb-plin" />
+                <label class="btn-option" for="cb-plin">Plin</label>
+              </div>
+            </div>
+          </div>
+
+          <div class="field">
+            <label class="label-caps" for="p-num">Número</label>
+            <input type="text" id="p-num" class="ui-input" placeholder="999888777" inputmode="numeric" maxlength="9" />
+          </div>
+
+          <div class="field">
+            <label class="label-caps" for="p-nom">Titular</label>
+            <input type="text" id="p-nom" class="ui-input" placeholder="Nombre del titular" />
+          </div>
+        </section>
+
+        <div class="actions">
+          <button type="submit" class="btn-brand-primary" id="btn-crear">Publicar lista</button>
+          <button type="button" class="btn-secondary" id="btn-cancel">Cancelar</button>
+        </div>
+      </form>
+    </section>
+  </main>
+
   <script>
-    (function() {
-      const SUPABASE_URL = 'https://fzrpjbojyzzohcypgfzm.supabase.co';
-      const SUPABASE_KEY = 'sb_publishable_6WvoLA-b4diZ4_omsc-XUg_5iNrppdz';
+    const SUPABASE_URL = 'https://fzrpjbojyzzohcypgfzm.supabase.co';
+    const SUPABASE_KEY = 'sb_publishable_6WvoLA-b4diZ4_omsc-XUg_5iNrppdz';
 
-      const overlay = document.createElement('div');
-      overlay.id = 'pichanga-overlay';
-      const form = document.createElement('div');
-      form.id = 'pichanga-form';
+    const form = document.getElementById('pichanga-form');
+    const createBtn = document.getElementById('btn-crear');
+    const quotaInput = document.getElementById('p-quota');
+    const phoneInput = document.getElementById('p-num');
+    const dateInput = document.getElementById('p-date');
 
-      const hTitle = document.createElement('h2');
-      hTitle.textContent = '⚽ Nueva Pichanga ⚽';
-      hTitle.style.cssText = 'margin:0; color:var(--primary); font-size:20px; font-weight:800; text-align:center; margin-bottom:10px;';
-      form.appendChild(hTitle);
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    dateInput.value = tomorrow.toISOString().split('T')[0];
+    dateInput.min = new Date().toISOString().split('T')[0];
 
-      const createField = (labelTxt, id, value, type = 'text', min = '', hasClear = false) => {
-        const div = document.createElement('div');
-        const label = document.createElement('label');
-        label.textContent = labelTxt;
-        label.className = 'p-label';
-        const wrapper = document.createElement('div');
-        wrapper.className = 'input-wrapper';
-        const input = document.createElement('input');
-        input.type = type; input.id = id; input.value = value;
-        input.className = 'p-input';
-        if (min) input.min = min;
-        wrapper.appendChild(input);
-        if (hasClear) {
-          const btn = document.createElement('span');
-          btn.textContent = '✕';
-          btn.className = 'clear-btn';
-          btn.onclick = () => { input.value = ''; input.focus(); };
-          wrapper.appendChild(btn);
+    quotaInput.addEventListener('input', (e) => {
+      const raw = e.target.value.replace(/\D/g, '');
+      e.target.value = (parseInt(raw || 0, 10) / 100).toFixed(2);
+    });
+
+    phoneInput.addEventListener('input', (e) => {
+      e.target.value = e.target.value.replace(/\D/g, '').slice(0, 9);
+    });
+
+    document.getElementById('btn-cancel').addEventListener('click', () => {
+      window.close();
+    });
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const payload = {
+        titulo: document.getElementById('p-title').value.trim(),
+        lugar: document.getElementById('p-lugar').value.trim(),
+        fecha_pichanga: document.getElementById('p-date').value,
+        hora_inicio: document.getElementById('p-start').value,
+        hora_fin: document.getElementById('p-end').value,
+        cuota: parseFloat(document.getElementById('p-quota').value),
+        metodo_pago: document.getElementById('cb-yape').checked ? 'YAPE' : 'PLIN',
+        numero_pago: document.getElementById('p-num').value.trim(),
+        titular_pago: document.getElementById('p-nom').value.trim(),
+        cantidad: parseInt(document.getElementById('p-count').value, 10)
+      };
+
+      if (!payload.lugar || !payload.numero_pago) {
+        alert('Completa el lugar y el número de pago.');
+        return;
+      }
+
+      createBtn.disabled = true;
+      createBtn.textContent = 'Publicando...';
+
+      try {
+        const res = await fetch(`${SUPABASE_URL}/rest/v1/pichangas`, {
+          method: 'POST',
+          headers: {
+            apikey: SUPABASE_KEY,
+            Authorization: `Bearer ${SUPABASE_KEY}`,
+            'Content-Type': 'application/json',
+            Prefer: 'return=representation'
+          },
+          body: JSON.stringify(payload)
+        });
+
+        if (!res.ok) {
+          throw new Error('No se pudo publicar la lista');
         }
-        div.append(label, wrapper);
-        return { div, input };
-      };
 
-      form.appendChild(createField('Título', 'p-title', 'PICHANGUITA #07', 'text', '', true).div);
-      form.appendChild(createField('Lugar', 'p-lugar', 'Estadio Municipal Julio Montjoy Guizado (Jr. Santo Cristo 584, Surco)', 'text', '', true).div);
-
-      const tomorrow = new Date();
-      tomorrow.setDate(tomorrow.getDate() + 1);
-      const minStr = tomorrow.toISOString().split('T')[0];
-      form.appendChild(createField('Fecha', 'p-date', minStr, 'date', minStr).div);
-
-      const timeDiv = document.createElement('div');
-      const timeLabel = document.createElement('label');
-      timeLabel.textContent = 'Hora';
-      timeLabel.className = 'p-label';
-      const timeFlex = document.createElement('div');
-      timeFlex.className = 'p-two-col';
-      const startInput = document.createElement('input'); startInput.type = 'time'; startInput.value = '00:00'; startInput.className = 'p-input';
-      const endInput = document.createElement('input'); endInput.type = 'time'; endInput.value = '01:00'; endInput.className = 'p-input';
-      timeFlex.append(startInput, endInput);
-      timeDiv.append(timeLabel, timeFlex);
-      form.appendChild(timeDiv);
-
-      const rowRow = document.createElement('div');
-      rowRow.className = 'p-two-col';
-
-      const qField = createField('Cuota (S/)', 'p-quota', '00.00');
-      const qIn = qField.input;
-      qIn.style.textAlign = 'right';
-      qIn.style.fontFamily = 'monospace';
-
-      // --- CUOTA: lock cursor to end (right-to-left typing) ---
-      const lockCursor = (el) => {
-        setTimeout(() => {
-          const len = el.value.length;
-          el.setSelectionRange(len, len);
-        }, 0);
-      };
-      ['focus', 'click', 'keyup'].forEach(evt => {
-        qIn.addEventListener(evt, () => lockCursor(qIn));
-      });
-      qIn.addEventListener('input', (e) => {
-        let val = e.target.value.replace(/\D/g, '');
-        e.target.value = (parseInt(val || 0) / 100).toFixed(2);
-        lockCursor(e.target);
-      });
-      // --------------------------------------------------------
-
-      rowRow.appendChild(qField.div);
-      rowRow.appendChild(createField('N° Jugadores', 'p-count', '10', 'number').div);
-      form.appendChild(rowRow);
-
-      const paySection = document.createElement('div');
-      paySection.className = 'p-pay-section';
-      const payLabel = document.createElement('label');
-      payLabel.textContent = 'Método de Pago';
-      payLabel.className = 'p-label';
-      paySection.appendChild(payLabel);
-
-      const selectorRow = document.createElement('div');
-      selectorRow.className = 'p-check-row';
-      const createCheck = (name) => {
-        const lbl = document.createElement('label');
-        lbl.className = 'p-check-label';
-        const cb = document.createElement('input');
-        cb.type = 'checkbox';
-        lbl.append(cb, name);
-        return { lbl, cb };
-      };
-      const yape = createCheck('YAPE');
-      const plin = createCheck('PLIN');
-      selectorRow.append(yape.lbl, plin.lbl);
-      paySection.appendChild(selectorRow);
-
-      const payInputs = document.createElement('div');
-      payInputs.className = 'p-two-col';
-
-      const numIn = document.createElement('input');
-      numIn.placeholder = 'Número';
-      numIn.maxLength = 9;
-      numIn.disabled = true;
-      numIn.className = 'p-input';
-      // --- NÚMERO: numeric characters only ---
-      numIn.inputMode = 'numeric';
-      numIn.pattern = '[0-9]*';
-      numIn.addEventListener('input', () => {
-        numIn.value = numIn.value.replace(/\D/g, '');
-      });
-      // ----------------------------------------
-
-      const nomIn = document.createElement('input');
-      nomIn.placeholder = 'Titular';
-      nomIn.disabled = true;
-      nomIn.className = 'p-input';
-
-      payInputs.append(numIn, nomIn);
-      paySection.appendChild(payInputs);
-      form.appendChild(paySection);
-
-      const handleCheck = (current, other) => {
-        if (current.checked) {
-          other.checked = false;
-          numIn.disabled = false; nomIn.disabled = false;
-        } else if (!other.checked) {
-          numIn.disabled = true; nomIn.disabled = true;
-        }
-      };
-      yape.cb.onchange = () => handleCheck(yape.cb, plin.cb);
-      plin.cb.onchange = () => handleCheck(plin.cb, yape.cb);
-
-      const btnGen = document.createElement('button');
-      btnGen.textContent = 'Crear Lista';
-      btnGen.className = 'btn-gen';
-      const btnCancel = document.createElement('button');
-      btnCancel.textContent = 'Cancelar';
-      btnCancel.className = 'btn-cancel';
-
-      form.append(btnGen, btnCancel);
-      overlay.appendChild(form);
-      document.body.appendChild(overlay);
-
-      btnCancel.onclick = () => overlay.remove();
-
-      btnGen.onclick = async () => {
-        const title   = document.getElementById('p-title').value;
-        const lugar   = document.getElementById('p-lugar').value;
-        const dateVal = document.getElementById('p-date').value;
-        const quota   = document.getElementById('p-quota').value;
-        const count   = parseInt(document.getElementById('p-count').value);
-
-        if (!dateVal) return alert('Selecciona una fecha');
-
-        // 1. FORMAT DATE
-        const dateObj = new Date(dateVal + 'T12:00:00');
-        let fDate = dateObj.toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long' });
-        const capDate = fDate.split(' ').map(word =>
-          word.length <= 2 ? word : word.charAt(0).toUpperCase() + word.slice(1)
-        ).join(' ');
-
-        // 2. SAVE TO DB
-        try {
-          const res = await fetch(`${SUPABASE_URL}/rest/v1/pichangas`, {
-            method: 'POST',
-            headers: {
-              'apikey': SUPABASE_KEY,
-              'Authorization': `Bearer ${SUPABASE_KEY}`,
-              'Content-Type': 'application/json',
-              'Prefer': 'return=representation'
-            },
-            body: JSON.stringify({
-              titulo: title,
-              lugar: lugar,
-              fecha_pichanga: dateVal,
-              hora_inicio: startInput.value,
-              hora_fin: endInput.value,
-              cuota: parseFloat(quota),
-              metodo_pago: yape.cb.checked ? 'YAPE' : (plin.cb.checked ? 'PLIN' : 'Otro'),
-              numero_pago: numIn.value,
-              cantidad: count
-            })
-          });
-
-          if (!res.ok) {
-            const errText = await res.text();
-            return alert(`Error al crear la lista ${res.status}:\n${errText}`);
-          }
-
-          const created = await res.json();
-          const uuid = created[0].id_pichanga;
-          console.log('Pichanga creada:', uuid);
-
-          alert('¡Pichanga creada! El bot enviará la lista al grupo en breve.');
-          window.close();
-
-        } catch (e) {
-          return alert(`Error de red:\n${e.message}`);
-        }
-      };
-
-    })();
+        document.querySelector('.ui-card').innerHTML = `
+          <section class="success">
+            <div class="success-icon">✓</div>
+            <h2>Lista publicada</h2>
+            <p>El bot enviará el mensaje al grupo en breve.</p>
+            <button class="btn-brand-primary" style="margin-top:24px" onclick="window.close()">Cerrar</button>
+          </section>
+        `;
+      } catch (error) {
+        alert(\`Error: \${error.message}\`);
+        createBtn.disabled = false;
+        createBtn.textContent = 'Publicar lista';
+      }
+    });
   </script>
 </body>
 </html>
