@@ -57,20 +57,12 @@
 
     .header { text-align: center; margin-bottom: 36px; }
     .header-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      background: var(--primary-light);
-      color: var(--primary);
-      font-size: 12px;
-      font-weight: 600;
-      padding: 6px 14px;
-      border-radius: 100px;
-      margin-bottom: 16px;
-      letter-spacing: 0.04em;
-      text-transform: uppercase;
+      display: inline-flex; align-items: center; gap: 6px;
+      background: var(--primary-light); color: var(--primary);
+      font-size: 12px; font-weight: 600; padding: 6px 14px;
+      border-radius: 100px; margin-bottom: 16px;
+      letter-spacing: 0.04em; text-transform: uppercase;
     }
-
     .header h1 { font-family: 'DM Serif Display', serif; font-size: 30px; color: var(--text-main); line-height: 1.15; margin-bottom: 10px; }
     .header h1 span { color: var(--primary); }
     .header p { font-size: 14px; color: var(--text-muted); line-height: 1.5; }
@@ -102,7 +94,6 @@
     .field-error.visible { display: block; }
 
     .step-label { font-size: 13px; font-weight: 600; color: var(--text-muted); text-align: center; margin-bottom: -8px; }
-
     .date-helper { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
 
     .btn-primary {
@@ -113,10 +104,9 @@
     .btn-primary:hover { background: var(--primary-hover); }
     .btn-primary:active { transform: scale(0.98); }
     .btn-primary:disabled { background: #94a3b8; cursor: not-allowed; }
-
     .btn-back { width: 100%; background: none; border: none; color: var(--text-muted); font-size: 14px; cursor: pointer; padding: 8px; text-decoration: underline; }
 
-    .error-box { background: var(--error-bg); border: 1.5px solid var(--error-border); border-radius: 14px; padding: 14px 16px; display: none; margin-top: 10px; }
+    .error-box { background: var(--error-bg); border: 1.5px solid var(--error-border); border-radius: 14px; padding: 14px 16px; display: none; margin-top: 4px; }
     .error-box.visible { display: block; }
     .error-box strong { display: block; font-size: 13px; font-weight: 700; color: var(--error); margin-bottom: 4px; }
     .error-box code { display: block; font-size: 12px; color: #b91c1c; word-break: break-all; white-space: pre-wrap; font-family: monospace; line-height: 1.5; }
@@ -193,22 +183,22 @@
 
   <script src="config.js"></script>
   <script>
-    // Configuración
+    // ── Config from config.js ──
     const SUPABASE_URL = window.ENV.SUPABASE_URL;
     const SUPABASE_KEY = window.ENV.SUPABASE_KEY;
-    const N8N_WEBHOOK_URL = window.ENV.N8N_WEBHOOK_URL
-    
-    // Captura de parámetros URL
+    const N8N_WEBHOOK_URL = window.ENV.N8N_WEBHOOK_URL;
+
+    // ── URL params ──
     const urlParams = new URLSearchParams(window.location.search);
     const numero = (urlParams.get('numero') || '').replace(/\s/g, '+') || null;
-    const matchId = urlParams.get('match_id') || null; // Capturamos el ID de la pichanga para n8n
+    const matchId = urlParams.get('match_id') || null;
 
-    // Validación inicial de número
     if (!numero) {
-      document.querySelector('#form-header p').innerHTML += '<br><strong style="color:var(--error);font-size:12px;">⚠ Error: Falta el teléfono en la URL.</strong>';
+      document.querySelector('#form-header p').innerHTML +=
+        '<br><strong style="color:var(--error);font-size:12px;">⚠ Error: Falta el teléfono en la URL.</strong>';
     }
 
-    // Poblar selects
+    // ── Populate selects ──
     const selDay = document.getElementById('sel-day');
     for (let d = 1; d <= 31; d++) {
       const opt = document.createElement('option');
@@ -224,7 +214,7 @@
       selYear.appendChild(opt);
     }
 
-    // Navegación de pasos
+    // ── Step navigation ──
     const showStep = (n) => {
       document.querySelectorAll('.step').forEach((s, i) => s.classList.toggle('active', i === n));
       document.querySelectorAll('.progress-dot').forEach((dot, i) => {
@@ -234,24 +224,59 @@
       });
     };
 
+    // ── Step 0 → 1: BUG FIX 1 — properly validate both fields and clear errors on retry ──
     document.getElementById('btn-step0').onclick = () => {
-      const n = document.getElementById('input-nombre');
-      const a = document.getElementById('input-apellido');
-      if (!n.value.trim() || !a.value.trim()) {
-        if (!n.value.trim()) n.classList.add('error');
-        if (!a.value.trim()) a.classList.add('error');
-        return;
+      const nomEl = document.getElementById('input-nombre');
+      const apeEl = document.getElementById('input-apellido');
+      const errNom = document.getElementById('err-nombre');
+      const errApe = document.getElementById('err-apellido');
+      let valid = true;
+
+      if (!nomEl.value.trim()) {
+        nomEl.classList.add('error');
+        errNom.classList.add('visible');
+        valid = false;
+      } else {
+        nomEl.classList.remove('error');
+        errNom.classList.remove('visible');
       }
-      showStep(1);
+
+      if (!apeEl.value.trim()) {
+        apeEl.classList.add('error');
+        errApe.classList.add('visible');
+        valid = false;
+      } else {
+        apeEl.classList.remove('error');
+        errApe.classList.remove('visible');
+      }
+
+      if (valid) showStep(1);
     };
 
-    document.getElementById('back-step1').onclick = () => showStep(0);
+    document.getElementById('back-step1').onclick = () => {
+      document.getElementById('error-box').classList.remove('visible');
+      showStep(0);
+    };
 
-    // Envío final
+    // ── Final submit ──
     document.getElementById('btn-submit').onclick = async () => {
-      const d = selDay.value, m = document.getElementById('sel-month').value, y = selYear.value;
+      const d = selDay.value;
+      const m = document.getElementById('sel-month').value;
+      const y = selYear.value;
+      const errFecha = document.getElementById('err-fecha');
+      const errorBox = document.getElementById('error-box');
+      const errorDetail = document.getElementById('error-detail');
+
       if (!d || !m || !y) {
-        document.getElementById('err-fecha').classList.add('visible');
+        errFecha.classList.add('visible');
+        return;
+      }
+      errFecha.classList.remove('visible');
+      errorBox.classList.remove('visible');
+
+      if (!numero) {
+        errorDetail.textContent = 'Número de teléfono faltante. Abre este link desde el bot.';
+        errorBox.classList.add('visible');
         return;
       }
 
@@ -261,33 +286,44 @@
       btn.textContent = 'Procesando...';
 
       try {
-        // 1. Guardar en Supabase
+        // 1. Save to Supabase — BUG FIX 2: added Prefer header and real error reading
         const res = await fetch(`${SUPABASE_URL}/rest/v1/personas`, {
           method: 'POST',
           headers: {
             'apikey': SUPABASE_KEY,
             'Authorization': `Bearer ${SUPABASE_KEY}`,
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
+            'Prefer': 'return=representation'
           },
           body: JSON.stringify({ nombre: nombreFull, fecha_nac: `${y}-${m}-${d}`, numero: numero })
         });
 
-        if (!res.ok) throw new Error("No se pudo guardar el registro.");
+        const body = await res.json().catch(() => null);
+        console.log('Supabase response:', res.status, body);
 
-        if (N8N_WEBHOOK_URL !== window.ENV.N8N_WEBHOOK_URL) {
-            await fetch(N8N_WEBHOOK_URL, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    event: "registration_completed",
-                    user: nombreFull,
-                    phone: numero,
-                    match_id: matchId
-                })
-            }).catch(e => console.warn("Fallo al notificar n8n:", e));
+        if (!res.ok) {
+          const msg = body?.message || body?.error || JSON.stringify(body) || `HTTP ${res.status}`;
+          const hint = body?.hint ? `\nHint: ${body.hint}` : '';
+          const detail = body?.details ? `\nDetalle: ${body.details}` : '';
+          throw new Error(`[${res.status}] ${msg}${hint}${detail}`);
         }
 
-        // 3. Éxito
+        // 2. Notify n8n — BUG FIX 3: was checking N8N_WEBHOOK_URL !== window.ENV.N8N_WEBHOOK_URL
+        //    which is always false (same reference), so n8n was never called. Just check it's truthy.
+        if (N8N_WEBHOOK_URL) {
+          await fetch(N8N_WEBHOOK_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              event: 'registration_completed',
+              user: nombreFull,
+              phone: numero,
+              match_id: matchId
+            })
+          }).catch(e => console.warn('Fallo al notificar n8n:', e));
+        }
+
+        // 3. Show success
         document.getElementById('form-header').style.display = 'none';
         document.getElementById('progress').style.display = 'none';
         document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
@@ -295,8 +331,10 @@
         document.getElementById('success-screen').classList.add('active');
 
       } catch (e) {
-        document.getElementById('error-detail').textContent = e.message;
-        document.getElementById('error-box').classList.add('visible');
+        console.error('Error:', e);
+        errorDetail.textContent = e.message;
+        errorBox.classList.add('visible');
+        errorBox.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
         btn.disabled = false;
         btn.textContent = 'Registrarme ✓';
       }
