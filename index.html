@@ -189,8 +189,8 @@
   </main>
 
   <script>
-    const SUPABASE_URL = 'https://fzrpjbojyzzohcypgfzm.supabase.co';
-    const SUPABASE_KEY = 'sb_publishable_6WvoLA-b4diZ4_omsc-XUg_5iNrppdz';
+    const SUPABASE_URL = window.ENV.SUPABASE_URL;
+    const SUPABASE_KEY = window.ENV.SUPABASE_KEY;
 
     const form = document.getElementById('pichanga-form');
     const createBtn = document.getElementById('btn-crear');
