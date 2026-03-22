@@ -284,7 +284,7 @@
             'Content-Type': 'application/json',
             'Prefer': 'return=representation'
           },
-          body: JSON.stringify({ nombre: nombreFull, fecha_nac: `${y}-${m}-${d}`, numero: numero })
+          body: JSON.stringify({ nombre: nombreFull, fecha_nac: `${y}-${m}-${d}`, numero: `+${numero}` })
         });
 
         if (!resPersona.ok) {
