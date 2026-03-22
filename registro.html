@@ -177,7 +177,7 @@
       <div class="success-icon">✅</div>
       <h2>¡Bienvenido!</h2>
       <p>Quedaste registrado como<br><span class="player-name" id="success-name"></span></p>
-      <p style="font-size: 13px; color: var(--text-muted); margin-top: 10px;">Ya puedes cerrar esta ventana y volver al chat.</p>
+      <p style="font-size: 13px; color: var(--text-muted); margin-top: 10px;">Te hemos anotado automáticamente en la pichanga. Ya puedes volver al chat.</p>
     </div>
   </div>
 
@@ -185,7 +185,7 @@
   <script>
     const SUPABASE_URL = window.ENV.SUPABASE_URL;
     const SUPABASE_KEY = window.ENV.SUPABASE_KEY;
-    const EDGE_FUNCTION_URL = window.ENV.EDGE_FUNCTION_URL; // Asegúrate de tener esta URL en config.js
+    const N8N_WEBHOOK_URL = window.ENV.N8N_WEBHOOK_URL;
 
     const urlParams = new URLSearchParams(window.location.search);
     const numero = (urlParams.get('numero') || '').replace(/\s/g, '+') || null;
@@ -275,8 +275,8 @@
       btn.textContent = 'Procesando...';
 
       try {
-        // 1. Guardar en la tabla Personas
-        const res = await fetch(`${SUPABASE_URL}/rest/v1/personas`, {
+        // 1. Guardar en tabla Personas
+        const resPersona = await fetch(`${SUPABASE_URL}/rest/v1/personas`, {
           method: 'POST',
           headers: {
             'apikey': SUPABASE_KEY,
@@ -287,30 +287,48 @@
           body: JSON.stringify({ nombre: nombreFull, fecha_nac: `${y}-${m}-${d}`, numero: numero })
         });
 
-        if (!res.ok) {
-          const body = await res.json().catch(() => ({}));
-          throw new Error(body.message || `Error HTTP ${res.status}`);
+        if (!resPersona.ok) {
+          const body = await resPersona.json().catch(() => ({}));
+          throw new Error(`Error al guardar perfil: ${body.message || resPersona.status}`);
         }
 
-        // 2. RE-DISPARAR EDGE FUNCTION (Continuar comando /anotarme)
-        if (EDGE_FUNCTION_URL && matchId) {
-            console.log("Re-triggering Edge Function para comando /anotarme...");
-            await fetch(EDGE_FUNCTION_URL, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${SUPABASE_KEY}`
-                },
-                body: JSON.stringify({
-                    data: {
-                        fromNumber: numero,
-                        body: `/anotarme ${matchId}`
-                    }
-                })
-            }).catch(e => console.warn('Error re-disparando función:', e));
+        // 2. LLAMADA DIRECTA AL RPC add_participant
+        if (matchId) {
+          console.log("Inscribiendo automáticamente en la pichanga...");
+          const resRpc = await fetch(`${SUPABASE_URL}/rest/v1/rpc/add_participant`, {
+            method: 'POST',
+            headers: {
+              'apikey': SUPABASE_KEY,
+              'Authorization': `Bearer ${SUPABASE_KEY}`,
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              row_id: matchId,
+              new_name: nombreFull,
+              new_phone: numero
+            })
+          });
+
+          if (!resRpc.ok) {
+             console.warn("No se pudo anotar automáticamente, pero el perfil fue creado.");
+          }
         }
 
-        // 3. Mostrar éxito
+        // 3. Notificar a n8n para envío de WhatsApp final (Opcional si quieres confirmar vía bot)
+        if (N8N_WEBHOOK_URL) {
+          fetch(N8N_WEBHOOK_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              event: 'registration_completed',
+              user: nombreFull,
+              phone: numero,
+              match_id: matchId
+            })
+          }).catch(e => console.warn('Fallo al avisar a n8n:', e));
+        }
+
+        // 4. Mostrar éxito
         document.getElementById('form-header').style.display = 'none';
         document.getElementById('progress').style.display = 'none';
         document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
