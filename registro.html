@@ -250,22 +250,33 @@
     const inpMonth = document.getElementById('inp-month');
     const inpYear  = document.getElementById('inp-year');
 
-    function onlyDigits(e) {
-      // Strip any non-numeric character as the user types
-      e.target.value = e.target.value.replace(/\D/g, '');
-    }
-
-    function autoAdvance(e, maxLen, nextEl) {
-      e.target.value = e.target.value.replace(/\D/g, '');
-      if (e.target.value.length >= maxLen && nextEl) {
+    function clampAndAdvance(e, max, maxLen, nextEl) {
+      let val = e.target.value.replace(/\D/g, '');
+      if (val.length === maxLen) {
+        const n = parseInt(val);
+        if (n < 1)   val = '01';
+        if (n > max) val = String(max).padStart(maxLen, '0');
+      }
+      e.target.value = val;
+      if (val.length >= maxLen && nextEl) {
         nextEl.focus();
         nextEl.select();
       }
     }
 
-    inpDay.addEventListener('input',   e => autoAdvance(e, 2, inpMonth));
-    inpMonth.addEventListener('input', e => autoAdvance(e, 2, inpYear));
-    inpYear.addEventListener('input',  e => onlyDigits(e));
+    function clampYear(e) {
+      let val = e.target.value.replace(/\D/g, '');
+      if (val.length === 4) {
+        const n = parseInt(val);
+        if (n < 1920) val = '1920';
+        if (n > 2100) val = '2100';
+      }
+      e.target.value = val;
+    }
+
+    inpDay.addEventListener('input',   e => clampAndAdvance(e, 31, 2, inpMonth));
+    inpMonth.addEventListener('input', e => clampAndAdvance(e, 12, 2, inpYear));
+    inpYear.addEventListener('input',  e => clampYear(e));
 
     // ── SUBMIT ──
     document.getElementById('btn-submit').onclick = async () => {
