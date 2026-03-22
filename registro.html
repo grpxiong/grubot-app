@@ -183,12 +183,10 @@
 
   <script src="config.js"></script>
   <script>
-    // ── Config from config.js ──
     const SUPABASE_URL = window.ENV.SUPABASE_URL;
     const SUPABASE_KEY = window.ENV.SUPABASE_KEY;
-    const N8N_WEBHOOK_URL = window.ENV.N8N_WEBHOOK_URL;
+    const EDGE_FUNCTION_URL = window.ENV.EDGE_FUNCTION_URL; // Asegúrate de tener esta URL en config.js
 
-    // ── URL params ──
     const urlParams = new URLSearchParams(window.location.search);
     const numero = (urlParams.get('numero') || '').replace(/\s/g, '+') || null;
     const matchId = urlParams.get('match_id') || null;
@@ -198,7 +196,7 @@
         '<br><strong style="color:var(--error);font-size:12px;">⚠ Error: Falta el teléfono en la URL.</strong>';
     }
 
-    // ── Populate selects ──
+    // Populate selects
     const selDay = document.getElementById('sel-day');
     for (let d = 1; d <= 31; d++) {
       const opt = document.createElement('option');
@@ -214,7 +212,6 @@
       selYear.appendChild(opt);
     }
 
-    // ── Step navigation ──
     const showStep = (n) => {
       document.querySelectorAll('.step').forEach((s, i) => s.classList.toggle('active', i === n));
       document.querySelectorAll('.progress-dot').forEach((dot, i) => {
@@ -224,7 +221,6 @@
       });
     };
 
-    // ── Step 0 → 1: BUG FIX 1 — properly validate both fields and clear errors on retry ──
     document.getElementById('btn-step0').onclick = () => {
       const nomEl = document.getElementById('input-nombre');
       const apeEl = document.getElementById('input-apellido');
@@ -258,7 +254,6 @@
       showStep(0);
     };
 
-    // ── Final submit ──
     document.getElementById('btn-submit').onclick = async () => {
       const d = selDay.value;
       const m = document.getElementById('sel-month').value;
@@ -274,19 +269,13 @@
       errFecha.classList.remove('visible');
       errorBox.classList.remove('visible');
 
-      if (!numero) {
-        errorDetail.textContent = 'Número de teléfono faltante. Abre este link desde el bot.';
-        errorBox.classList.add('visible');
-        return;
-      }
-
       const nombreFull = `${document.getElementById('input-nombre').value.trim()} ${document.getElementById('input-apellido').value.trim()}`;
       const btn = document.getElementById('btn-submit');
       btn.disabled = true;
       btn.textContent = 'Procesando...';
 
       try {
-        // 1. Save to Supabase — BUG FIX 2: added Prefer header and real error reading
+        // 1. Guardar en la tabla Personas
         const res = await fetch(`${SUPABASE_URL}/rest/v1/personas`, {
           method: 'POST',
           headers: {
@@ -298,32 +287,30 @@
           body: JSON.stringify({ nombre: nombreFull, fecha_nac: `${y}-${m}-${d}`, numero: numero })
         });
 
-        const body = await res.json().catch(() => null);
-        console.log('Supabase response:', res.status, body);
-
         if (!res.ok) {
-          const msg = body?.message || body?.error || JSON.stringify(body) || `HTTP ${res.status}`;
-          const hint = body?.hint ? `\nHint: ${body.hint}` : '';
-          const detail = body?.details ? `\nDetalle: ${body.details}` : '';
-          throw new Error(`[${res.status}] ${msg}${hint}${detail}`);
+          const body = await res.json().catch(() => ({}));
+          throw new Error(body.message || `Error HTTP ${res.status}`);
         }
 
-        // 2. Notify n8n — BUG FIX 3: was checking N8N_WEBHOOK_URL !== window.ENV.N8N_WEBHOOK_URL
-        //    which is always false (same reference), so n8n was never called. Just check it's truthy.
-        if (N8N_WEBHOOK_URL) {
-          await fetch(N8N_WEBHOOK_URL, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              event: 'registration_completed',
-              user: nombreFull,
-              phone: numero,
-              match_id: matchId
-            })
-          }).catch(e => console.warn('Fallo al notificar n8n:', e));
+        // 2. RE-DISPARAR EDGE FUNCTION (Continuar comando /anotarme)
+        if (EDGE_FUNCTION_URL && matchId) {
+            console.log("Re-triggering Edge Function para comando /anotarme...");
+            await fetch(EDGE_FUNCTION_URL, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${SUPABASE_KEY}`
+                },
+                body: JSON.stringify({
+                    data: {
+                        fromNumber: numero,
+                        body: `/anotarme ${matchId}`
+                    }
+                })
+            }).catch(e => console.warn('Error re-disparando función:', e));
         }
 
-        // 3. Show success
+        // 3. Mostrar éxito
         document.getElementById('form-header').style.display = 'none';
         document.getElementById('progress').style.display = 'none';
         document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
@@ -334,7 +321,6 @@
         console.error('Error:', e);
         errorDetail.textContent = e.message;
         errorBox.classList.add('visible');
-        errorBox.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
         btn.disabled = false;
         btn.textContent = 'Registrarme ✓';
       }
