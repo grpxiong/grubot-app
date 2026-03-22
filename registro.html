@@ -7,342 +7,148 @@
   <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
   <style>
     :root {
-      --primary: #059669;
-      --primary-hover: #047857;
-      --primary-light: rgba(5, 150, 105, 0.08);
-      --primary-glow: rgba(5, 150, 105, 0.2);
-      --bg: #f0fdf4;
-      --bg-card: #ffffff;
-      --bg-muted: #f8fafc;
-      --border: #d1fae5;
-      --border-focus: #059669;
-      --text-main: #1e293b;
-      --text-muted: #64748b;
+      --primary: #059669; --primary-hover: #047857; --primary-light: rgba(5, 150, 105, 0.08);
+      --primary-glow: rgba(5, 150, 105, 0.2); --bg: #f0fdf4; --bg-card: #ffffff;
+      --bg-muted: #f8fafc; --border: #d1fae5; --border-focus: #059669;
+      --text-main: #1e293b; --text-muted: #64748b; --error: #ef4444;
       --shadow: 0 20px 60px -10px rgba(5, 150, 105, 0.15), 0 4px 16px rgba(0,0,0,0.06);
-      --error: #ef4444;
-      --error-bg: #fef2f2;
-      --error-border: #fecaca;
     }
-
     * { box-sizing: border-box; margin: 0; padding: 0; }
-
     body {
-      min-height: 100vh;
-      background: var(--bg);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-family: 'DM Sans', sans-serif;
-      padding: 24px 16px;
-      background-image:
-        radial-gradient(ellipse at 20% 20%, rgba(5,150,105,0.08) 0%, transparent 60%),
-        radial-gradient(ellipse at 80% 80%, rgba(4,120,87,0.06) 0%, transparent 60%);
+      min-height: 100vh; background: var(--bg); display: flex; align-items: center; justify-content: center;
+      font-family: 'DM Sans', sans-serif; padding: 24px 16px;
+      background-image: radial-gradient(ellipse at 20% 20%, rgba(5,150,105,0.08) 0%, transparent 60%);
     }
-
-    .card {
-      background: var(--bg-card);
-      border-radius: 28px;
-      width: 100%;
-      max-width: 420px;
-      padding: 40px 36px;
-      box-shadow: var(--shadow);
-      border: 1px solid var(--border);
-      animation: cardIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
-    }
-
-    @keyframes cardIn {
-      from { opacity: 0; transform: translateY(24px); }
-      to   { opacity: 1; transform: translateY(0); }
-    }
-
+    .card { background: var(--bg-card); border-radius: 28px; width: 100%; max-width: 420px; padding: 40px 36px; box-shadow: var(--shadow); border: 1px solid var(--border); }
     .header { text-align: center; margin-bottom: 36px; }
-    .header-badge {
-      display: inline-flex; align-items: center; gap: 6px;
-      background: var(--primary-light); color: var(--primary);
-      font-size: 12px; font-weight: 600; padding: 6px 14px;
-      border-radius: 100px; margin-bottom: 16px;
-      letter-spacing: 0.04em; text-transform: uppercase;
-    }
-    .header h1 { font-family: 'DM Serif Display', serif; font-size: 30px; color: var(--text-main); line-height: 1.15; margin-bottom: 10px; }
+    .header h1 { font-family: 'DM Serif Display', serif; font-size: 30px; color: var(--text-main); }
     .header h1 span { color: var(--primary); }
-    .header p { font-size: 14px; color: var(--text-muted); line-height: 1.5; }
-
-    .progress { display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 32px; }
-    .progress-dot { width: 8px; height: 8px; border-radius: 100px; background: var(--border); transition: all 0.3s ease; }
+    .progress { display: flex; justify-content: center; gap: 8px; margin-bottom: 32px; }
+    .progress-dot { width: 8px; height: 8px; border-radius: 100px; background: var(--border); }
     .progress-dot.active { width: 24px; background: var(--primary); }
-    .progress-dot.done { background: var(--primary); opacity: 0.4; }
-
-    .step { display: none; flex-direction: column; gap: 20px; animation: stepIn 0.35s cubic-bezier(0.16, 1, 0.3, 1) both; }
+    .step { display: none; flex-direction: column; gap: 20px; }
     .step.active { display: flex; }
-
-    @keyframes stepIn {
-      from { opacity: 0; transform: translateX(16px); }
-      to   { opacity: 1; transform: translateX(0); }
-    }
-
     .field { display: flex; flex-direction: column; gap: 8px; }
-    .field label { font-size: 11px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.07em; }
-    .field input, .date-helper select {
-      width: 100%; padding: 14px 16px; border: 1.5px solid var(--border); border-radius: 14px;
-      font-size: 16px; font-family: 'DM Sans', sans-serif; color: var(--text-main);
-      background: var(--bg-muted); outline: none; transition: all 0.2s ease;
-    }
-    .field input:focus, .date-helper select:focus { border-color: var(--border-focus); background: white; box-shadow: 0 0 0 4px var(--primary-glow); }
-    .field input.error { border-color: var(--error); box-shadow: 0 0 0 4px rgba(239,68,68,0.1); }
-
-    .field-error { font-size: 12px; color: var(--error); margin-top: -4px; display: none; }
-    .field-error.visible { display: block; }
-
-    .step-label { font-size: 13px; font-weight: 600; color: var(--text-muted); text-align: center; margin-bottom: -8px; }
-    .date-helper { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
-
-    .btn-primary {
-      width: 100%; padding: 16px; border: none; border-radius: 14px; background: var(--primary);
-      color: white; font-weight: 700; font-size: 16px; cursor: pointer; margin-top: 4px;
-      transition: transform 0.1s, background 0.2s;
-    }
-    .btn-primary:hover { background: var(--primary-hover); }
-    .btn-primary:active { transform: scale(0.98); }
-    .btn-primary:disabled { background: #94a3b8; cursor: not-allowed; }
-    .btn-back { width: 100%; background: none; border: none; color: var(--text-muted); font-size: 14px; cursor: pointer; padding: 8px; text-decoration: underline; }
-
-    .error-box { background: var(--error-bg); border: 1.5px solid var(--error-border); border-radius: 14px; padding: 14px 16px; display: none; margin-top: 4px; }
-    .error-box.visible { display: block; }
-    .error-box strong { display: block; font-size: 13px; font-weight: 700; color: var(--error); margin-bottom: 4px; }
-    .error-box code { display: block; font-size: 12px; color: #b91c1c; word-break: break-all; white-space: pre-wrap; font-family: monospace; line-height: 1.5; }
-
-    .success { display: none; flex-direction: column; align-items: center; gap: 16px; text-align: center; padding: 12px 0; animation: stepIn 0.4s both; }
+    .field label { font-size: 11px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; }
+    .field input, .date-helper select { width: 100%; padding: 14px 16px; border: 1.5px solid var(--border); border-radius: 14px; font-size: 16px; background: var(--bg-muted); outline: none; }
+    .field input:focus { border-color: var(--border-focus); background: white; }
+    .btn-primary { width: 100%; padding: 16px; border: none; border-radius: 14px; background: var(--primary); color: white; font-weight: 700; cursor: pointer; }
+    .btn-primary:disabled { background: #94a3b8; }
+    .error-box { background: #fef2f2; border: 1.5px solid #fecaca; border-radius: 14px; padding: 14px; display: none; margin-top: 10px; color: #ef4444; font-size: 13px; }
+    .success { display: none; flex-direction: column; align-items: center; text-align: center; }
     .success.active { display: flex; }
-    .success-icon { width: 72px; height: 72px; background: var(--primary-light); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 32px; }
-    .success h2 { font-family: 'DM Serif Display', serif; font-size: 26px; }
-    .player-name { color: var(--primary); font-weight: 700; }
-
-    @media (max-width: 480px) { .card { padding: 28px 20px; } .header h1 { font-size: 26px; } }
   </style>
 </head>
 <body>
   <div class="card">
     <div class="header" id="form-header">
-      <div class="header-badge">⚽ Pichangas</div>
       <h1>Únete al<br><span>equipo</span></h1>
-      <p>Regístrate una sola vez y participa en todas las pichangas.</p>
+      <p>Regístrate una vez para todas las pichangas.</p>
     </div>
 
     <div class="progress" id="progress">
-      <div class="progress-dot active" id="dot-0"></div>
-      <div class="progress-dot" id="dot-1"></div>
+      <div class="progress-dot active"></div>
+      <div class="progress-dot"></div>
     </div>
 
     <div class="step active" id="step-0">
-      <p class="step-label">Paso 1 de 2 — Identificación</p>
       <div class="field">
-        <label for="input-nombre">Nombre(s)</label>
-        <input type="text" id="input-nombre" placeholder="Ej: Carlos" autocomplete="given-name">
-        <span class="field-error" id="err-nombre">Ingresa tu nombre.</span>
+        <label>Nombre(s)</label>
+        <input type="text" id="input-nombre" placeholder="Ej: Carlos">
       </div>
       <div class="field">
-        <label for="input-apellido">Apellido(s)</label>
-        <input type="text" id="input-apellido" placeholder="Ej: Ramírez" autocomplete="family-name">
-        <span class="field-error" id="err-apellido">Ingresa tu apellido.</span>
+        <label>Apellido(s)</label>
+        <input type="text" id="input-apellido" placeholder="Ej: Ramírez">
       </div>
-      <button class="btn-primary" id="btn-step0">Continuar →</button>
+      <button class="btn-primary" onclick="showStep(1)">Continuar →</button>
     </div>
 
     <div class="step" id="step-1">
-      <p class="step-label">Paso 2 de 2 — Fecha de nacimiento</p>
       <div class="field">
-        <label>¿Cuándo naciste?</label>
-        <div class="date-helper">
-          <select id="sel-day"><option value="" disabled selected>Día</option></select>
+        <label>Fecha de nacimiento</label>
+        <div style="display: flex; gap: 8px;">
+          <select id="sel-day"></select>
           <select id="sel-month">
-            <option value="" disabled selected>Mes</option>
             <option value="01">Enero</option><option value="02">Febrero</option><option value="03">Marzo</option>
             <option value="04">Abril</option><option value="05">Mayo</option><option value="06">Junio</option>
             <option value="07">Julio</option><option value="08">Agosto</option><option value="09">Septiembre</option>
             <option value="10">Octubre</option><option value="11">Noviembre</option><option value="12">Diciembre</option>
           </select>
-          <select id="sel-year"><option value="" disabled selected>Año</option></select>
+          <select id="sel-year"></select>
         </div>
-        <span class="field-error" id="err-fecha">Selecciona una fecha válida.</span>
       </div>
-      <div class="error-box" id="error-box">
-        <strong>Error al registrar</strong>
-        <code id="error-detail"></code>
-      </div>
+      <div class="error-box" id="error-box"></div>
       <button class="btn-primary" id="btn-submit">Registrarme ✓</button>
-      <button class="btn-back" id="back-step1">← Volver</button>
     </div>
 
     <div class="success" id="success-screen">
-      <div class="success-icon">✅</div>
-      <h2>¡Bienvenido!</h2>
-      <p>Quedaste registrado como<br><span class="player-name" id="success-name"></span></p>
-      <p style="font-size: 13px; color: var(--text-muted); margin-top: 10px;">Te hemos anotado automáticamente en la pichanga. Ya puedes volver al chat.</p>
+      <h2 style="margin-bottom: 10px;">¡Bienvenido! ✅</h2>
+      <p>Quedaste registrado como <b id="success-name"></b> y anotado en la pichanga.</p>
     </div>
   </div>
 
   <script src="config.js"></script>
   <script>
-    const SUPABASE_URL = window.ENV.SUPABASE_URL;
-    const SUPABASE_KEY = window.ENV.SUPABASE_KEY;
-    const EDGE_FUNCTION_URL = window.ENV.EDGE_FUNCTION_URL;
-
     const urlParams = new URLSearchParams(window.location.search);
-    const numero = (urlParams.get('num') || '') || null;
-    const matchId = urlParams.get('match') || null;
+    const numRaw = urlParams.get('num') || urlParams.get('numero') || '';
+    const cleanNumber = numRaw.replace(/\D/g, ''); 
+    const numeroConPlus = cleanNumber ? `+${cleanNumber}` : null;
+    const matchId = urlParams.get('match') || urlParams.get('match_id') || null;
 
-    if (!numero) {
-      document.querySelector('#form-header p').innerHTML +=
-        '<br><strong style="color:var(--error);font-size:12px;">⚠ Error: Falta el teléfono en la URL.</strong>';
-    }
-
-    // Populate selects
+    // Llenar selects
     const selDay = document.getElementById('sel-day');
-    for (let d = 1; d <= 31; d++) {
-      const opt = document.createElement('option');
-      opt.value = String(d).padStart(2, '0');
-      opt.textContent = d;
-      selDay.appendChild(opt);
-    }
+    for(let i=1; i<=31; i++) selDay.innerHTML += `<option value="${String(i).padStart(2,'0')}">${i}</option>`;
     const selYear = document.getElementById('sel-year');
-    const currYear = new Date().getFullYear();
-    for (let y = currYear - 5; y >= currYear - 80; y--) {
-      const opt = document.createElement('option');
-      opt.value = y; opt.textContent = y;
-      selYear.appendChild(opt);
-    }
+    const cy = new Date().getFullYear();
+    for(let i=cy-5; i>=cy-70; i--) selYear.innerHTML += `<option value="${i}">${i}</option>`;
 
-    const showStep = (n) => {
+    function showStep(n) {
       document.querySelectorAll('.step').forEach((s, i) => s.classList.toggle('active', i === n));
-      document.querySelectorAll('.progress-dot').forEach((dot, i) => {
-        dot.classList.remove('active', 'done');
-        if (i === n) dot.classList.add('active');
-        else if (i < n) dot.classList.add('done');
-      });
-    };
-
-    document.getElementById('btn-step0').onclick = () => {
-      const nomEl = document.getElementById('input-nombre');
-      const apeEl = document.getElementById('input-apellido');
-      const errNom = document.getElementById('err-nombre');
-      const errApe = document.getElementById('err-apellido');
-      let valid = true;
-
-      if (!nomEl.value.trim()) {
-        nomEl.classList.add('error');
-        errNom.classList.add('visible');
-        valid = false;
-      } else {
-        nomEl.classList.remove('error');
-        errNom.classList.remove('visible');
-      }
-
-      if (!apeEl.value.trim()) {
-        apeEl.classList.add('error');
-        errApe.classList.add('visible');
-        valid = false;
-      } else {
-        apeEl.classList.remove('error');
-        errApe.classList.remove('visible');
-      }
-
-      if (valid) showStep(1);
-    };
-
-    document.getElementById('back-step1').onclick = () => {
-      document.getElementById('error-box').classList.remove('visible');
-      showStep(0);
-    };
+      document.querySelectorAll('.progress-dot').forEach((d, i) => d.classList.toggle('active', i === n));
+    }
 
     document.getElementById('btn-submit').onclick = async () => {
-      const d = selDay.value;
-      const m = document.getElementById('sel-month').value;
-      const y = selYear.value;
-      const errFecha = document.getElementById('err-fecha');
-      const errorBox = document.getElementById('error-box');
-      const errorDetail = document.getElementById('error-detail');
-
-      if (!d || !m || !y) {
-        errFecha.classList.add('visible');
-        return;
-      }
-      errFecha.classList.remove('visible');
-      errorBox.classList.remove('visible');
-
-      const nombreFull = `${document.getElementById('input-nombre').value.trim()} ${document.getElementById('input-apellido').value.trim()}`;
       const btn = document.getElementById('btn-submit');
+      const nombre = document.getElementById('input-nombre').value.trim();
+      const apellido = document.getElementById('input-apellido').value.trim();
+      const fecha = `${document.getElementById('sel-year').value}-${document.getElementById('sel-month').value}-${document.getElementById('sel-day').value}`;
+      
+      if(!nombre || !apellido || !numeroConPlus) return alert("Faltan datos");
+
       btn.disabled = true;
-      btn.textContent = 'Procesando...';
+      btn.textContent = "Procesando...";
 
       try {
-        // 1. Guardar en tabla Personas
-        const resPersona = await fetch(`${SUPABASE_URL}/rest/v1/personas`, {
+        // 1. Guardar Persona
+        await fetch(`${window.ENV.SUPABASE_URL}/rest/v1/personas`, {
           method: 'POST',
-          headers: {
-            'apikey': SUPABASE_KEY,
-            'Authorization': `Bearer ${SUPABASE_KEY}`,
-            'Content-Type': 'application/json',
-            'Prefer': 'return=representation'
+          headers: { 
+            'apikey': window.ENV.SUPABASE_KEY, 
+            'Authorization': `Bearer ${window.ENV.SUPABASE_KEY}`,
+            'Content-Type': 'application/json' 
           },
-          body: JSON.stringify({ nombre: nombreFull, fecha_nac: `${y}-${m}-${d}`, numero: `+${numero}` })
+          body: JSON.stringify({ nombre: `${nombre} ${apellido}`, fecha_nac: fecha, numero: numeroConPlus })
         });
 
-        if (!resPersona.ok) {
-          const body = await resPersona.json().catch(() => ({}));
-          throw new Error(`Error al guardar perfil: ${body.message || resPersona.status}`);
-        }
-
-        // 2. Re-invocar la edge function con el comando /anotarme
-        //    fromNumber se envía SIN '+', igual que WhatsApp lo manda normalmente,
-        //    para que el lookup en personas coincida con lo guardado en la DB.
-        if (matchId && numero) {
-          // Pequeña pausa para asegurar que el INSERT de personas ya es visible
-          await new Promise(r => setTimeout(r, 500));
-
-          console.log(`Invocando edge function: /anotarme ${matchId} para ${numero}`);
-          const resEdge = await fetch(EDGE_FUNCTION_URL, {
+        // 2. Anotar en Pichanga vía Edge Function
+        if (matchId) {
+          await new Promise(r => setTimeout(r, 600)); // Delay para consistencia
+          await fetch(window.ENV.EDGE_FUNCTION_URL, {
             method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              'apikey': SUPABASE_KEY
-            },
-            body: JSON.stringify({
-              data: {
-                fromNumber: `+${numero}`,
-                body: `/anotarme ${matchId}`
-              }
-            })
+            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${window.ENV.SUPABASE_KEY}` },
+            body: JSON.stringify({ data: { fromNumber: numeroConPlus, body: `/anotarme ${matchId}` } })
           });
-
-          const edgeText = await resEdge.text();
-          if (!resEdge.ok) {
-            console.warn(`Edge function HTTP ${resEdge.status}:`, edgeText);
-          } else {
-            try {
-              const edgeResult = JSON.parse(edgeText);
-              console.log("Edge function result:", edgeResult);
-              if (!edgeResult.ok) {
-                console.warn("Edge function devolvió ok:false →", edgeResult.message || edgeResult);
-              }
-            } catch {
-              console.log("Edge function response (raw):", edgeText);
-            }
-          }
         }
 
-        // 3. Mostrar éxito
-        document.getElementById('form-header').style.display = 'none';
+        document.getElementById('step-1').style.display = 'none';
         document.getElementById('progress').style.display = 'none';
-        document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
-        document.getElementById('success-name').textContent = nombreFull;
+        document.getElementById('form-header').style.display = 'none';
+        document.getElementById('success-name').textContent = `${nombre} ${apellido}`;
         document.getElementById('success-screen').classList.add('active');
 
       } catch (e) {
-        console.error('Error:', e);
-        errorDetail.textContent = e.message;
-        errorBox.classList.add('visible');
         btn.disabled = false;
-        btn.textContent = 'Registrarme ✓';
+        btn.textContent = "Error, reintentar";
       }
     };
   </script>
