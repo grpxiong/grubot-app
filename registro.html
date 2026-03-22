@@ -185,12 +185,10 @@
   <script>
     const SUPABASE_URL = window.ENV.SUPABASE_URL;
     const SUPABASE_KEY = window.ENV.SUPABASE_KEY;
-    const EDGE_FUNCTION_URL = window.ENV.EDGE_FUNCTION_URL; // e.g. https://xxxx.supabase.co/functions/v1/your-function-name
+    const EDGE_FUNCTION_URL = window.ENV.EDGE_FUNCTION_URL;
 
     const urlParams = new URLSearchParams(window.location.search);
-    // numero con '+' → usado para guardar en personas y mostrar al usuario
     const numero = (urlParams.get('numero') || '').replace(/\s/g, '+') || null;
-    // numeroEdge sin '+' → mismo formato que WhatsApp entrega a la edge function
     const numeroEdge = numero ? numero.replace(/^\+/, '') : null;
     const matchId = urlParams.get('match_id') || null;
 
@@ -311,7 +309,7 @@
             },
             body: JSON.stringify({
               data: {
-                fromNumber: numero,
+                fromNumber: `+${numero}`,
                 body: `/anotarme ${matchId}`
               }
             })
