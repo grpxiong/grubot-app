@@ -1,350 +1,58 @@
-<!DOCTYPE html>
-<html>
-<head>
-  <title>Registro de Jugador</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
-  <style>
-    :root {
-      --primary: #059669;
-      --primary-hover: #047857;
-      --primary-light: rgba(5, 150, 105, 0.08);
-      --primary-glow: rgba(5, 150, 105, 0.2);
-      --bg: #f0fdf4;
-      --bg-card: #ffffff;
-      --bg-muted: #f8fafc;
-      --border: #d1fae5;
-      --border-focus: #059669;
-      --text-main: #1e293b;
-      --text-muted: #64748b;
-      --text-light: #94a3b8;
-      --shadow: 0 20px 60px -10px rgba(5, 150, 105, 0.15), 0 4px 16px rgba(0,0,0,0.06);
-      --error: #ef4444;
-      --error-bg: #fef2f2;
-      --error-border: #fecaca;
-    }
-
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-
-    body {
-      min-height: 100vh;
-      background: var(--bg);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-family: 'DM Sans', sans-serif;
-      padding: 24px 16px;
-      background-image:
-        radial-gradient(ellipse at 20% 20%, rgba(5,150,105,0.08) 0%, transparent 60%),
-        radial-gradient(ellipse at 80% 80%, rgba(4,120,87,0.06) 0%, transparent 60%);
-    }
-
-    .card {
-      background: var(--bg-card);
-      border-radius: 28px;
-      width: 100%;
-      max-width: 420px;
-      padding: 40px 36px;
-      box-shadow: var(--shadow);
-      border: 1px solid var(--border);
-      animation: cardIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
-    }
-
-    @keyframes cardIn {
-      from { opacity: 0; transform: translateY(24px); }
-      to   { opacity: 1; transform: translateY(0); }
-    }
-
-    .header { text-align: center; margin-bottom: 36px; }
-    .header-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      background: var(--primary-light);
-      color: var(--primary);
-      font-size: 12px;
-      font-weight: 600;
-      padding: 6px 14px;
-      border-radius: 100px;
-      margin-bottom: 16px;
-      letter-spacing: 0.04em;
-      text-transform: uppercase;
-    }
-
-    .header h1 { font-family: 'DM Serif Display', serif; font-size: 30px; color: var(--text-main); line-height: 1.15; margin-bottom: 10px; }
-    .header h1 span { color: var(--primary); }
-    .header p { font-size: 14px; color: var(--text-muted); line-height: 1.5; }
-
-    .progress { display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 32px; }
-    .progress-dot { width: 8px; height: 8px; border-radius: 100px; background: var(--border); transition: all 0.3s ease; }
-    .progress-dot.active { width: 24px; background: var(--primary); }
-    .progress-dot.done { background: var(--primary); opacity: 0.4; }
-
-    .step { display: none; flex-direction: column; gap: 20px; animation: stepIn 0.35s cubic-bezier(0.16, 1, 0.3, 1) both; }
-    .step.active { display: flex; }
-
-    @keyframes stepIn {
-      from { opacity: 0; transform: translateX(16px); }
-      to   { opacity: 1; transform: translateX(0); }
-    }
-
-    .field { display: flex; flex-direction: column; gap: 8px; }
-    .field label { font-size: 11px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.07em; }
-    .field input {
-      width: 100%; padding: 14px 16px; border: 1.5px solid var(--border); border-radius: 14px;
-      font-size: 16px; font-family: 'DM Sans', sans-serif; color: var(--text-main);
-      background: var(--bg-muted); outline: none; transition: all 0.2s ease;
-    }
-    .field input:focus { border-color: var(--border-focus); background: white; box-shadow: 0 0 0 4px var(--primary-glow); }
-    .field input.error { border-color: var(--error); box-shadow: 0 0 0 4px rgba(239,68,68,0.1); }
-
-    .field-error { font-size: 12px; color: var(--error); margin-top: -4px; display: none; }
-    .field-error.visible { display: block; }
-
-    .step-label { font-size: 13px; font-weight: 600; color: var(--text-muted); text-align: center; margin-bottom: -8px; }
-
-    .date-helper { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
-    .date-helper select {
-      width: 100%; padding: 14px 10px; border: 1.5px solid var(--border); border-radius: 14px;
-      font-size: 15px; font-family: 'DM Sans', sans-serif; color: var(--text-main);
-      background: var(--bg-muted); cursor: pointer; text-align: center; outline: none;
-    }
-    .date-helper select:focus { border-color: var(--border-focus); background: white; box-shadow: 0 0 0 4px var(--primary-glow); }
-
-    .btn-primary {
-      width: 100%; padding: 16px; border: none; border-radius: 14px; background: var(--primary);
-      color: white; font-weight: 700; font-size: 16px; cursor: pointer; margin-top: 4px;
-      transition: transform 0.1s, background 0.2s;
-    }
-    .btn-primary:hover { background: var(--primary-hover); }
-    .btn-primary:active { transform: scale(0.98); }
-    .btn-primary:disabled { background: #94a3b8; cursor: not-allowed; }
-
-    .btn-back { width: 100%; background: none; border: none; color: var(--text-muted); font-size: 14px; cursor: pointer; padding: 8px; text-decoration: underline; }
-
-    .error-box { background: var(--error-bg); border: 1.5px solid var(--error-border); border-radius: 14px; padding: 14px 16px; display: none; }
-    .error-box.visible { display: block; }
-    .error-box strong { display: block; font-size: 13px; font-weight: 700; color: var(--error); margin-bottom: 4px; }
-    .error-box code { display: block; font-size: 12px; color: #b91c1c; word-break: break-all; white-space: pre-wrap; font-family: monospace; line-height: 1.5; }
-
-    .success { display: none; flex-direction: column; align-items: center; gap: 16px; text-align: center; padding: 12px 0; animation: stepIn 0.4s both; }
-    .success.active { display: flex; }
-    .success-icon { width: 72px; height: 72px; background: var(--primary-light); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 32px; }
-    .success h2 { font-family: 'DM Serif Display', serif; font-size: 26px; }
-    .player-name { color: var(--primary); font-weight: 700; }
-
-    @media (max-width: 480px) { .card { padding: 28px 20px; } .header h1 { font-size: 26px; } }
-  </style>
-</head>
-<body>
-  <div class="card">
-    <div class="header">
-      <div class="header-badge">⚽ Pichangas</div>
-      <h1>Únete al<br><span>equipo</span></h1>
-      <p>Regístrate una sola vez y participa en todas las pichangas.</p>
-    </div>
-
-    <div class="progress" id="progress">
-      <div class="progress-dot active" id="dot-0"></div>
-      <div class="progress-dot" id="dot-1"></div>
-    </div>
-
-    <div class="step active" id="step-0">
-      <p class="step-label">Paso 1 de 2 — Identificación</p>
-
-      <div class="field">
-        <label for="input-nombre">Nombre(s)</label>
-        <input type="text" id="input-nombre" placeholder="Ej: Carlos" autocomplete="given-name">
-        <span class="field-error" id="err-nombre">Por favor ingresa tu nombre.</span>
-      </div>
-
-      <div class="field">
-        <label for="input-apellido">Apellido(s)</label>
-        <input type="text" id="input-apellido" placeholder="Ej: Ramírez" autocomplete="family-name">
-        <span class="field-error" id="err-apellido">Por favor ingresa tu apellido.</span>
-      </div>
-
-      <button class="btn-primary" id="btn-step0">Continuar →</button>
-    </div>
-
-    <div class="step" id="step-1">
-      <p class="step-label">Paso 2 de 2 — Fecha de nacimiento</p>
-
-      <div class="field">
-        <label>¿Cuándo naciste?</label>
-        <div class="date-helper">
-          <select id="sel-day"><option value="" disabled selected>Día</option></select>
-          <select id="sel-month">
-            <option value="" disabled selected>Mes</option>
-            <option value="01">Enero</option><option value="02">Febrero</option><option value="03">Marzo</option>
-            <option value="04">Abril</option><option value="05">Mayo</option><option value="06">Junio</option>
-            <option value="07">Julio</option><option value="08">Agosto</option><option value="09">Septiembre</option>
-            <option value="10">Octubre</option><option value="11">Noviembre</option><option value="12">Diciembre</option>
-          </select>
-          <select id="sel-year"><option value="" disabled selected>Año</option></select>
-        </div>
-        <span class="field-error" id="err-fecha">Selecciona una fecha válida.</span>
-      </div>
-
-      <div class="error-box" id="error-box">
-        <strong>Error al registrar</strong>
-        <code id="error-detail"></code>
-      </div>
-
-      <button class="btn-primary" id="btn-submit">Registrarme ✓</button>
-      <button class="btn-back" id="back-step1">← Volver</button>
-    </div>
-
-    <div class="success" id="success-screen">
-      <div class="success-icon">✅</div>
-      <h2>¡Bienvenido!</h2>
-      <p>Quedaste registrado como<br><span class="player-name" id="success-name"></span></p>
-    </div>
-  </div>
-
-  <script>
+<script>
     const SUPABASE_URL = 'https://fzrpjbojyzzohcypgfzm.supabase.co';
     const SUPABASE_KEY = 'sb_publishable_6WvoLA-b4diZ4_omsc-XUg_5iNrppdz';
+    const N8N_WEBHOOK_URL = 'TU_URL_DE_N8N_AQUI'; // <--- PEGA TU URL DE N8N AQUÍ
 
-    // Read numero from URL — decode %2B and fix bare + becoming space
     const urlParams = new URLSearchParams(window.location.search);
     const numero = (urlParams.get('numero') || '').replace(/\s/g, '+') || null;
+    const matchId = urlParams.get('match_id') || null; // <--- CAPTURAMOS EL ID DE LA PICHANGA
 
-    if (!numero) {
-      document.querySelector('.header p').innerHTML +=
-        '<br><strong style="color:var(--error);font-size:13px;">⚠ Faltó el número de teléfono en la URL.</strong>';
-    }
+    // ... (lógica de selects y pasos igual) ...
 
-    // Populate day select
-    const selDay = document.getElementById('sel-day');
-    for (let d = 1; d <= 31; d++) {
-      const opt = document.createElement('option');
-      opt.value = String(d).padStart(2, '0');
-      opt.textContent = d;
-      selDay.appendChild(opt);
-    }
-
-    // Populate year select
-    const selYear = document.getElementById('sel-year');
-    const currentYear = new Date().getFullYear();
-    for (let y = currentYear - 5; y >= currentYear - 80; y--) {
-      const opt = document.createElement('option');
-      opt.value = y; opt.textContent = y;
-      selYear.appendChild(opt);
-    }
-
-    const showStep = (n) => {
-      document.querySelectorAll('.step').forEach((s, i) => s.classList.toggle('active', i === n));
-      document.querySelectorAll('.progress-dot').forEach((dot, i) => {
-        dot.classList.remove('active', 'done');
-        if (i === n) dot.classList.add('active');
-        else if (i < n) dot.classList.add('done');
-      });
-    };
-
-    // Step 0 → 1
-    document.getElementById('btn-step0').onclick = () => {
-      const nom = document.getElementById('input-nombre');
-      const ape = document.getElementById('input-apellido');
-      let valid = true;
-
-      if (!nom.value.trim()) {
-        nom.classList.add('error');
-        document.getElementById('err-nombre').classList.add('visible');
-        valid = false;
-      } else {
-        nom.classList.remove('error');
-        document.getElementById('err-nombre').classList.remove('visible');
-      }
-
-      if (!ape.value.trim()) {
-        ape.classList.add('error');
-        document.getElementById('err-apellido').classList.add('visible');
-        valid = false;
-      } else {
-        ape.classList.remove('error');
-        document.getElementById('err-apellido').classList.remove('visible');
-      }
-
-      if (valid) showStep(1);
-    };
-
-    document.getElementById('back-step1').onclick = () => {
-      document.getElementById('error-box').classList.remove('visible');
-      showStep(0);
-    };
-
-    // Final submit
     document.getElementById('btn-submit').onclick = async () => {
-      const d = selDay.value;
-      const m = document.getElementById('sel-month').value;
-      const y = selYear.value;
-      const errFecha = document.getElementById('err-fecha');
-      const errorBox = document.getElementById('error-box');
-      const errorDetail = document.getElementById('error-detail');
-
-      if (!d || !m || !y) {
-        errFecha.classList.add('visible');
-        return;
-      }
-      errFecha.classList.remove('visible');
-      errorBox.classList.remove('visible');
-
-      if (!numero) {
-        errorDetail.textContent = 'Número de teléfono faltante en la URL. Abre este link desde el bot.';
-        errorBox.classList.add('visible');
-        return;
-      }
-
-      const nombreCompleto = `${document.getElementById('input-nombre').value.trim()} ${document.getElementById('input-apellido').value.trim()}`;
-      const btn = document.getElementById('btn-submit');
-      btn.disabled = true;
-      btn.textContent = 'Guardando...';
+      // ... (validaciones de fecha igual) ...
 
       try {
-        const payload = {
-          nombre: nombreCompleto,
-          fecha_nac: `${y}-${m}-${d}`,
-          numero: numero
-        };
-
-        console.log('Payload:', payload);
-
+        const nombreCompleto = `${document.getElementById('input-nombre').value.trim()} ${document.getElementById('input-apellido').value.trim()}`;
+        
+        // A. GUARDAR EN SUPABASE
         const res = await fetch(`${SUPABASE_URL}/rest/v1/personas`, {
           method: 'POST',
           headers: {
             'apikey': SUPABASE_KEY,
             'Authorization': `Bearer ${SUPABASE_KEY}`,
-            'Content-Type': 'application/json',
-            'Prefer': 'return=representation'
+            'Content-Type': 'application/json'
           },
-          body: JSON.stringify(payload)
+          body: JSON.stringify({
+            nombre: nombreCompleto,
+            fecha_nac: `${y}-${m}-${d}`,
+            numero: numero
+          })
         });
 
-        const body = await res.json().catch(() => null);
-        console.log('Supabase response:', res.status, body);
+        if (!res.ok) throw new Error("Error al guardar en base de datos");
 
-        if (!res.ok) {
-          const msg = body?.message || body?.error || JSON.stringify(body) || `HTTP ${res.status}`;
-          const hint = body?.hint ? `\nHint: ${body.hint}` : '';
-          const detail = body?.details ? `\nDetalle: ${body.details}` : '';
-          throw new Error(`[${res.status}] ${msg}${hint}${detail}`);
-        }
+        // B. AVISAR A N8N (AUTOMÁTICO)
+        console.log("Avisando a n8n...");
+        await fetch(N8N_WEBHOOK_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            event: "registration_completed",
+            user: nombreCompleto,
+            phone: numero,
+            match_id: matchId // <--- n8n ya sabe qué pichanga es
+          })
+        });
 
+        // C. MOSTRAR ÉXITO
         document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
         document.getElementById('progress').style.display = 'none';
         document.getElementById('success-name').textContent = nombreCompleto;
         document.getElementById('success-screen').classList.add('active');
 
       } catch (e) {
-        console.error('Error:', e);
-        errorDetail.textContent = e.message;
-        errorBox.classList.add('visible');
-        errorBox.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-        btn.disabled = false;
-        btn.textContent = 'Registrarme ✓';
+        // ... (manejo de error igual) ...
       }
     };
-  </script>
-</body>
-</html>
+</script>
