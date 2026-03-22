@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <title>Registro de Jugador | Grubot</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
     :root {
       --primary: #059669;
@@ -43,7 +43,7 @@
       background: var(--bg-card);
       border-radius: 28px;
       width: 100%;
-      max-width: 420px;
+      max-width: 400px;
       padding: 40px 36px;
       box-shadow: var(--shadow);
       border: 1px solid var(--border);
@@ -55,7 +55,7 @@
       to   { opacity: 1; transform: translateY(0); }
     }
 
-    .header { text-align: center; margin-bottom: 36px; }
+    .header { text-align: center; margin-bottom: 32px; }
     .header-badge {
       display: inline-flex; align-items: center; gap: 6px;
       background: var(--primary-light); color: var(--primary);
@@ -63,122 +63,168 @@
       border-radius: 100px; margin-bottom: 16px;
       letter-spacing: 0.04em; text-transform: uppercase;
     }
-    .header h1 { font-family: 'DM Serif Display', serif; font-size: 30px; color: var(--text-main); line-height: 1.15; margin-bottom: 10px; }
+    .header h1 {
+      font-family: 'DM Serif Display', serif;
+      font-size: 28px; color: var(--text-main);
+      line-height: 1.15; margin-bottom: 8px;
+    }
     .header h1 span { color: var(--primary); }
     .header p { font-size: 14px; color: var(--text-muted); line-height: 1.5; }
 
-    .progress { display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 32px; }
-    .progress-dot { width: 8px; height: 8px; border-radius: 100px; background: var(--border); transition: all 0.3s ease; }
-    .progress-dot.active { width: 24px; background: var(--primary); }
-    .progress-dot.done { background: var(--primary); opacity: 0.4; }
+    .form { display: flex; flex-direction: column; gap: 16px; }
 
-    .step { display: none; flex-direction: column; gap: 20px; animation: stepIn 0.35s cubic-bezier(0.16, 1, 0.3, 1) both; }
-    .step.active { display: flex; }
-
-    @keyframes stepIn {
-      from { opacity: 0; transform: translateX(16px); }
-      to   { opacity: 1; transform: translateX(0); }
+    .field { display: flex; flex-direction: column; gap: 6px; }
+    .field label {
+      font-size: 11px; font-weight: 600; color: var(--text-muted);
+      text-transform: uppercase; letter-spacing: 0.07em;
     }
-
-    .field { display: flex; flex-direction: column; gap: 8px; }
-    .field label { font-size: 11px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.07em; }
-    .field input, .date-helper select {
-      width: 100%; padding: 14px 16px; border: 1.5px solid var(--border); border-radius: 14px;
+    .field input[type="text"] {
+      width: 100%; padding: 13px 16px;
+      border: 1.5px solid var(--border); border-radius: 14px;
       font-size: 16px; font-family: 'DM Sans', sans-serif; color: var(--text-main);
       background: var(--bg-muted); outline: none; transition: all 0.2s ease;
     }
-    .field input:focus, .date-helper select:focus { border-color: var(--border-focus); background: white; box-shadow: 0 0 0 4px var(--primary-glow); }
-    .field input.error { border-color: var(--error); box-shadow: 0 0 0 4px rgba(239,68,68,0.1); }
+    .field input[type="text"]:focus {
+      border-color: var(--border-focus); background: white;
+      box-shadow: 0 0 0 4px var(--primary-glow);
+    }
+    .field input[type="text"].error {
+      border-color: var(--error);
+      box-shadow: 0 0 0 4px rgba(239,68,68,0.1);
+    }
 
-    .field-error { font-size: 12px; color: var(--error); margin-top: -4px; display: none; }
+    /* ── DATE INPUTS ── */
+    .divider {
+      display: flex; align-items: center; gap: 10px;
+      color: var(--text-muted); font-size: 12px; margin: 2px 0;
+    }
+    .divider::before, .divider::after {
+      content: ''; flex: 1; height: 1px; background: var(--border);
+    }
+
+    .date-row { display: grid; grid-template-columns: 1fr 1fr 1.6fr; gap: 8px; }
+
+    .date-part { display: flex; flex-direction: column; gap: 4px; }
+    .date-part span {
+      font-size: 10px; font-weight: 600; color: var(--text-muted);
+      text-transform: uppercase; letter-spacing: 0.06em; text-align: center;
+    }
+    .date-part input {
+      width: 100%; padding: 13px 6px; text-align: center;
+      border: 1.5px solid var(--border); border-radius: 12px;
+      font-size: 17px; font-weight: 600; font-family: 'DM Sans', sans-serif;
+      color: var(--text-main); background: var(--bg-muted);
+      outline: none; transition: all 0.2s ease;
+      /* hide native number spinners */
+      -moz-appearance: textfield;
+    }
+    .date-part input::-webkit-outer-spin-button,
+    .date-part input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+    .date-part input:focus {
+      border-color: var(--border-focus); background: white;
+      box-shadow: 0 0 0 4px var(--primary-glow);
+    }
+    .date-part input.error {
+      border-color: var(--error);
+      box-shadow: 0 0 0 3px rgba(239,68,68,0.1);
+    }
+    .date-part input::placeholder { color: #cbd5e1; font-weight: 400; font-size: 15px; }
+
+    .field-error { font-size: 12px; color: var(--error); display: none; }
     .field-error.visible { display: block; }
 
-    .step-label { font-size: 13px; font-weight: 600; color: var(--text-muted); text-align: center; margin-bottom: -8px; }
-    .date-helper { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
-
     .btn-primary {
-      width: 100%; padding: 16px; border: none; border-radius: 14px; background: var(--primary);
-      color: white; font-weight: 700; font-size: 16px; cursor: pointer; margin-top: 4px;
-      transition: transform 0.1s, background 0.2s;
+      width: 100%; padding: 16px; border: none; border-radius: 14px;
+      background: var(--primary); color: white;
+      font-weight: 700; font-size: 16px; font-family: 'DM Sans', sans-serif;
+      cursor: pointer; margin-top: 4px;
+      transition: transform 0.1s, background 0.2s, box-shadow 0.2s;
+      box-shadow: 0 4px 14px rgba(5,150,105,0.3);
     }
-    .btn-primary:hover { background: var(--primary-hover); }
+    .btn-primary:hover { background: var(--primary-hover); box-shadow: 0 6px 20px rgba(5,150,105,0.4); }
     .btn-primary:active { transform: scale(0.98); }
-    .btn-primary:disabled { background: #94a3b8; cursor: not-allowed; }
-    .btn-back { width: 100%; background: none; border: none; color: var(--text-muted); font-size: 14px; cursor: pointer; padding: 8px; text-decoration: underline; }
+    .btn-primary:disabled { background: #94a3b8; cursor: not-allowed; box-shadow: none; }
 
-    .error-box { background: var(--error-bg); border: 1.5px solid var(--error-border); border-radius: 14px; padding: 14px 16px; display: none; margin-top: 4px; }
+    .error-box {
+      background: var(--error-bg); border: 1.5px solid var(--error-border);
+      border-radius: 14px; padding: 14px 16px; display: none; margin-top: 4px;
+    }
     .error-box.visible { display: block; }
     .error-box strong { display: block; font-size: 13px; font-weight: 700; color: var(--error); margin-bottom: 4px; }
     .error-box code { display: block; font-size: 12px; color: #b91c1c; word-break: break-all; white-space: pre-wrap; font-family: monospace; line-height: 1.5; }
 
-    .success { display: none; flex-direction: column; align-items: center; gap: 16px; text-align: center; padding: 12px 0; animation: stepIn 0.4s both; }
+    .success {
+      display: none; flex-direction: column; align-items: center;
+      gap: 16px; text-align: center; padding: 12px 0;
+      animation: cardIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) both;
+    }
     .success.active { display: flex; }
-    .success-icon { width: 72px; height: 72px; background: var(--primary-light); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 32px; }
+    .success-icon {
+      width: 72px; height: 72px; background: var(--primary-light);
+      border-radius: 50%; display: flex; align-items: center;
+      justify-content: center; font-size: 32px;
+    }
     .success h2 { font-family: 'DM Serif Display', serif; font-size: 26px; color: var(--text-main); }
     .player-name { color: var(--primary); font-weight: 700; }
 
-    @media (max-width: 480px) { .card { padding: 28px 20px; } .header h1 { font-size: 26px; } }
+    @media (max-width: 480px) {
+      .card { padding: 28px 20px; }
+      .header h1 { font-size: 24px; }
+    }
   </style>
 </head>
 <body>
   <div class="card">
+
     <div class="header" id="form-header">
       <div class="header-badge">⚽ Pichangas</div>
       <h1>Únete al<br><span>equipo</span></h1>
       <p>Regístrate una sola vez y participa en todas las pichangas.</p>
     </div>
 
-    <div class="progress" id="progress">
-      <div class="progress-dot active" id="dot-0"></div>
-      <div class="progress-dot" id="dot-1"></div>
-    </div>
+    <div class="form" id="main-form">
 
-    <div class="step active" id="step-0">
-      <p class="step-label">Paso 1 de 2 — Identificación</p>
       <div class="field">
-        <label for="input-nombre">Nombre(s)</label>
-        <input type="text" id="input-nombre" placeholder="Ej: Carlos" autocomplete="given-name">
-        <span class="field-error" id="err-nombre">Ingresa tu nombre.</span>
+        <label for="input-nombre">Nombre completo</label>
+        <input type="text" id="input-nombre" placeholder="Ej: Carlos Ramírez" autocomplete="name">
+        <span class="field-error" id="err-nombre">Ingresa tu nombre completo.</span>
       </div>
-      <div class="field">
-        <label for="input-apellido">Apellido(s)</label>
-        <input type="text" id="input-apellido" placeholder="Ej: Ramírez" autocomplete="family-name">
-        <span class="field-error" id="err-apellido">Ingresa tu apellido.</span>
-      </div>
-      <button class="btn-primary" id="btn-step0">Continuar →</button>
-    </div>
 
-    <div class="step" id="step-1">
-      <p class="step-label">Paso 2 de 2 — Fecha de nacimiento</p>
+      <div class="divider">fecha de nacimiento</div>
+
       <div class="field">
-        <label>¿Cuándo naciste?</label>
-        <div class="date-helper">
-          <select id="sel-day"><option value="" disabled selected>Día</option></select>
-          <select id="sel-month">
-            <option value="" disabled selected>Mes</option>
-            <option value="01">Enero</option><option value="02">Febrero</option><option value="03">Marzo</option>
-            <option value="04">Abril</option><option value="05">Mayo</option><option value="06">Junio</option>
-            <option value="07">Julio</option><option value="08">Agosto</option><option value="09">Septiembre</option>
-            <option value="10">Octubre</option><option value="11">Noviembre</option><option value="12">Diciembre</option>
-          </select>
-          <select id="sel-year"><option value="" disabled selected>Año</option></select>
+        <div class="date-row">
+          <div class="date-part">
+            <span>Día</span>
+            <input type="tel" id="inp-day" placeholder="14" maxlength="2" inputmode="numeric">
+          </div>
+          <div class="date-part">
+            <span>Mes</span>
+            <input type="tel" id="inp-month" placeholder="08" maxlength="2" inputmode="numeric">
+          </div>
+          <div class="date-part">
+            <span>Año</span>
+            <input type="tel" id="inp-year" placeholder="1995" maxlength="4" inputmode="numeric">
+          </div>
         </div>
-        <span class="field-error" id="err-fecha">Selecciona una fecha válida.</span>
+        <span class="field-error" id="err-fecha">Ingresa una fecha válida.</span>
       </div>
+
       <div class="error-box" id="error-box">
         <strong>Error al registrar</strong>
         <code id="error-detail"></code>
       </div>
+
       <button class="btn-primary" id="btn-submit">Registrarme ✓</button>
-      <button class="btn-back" id="back-step1">← Volver</button>
     </div>
 
     <div class="success" id="success-screen">
       <div class="success-icon">✅</div>
       <h2>¡Bienvenido!</h2>
       <p>Quedaste registrado como<br><span class="player-name" id="success-name"></span></p>
-      <p style="font-size: 13px; color: var(--text-muted); margin-top: 10px;">Te hemos anotado automáticamente en la pichanga. Ya puedes volver al chat.</p>
+      <p style="font-size: 13px; color: var(--text-muted); margin-top: 4px;">Te hemos anotado automáticamente en la pichanga. Ya puedes volver al chat.</p>
     </div>
+
   </div>
 
   <script src="config.js"></script>
@@ -188,10 +234,7 @@
     const EDGE_FUNCTION_URL = window.ENV.EDGE_FUNCTION_URL;
 
     const urlParams = new URLSearchParams(window.location.search);
-    // Acepta tanto ?num= como ?numero= para compatibilidad
     const numRaw = urlParams.get('num') || urlParams.get('numero') || '';
-    // Limpiamos a solo dígitos y agregamos + → "51987654321" → "+51987654321"
-    // Este es el formato que se guarda en personas.numero Y se envía a la edge function
     const cleanNumber = numRaw.replace(/\D/g, '');
     const numero = cleanNumber ? `+${cleanNumber}` : null;
     const matchId = urlParams.get('match') || urlParams.get('match_id') || null;
@@ -201,78 +244,83 @@
         '<br><strong style="color:var(--error);font-size:12px;">⚠ Error: Falta el teléfono en la URL.</strong>';
     }
 
-    // Populate selects
-    const selDay = document.getElementById('sel-day');
-    for (let d = 1; d <= 31; d++) {
-      const opt = document.createElement('option');
-      opt.value = String(d).padStart(2, '0');
-      opt.textContent = d;
-      selDay.appendChild(opt);
-    }
-    const selYear = document.getElementById('sel-year');
-    const currYear = new Date().getFullYear();
-    for (let y = currYear - 5; y >= currYear - 80; y--) {
-      const opt = document.createElement('option');
-      opt.value = y; opt.textContent = y;
-      selYear.appendChild(opt);
+    // ── DATE INPUT LOGIC ──
+    // type="tel" with maxlength enforces the digit cap and auto-advances focus
+    const inpDay   = document.getElementById('inp-day');
+    const inpMonth = document.getElementById('inp-month');
+    const inpYear  = document.getElementById('inp-year');
+
+    function onlyDigits(e) {
+      // Strip any non-numeric character as the user types
+      e.target.value = e.target.value.replace(/\D/g, '');
     }
 
-    const showStep = (n) => {
-      document.querySelectorAll('.step').forEach((s, i) => s.classList.toggle('active', i === n));
-      document.querySelectorAll('.progress-dot').forEach((dot, i) => {
-        dot.classList.remove('active', 'done');
-        if (i === n) dot.classList.add('active');
-        else if (i < n) dot.classList.add('done');
-      });
-    };
+    function autoAdvance(e, maxLen, nextEl) {
+      e.target.value = e.target.value.replace(/\D/g, '');
+      if (e.target.value.length >= maxLen && nextEl) {
+        nextEl.focus();
+        nextEl.select();
+      }
+    }
 
-    document.getElementById('btn-step0').onclick = () => {
-      const nomEl = document.getElementById('input-nombre');
-      const apeEl = document.getElementById('input-apellido');
-      const errNom = document.getElementById('err-nombre');
-      const errApe = document.getElementById('err-apellido');
+    inpDay.addEventListener('input',   e => autoAdvance(e, 2, inpMonth));
+    inpMonth.addEventListener('input', e => autoAdvance(e, 2, inpYear));
+    inpYear.addEventListener('input',  e => onlyDigits(e));
+
+    // ── SUBMIT ──
+    document.getElementById('btn-submit').onclick = async () => {
+      const nomEl      = document.getElementById('input-nombre');
+      const errNom     = document.getElementById('err-nombre');
+      const errFecha   = document.getElementById('err-fecha');
+      const errorBox   = document.getElementById('error-box');
+      const errorDetail = document.getElementById('error-detail');
+
       let valid = true;
 
-      if (!nomEl.value.trim()) {
-        nomEl.classList.add('error'); errNom.classList.add('visible'); valid = false;
+      // Name
+      if (!nomEl.value.trim() || nomEl.value.trim().split(/\s+/).length < 2) {
+        nomEl.classList.add('error');
+        errNom.classList.add('visible');
+        errNom.textContent = nomEl.value.trim() === ''
+          ? 'Ingresa tu nombre completo.'
+          : 'Ingresa también tu apellido.';
+        valid = false;
       } else {
         nomEl.classList.remove('error'); errNom.classList.remove('visible');
       }
-      if (!apeEl.value.trim()) {
-        apeEl.classList.add('error'); errApe.classList.add('visible'); valid = false;
+
+      // Date
+      const d  = parseInt(inpDay.value);
+      const mo = parseInt(inpMonth.value);
+      const y  = parseInt(inpYear.value);
+      const dateValid = d >= 1 && d <= 31 && mo >= 1 && mo <= 12 && y >= 1920 && y <= 2020;
+
+      if (!dateValid) {
+        inpDay.classList.toggle('error',   !(d  >= 1  && d  <= 31));
+        inpMonth.classList.toggle('error', !(mo >= 1  && mo <= 12));
+        inpYear.classList.toggle('error',  !(y  >= 1920 && y <= 2020));
+        errFecha.classList.add('visible');
+        valid = false;
       } else {
-        apeEl.classList.remove('error'); errApe.classList.remove('visible');
+        inpDay.classList.remove('error');
+        inpMonth.classList.remove('error');
+        inpYear.classList.remove('error');
+        errFecha.classList.remove('visible');
       }
 
-      if (valid) showStep(1);
-    };
-
-    document.getElementById('back-step1').onclick = () => {
-      document.getElementById('error-box').classList.remove('visible');
-      showStep(0);
-    };
-
-    document.getElementById('btn-submit').onclick = async () => {
-      const d = selDay.value;
-      const m = document.getElementById('sel-month').value;
-      const y = selYear.value;
-      const errFecha  = document.getElementById('err-fecha');
-      const errorBox  = document.getElementById('error-box');
-      const errorDetail = document.getElementById('error-detail');
-
-      if (!d || !m || !y) { errFecha.classList.add('visible'); return; }
-      errFecha.classList.remove('visible');
+      if (!valid) return;
       errorBox.classList.remove('visible');
 
-      const nombreFull = `${document.getElementById('input-nombre').value.trim()} ${document.getElementById('input-apellido').value.trim()}`;
+      const dd = String(d).padStart(2, '0');
+      const mm = String(mo).padStart(2, '0');
+      const nombreFull = nomEl.value.trim();
+
       const btn = document.getElementById('btn-submit');
       btn.disabled = true;
       btn.textContent = 'Procesando...';
 
       try {
         // 1. Guardar en tabla personas
-        //    numero se guarda CON '+' → "+51987654321"
-        //    La edge function también recibe este mismo valor en fromNumber
         const resPersona = await fetch(`${SUPABASE_URL}/rest/v1/personas`, {
           method: 'POST',
           headers: {
@@ -283,8 +331,8 @@
           },
           body: JSON.stringify({
             nombre:    nombreFull,
-            fecha_nac: `${y}-${m}-${d}`,
-            numero:    numero           // "+51987654321"
+            fecha_nac: `${y}-${mm}-${dd}`,
+            numero:    numero
           })
         });
 
@@ -293,10 +341,9 @@
           throw new Error(`Error al guardar perfil: ${body.message || resPersona.status}`);
         }
 
-        // 2. Invocar la edge function para inscribir en la pichanga
-        //    fromNumber usa el mismo valor que guardamos en personas.numero
+        // 2. Invocar edge function para inscribir en la pichanga
         if (matchId && numero) {
-          await new Promise(r => setTimeout(r, 600)); // margen para lag de DB
+          await new Promise(r => setTimeout(r, 600));
 
           console.log(`Invocando edge function: /anotarme ${matchId} para ${numero}`);
           const resEdge = await fetch(EDGE_FUNCTION_URL, {
@@ -307,7 +354,7 @@
             },
             body: JSON.stringify({
               data: {
-                fromNumber: numero,          // "+51987654321" — igual que personas.numero
+                fromNumber: numero,
                 body: `/anotarme ${matchId}`
               }
             })
@@ -329,10 +376,9 @@
           }
         }
 
-        // 3. Mostrar pantalla de éxito
+        // 3. Mostrar éxito
         document.getElementById('form-header').style.display = 'none';
-        document.getElementById('progress').style.display = 'none';
-        document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
+        document.getElementById('main-form').style.display = 'none';
         document.getElementById('success-name').textContent = nombreFull;
         document.getElementById('success-screen').classList.add('active');
 
