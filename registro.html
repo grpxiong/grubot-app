@@ -295,11 +295,11 @@
         // 2. Re-invocar la edge function con el comando /anotarme
         //    fromNumber se envía SIN '+', igual que WhatsApp lo manda normalmente,
         //    para que el lookup en personas coincida con lo guardado en la DB.
-        if (matchId && numeroEdge) {
+        if (matchId && numero) {
           // Pequeña pausa para asegurar que el INSERT de personas ya es visible
           await new Promise(r => setTimeout(r, 500));
 
-          console.log(`Invocando edge function: /anotarme ${matchId} para ${numeroEdge}`);
+          console.log(`Invocando edge function: /anotarme ${matchId} para ${numero}`);
           const resEdge = await fetch(EDGE_FUNCTION_URL, {
             method: 'POST',
             headers: {
