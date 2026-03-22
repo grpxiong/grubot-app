@@ -193,10 +193,10 @@
 
   <script>
     // Configuración
-    const SUPABASE_URL = 'https://fzrpjbojyzzohcypgfzm.supabase.co';
-    const SUPABASE_KEY = 'sb_publishable_6WvoLA-b4diZ4_omsc-XUg_5iNrppdz';
-    const N8N_WEBHOOK_URL = 'TU_URL_DE_N8N_AQUI'; // <--- PEGA TU WEBHOOK DE N8N AQUÍ
-
+    const SUPABASE_URL = window.ENV.SUPABASE_URL;
+    const SUPABASE_KEY = window.ENV.SUPABASE_KEY;
+    const N8N_WEBHOOK_URL = window.ENV.N8N_WEBHOOK_URL
+    
     // Captura de parámetros URL
     const urlParams = new URLSearchParams(window.location.search);
     const numero = (urlParams.get('numero') || '').replace(/\s/g, '+') || null;
@@ -273,8 +273,7 @@
 
         if (!res.ok) throw new Error("No se pudo guardar el registro.");
 
-        // 2. Avisar a n8n para auto-inscripción
-        if (N8N_WEBHOOK_URL !== 'TU_URL_DE_N8N_AQUI') {
+        if (N8N_WEBHOOK_URL !== window.ENV.N8N_WEBHOOK_URL) {
             await fetch(N8N_WEBHOOK_URL, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -282,7 +281,7 @@
                     event: "registration_completed",
                     user: nombreFull,
                     phone: numero,
-                    match_id: matchId // n8n usará esto para anotarlo automáticamente
+                    match_id: matchId
                 })
             }).catch(e => console.warn("Fallo al notificar n8n:", e));
         }
