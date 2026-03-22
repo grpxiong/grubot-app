@@ -354,7 +354,7 @@
 
         // 2. Invocar edge function para inscribir en la pichanga
         if (matchId && numero) {
-          await new Promise(r => setTimeout(r, 600));
+          await new Promise(r => setTimeout(r, 300));
 
           console.log(`Invocando edge function: /anotarme ${matchId} para ${numero}`);
           const resEdge = await fetch(EDGE_FUNCTION_URL, {
