@@ -188,9 +188,8 @@
     const EDGE_FUNCTION_URL = window.ENV.EDGE_FUNCTION_URL;
 
     const urlParams = new URLSearchParams(window.location.search);
-    const numero = (urlParams.get('numero') || '').replace(/\s/g, '+') || null;
-    const numeroEdge = numero ? numero.replace(/^\+/, '') : null;
-    const matchId = urlParams.get('match_id') || null;
+    const numero = (urlParams.get('num') || '') || null;
+    const matchId = urlParams.get('match') || null;
 
     if (!numero) {
       document.querySelector('#form-header p').innerHTML +=
