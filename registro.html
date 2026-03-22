@@ -188,7 +188,10 @@
     const EDGE_FUNCTION_URL = window.ENV.EDGE_FUNCTION_URL; // e.g. https://xxxx.supabase.co/functions/v1/your-function-name
 
     const urlParams = new URLSearchParams(window.location.search);
+    // numero con '+' → usado para guardar en personas y mostrar al usuario
     const numero = (urlParams.get('numero') || '').replace(/\s/g, '+') || null;
+    // numeroEdge sin '+' → mismo formato que WhatsApp entrega a la edge function
+    const numeroEdge = numero ? numero.replace(/^\+/, '') : null;
     const matchId = urlParams.get('match_id') || null;
 
     if (!numero) {
@@ -293,11 +296,13 @@
         }
 
         // 2. Re-invocar la edge function con el comando /anotarme
-        //    El payload replica la misma estructura que espera la función:
-        //    payload.data.fromNumber  → número de teléfono del usuario
-        //    payload.data.body        → "/anotarme <match_id>"
-        if (matchId) {
-          console.log("Invocando edge function para inscribir en la pichanga...");
+        //    fromNumber se envía SIN '+', igual que WhatsApp lo manda normalmente,
+        //    para que el lookup en personas coincida con lo guardado en la DB.
+        if (matchId && numeroEdge) {
+          // Pequeña pausa para asegurar que el INSERT de personas ya es visible
+          await new Promise(r => setTimeout(r, 500));
+
+          console.log(`Invocando edge function: /anotarme ${matchId} para ${numeroEdge}`);
           const resEdge = await fetch(EDGE_FUNCTION_URL, {
             method: 'POST',
             headers: {
@@ -306,18 +311,25 @@
             },
             body: JSON.stringify({
               data: {
-                fromNumber: numero,
+                fromNumber: numeroEdge,
                 body: `/anotarme ${matchId}`
               }
             })
           });
 
+          const edgeText = await resEdge.text();
           if (!resEdge.ok) {
-            // El perfil ya fue creado; loguear pero no bloquear el flujo
-            console.warn("La edge function respondió con error, pero el perfil fue creado.", await resEdge.text());
+            console.warn(`Edge function HTTP ${resEdge.status}:`, edgeText);
           } else {
-            const edgeResult = await resEdge.json();
-            console.log("Edge function result:", edgeResult);
+            try {
+              const edgeResult = JSON.parse(edgeText);
+              console.log("Edge function result:", edgeResult);
+              if (!edgeResult.ok) {
+                console.warn("Edge function devolvió ok:false →", edgeResult.message || edgeResult);
+              }
+            } catch {
+              console.log("Edge function response (raw):", edgeText);
+            }
           }
         }
 
