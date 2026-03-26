@@ -1,161 +1,299 @@
 <!DOCTYPE html>
-<html>
+<html lang="es">
 <head>
+  <meta charset="UTF-8" />
   <title>Editar Pichanga</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
   <style>
-    /* Reusing your exact same styles for consistency */
     :root {
       --primary: #059669;
       --primary-hover: #047857;
-      --bg-overlay: rgba(15, 23, 42, 0.9);
+      --primary-light: rgba(5, 150, 105, 0.08);
+      --primary-glow: rgba(5, 150, 105, 0.2);
+      --bg: #f0fdf4;
       --bg-card: #ffffff;
       --bg-muted: #f8fafc;
-      --border: #e2e8f0;
+      --border: #d1fae5;
+      --border-focus: #059669;
       --text-main: #1e293b;
       --text-muted: #64748b;
-      --shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+      --text-light: #94a3b8;
+      --error: #ef4444;
+      --error-bg: #fef2f2;
+      --error-border: #fecaca;
+      --shadow: 0 20px 60px -10px rgba(5, 150, 105, 0.15), 0 4px 16px rgba(0, 0, 0, 0.06);
+      --shadow-button: 0 10px 20px -8px rgba(5, 150, 105, 0.28);
+      --radius-lg: 28px;
+      --radius-md: 14px;
     }
-    #pichanga-overlay {
-      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-      background: var(--bg-overlay); z-index: 10000;
-      display: flex; align-items: center; justify-content: center;
-      font-family: 'Inter', sans-serif; box-sizing: border-box; padding: 20px;
-      backdrop-filter: blur(4px);
+
+    * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+    html { -webkit-text-size-adjust: 100%; }
+    body {
+      min-height: 100vh;
+      background: var(--bg);
+      color: var(--text-main);
+      font-family: 'DM Sans', sans-serif;
+      background-image:
+        radial-gradient(ellipse at 20% 20%, rgba(5,150,105,0.08) 0%, transparent 60%),
+        radial-gradient(ellipse at 80% 80%, rgba(4,120,87,0.06) 0%, transparent 60%);
     }
-    #pichanga-form {
-      background: var(--bg-card); padding: 32px; border-radius: 24px;
-      width: 100%; max-width: 440px; display: flex; flex-direction: column;
-      gap: 18px; box-shadow: var(--shadow); max-height: 92vh; overflow-y: auto;
+
+    .page { width: 100%; max-width: 480px; margin: 0 auto; min-height: 100vh; padding: 18px; display: flex; align-items: stretch; }
+    .ui-card { width: 100%; background: var(--bg-card); border-radius: 0; padding: 28px 18px 24px; border: none; }
+
+    @media (min-width: 640px) {
+      body { padding: 32px 16px; }
+      .page { min-height: auto; align-items: center; }
+      .ui-card { border-radius: var(--radius-lg); padding: 40px 36px; border: 1px solid var(--border); box-shadow: var(--shadow); }
     }
-    .p-label { font-size: 11px; font-weight: 700; color: var(--text-muted); margin-bottom: 6px; display: block; text-transform: uppercase; }
-    .p-input { width: 100%; padding: 12px 16px; border: 1.5px solid var(--border); border-radius: 10px; font-size: 13px; color: var(--text-main); background: var(--bg-muted); outline: none; transition: all 0.2s; }
-    .p-input:focus { border-color: var(--primary); background: white; box-shadow: 0 0 0 4px rgba(5, 150, 105, 0.1); }
-    .p-two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-    .btn-gen { width: 100%; padding: 16px; border: none; border-radius: 14px; background: var(--primary); color: white; font-weight: 700; cursor: pointer; margin-top: 8px; }
-    .btn-cancel { width: 100%; background: none; border: none; color: var(--text-muted); font-size: 14px; cursor: pointer; padding: 8px; text-decoration: underline; }
-    .loading-msg { text-align: center; color: var(--primary); font-weight: 600; }
+
+    .header { margin-bottom: 24px; }
+    .badge { display: inline-flex; align-items: center; gap: 8px; min-height: 32px; padding: 0 12px; border-radius: 999px; background: var(--primary-light); color: var(--primary); font-size: 12px; font-weight: 600; margin-bottom: 14px; }
+    .h1-brand { font-family: 'DM Serif Display', serif; font-size: 30px; line-height: 1.15; letter-spacing: -0.02em; margin-bottom: 8px; }
+    .h1-brand span { color: var(--primary); }
+    .subtitle { font-size: 14px; line-height: 1.5; color: var(--text-muted); max-width: 32ch; }
+
+    .form { display: flex; flex-direction: column; gap: 20px; }
+    .section { display: flex; flex-direction: column; gap: 16px; }
+    .field { display: flex; flex-direction: column; gap: 8px; min-width: 0; overflow: hidden; }
+    .label-caps { font-size: 11px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.07em; }
+    .grid { display: grid; gap: 12px; }
+    .grid-2 { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+
+    .ui-input, .btn-brand-primary, .btn-secondary { width: 100%; min-height: 52px; font-family: inherit; font-size: 16px; border-radius: var(--radius-md); }
+    .ui-input { padding: 14px 12px; border: 1.5px solid var(--border); background: var(--bg-muted); color: var(--text-main); transition: all 0.2s ease; outline: none; min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+    .ui-input::placeholder { color: var(--text-light); }
+    .ui-input:focus { border-color: var(--border-focus); background: white; box-shadow: 0 0 0 4px var(--primary-glow); }
+
+    input[type="date"], input[type="time"] { -webkit-appearance: none; appearance: none; max-width: 100%; }
+
+    .actions { display: flex; flex-direction: column; gap: 10px; padding-top: 4px; }
+    .btn-brand-primary { background: var(--primary); color: white; border: none; padding: 16px; font-weight: 700; box-shadow: var(--shadow-button); transition: transform 0.1s, background 0.2s, opacity 0.2s; cursor: pointer; }
+    .btn-brand-primary:hover { background: var(--primary-hover); }
+    .btn-brand-primary:active { transform: scale(0.98); }
+    .btn-brand-primary:disabled { opacity: 0.7; cursor: not-allowed; }
+    .btn-secondary { background: transparent; border: none; color: var(--text-muted); font-weight: 600; cursor: pointer; }
+
+    .error-box { background: var(--error-bg); border: 1.5px solid var(--error-border); border-radius: var(--radius-md); padding: 14px 16px; display: none; }
+    .error-box.visible { display: block; }
+    .error-box strong { display: block; font-size: 13px; font-weight: 700; color: var(--error); margin-bottom: 4px; }
+    .error-box code { display: block; font-size: 12px; color: #b91c1c; word-break: break-all; white-space: pre-wrap; font-family: monospace; line-height: 1.5; }
+
+    .skeleton { background: linear-gradient(90deg, var(--border) 25%, #e8f5e9 50%, var(--border) 75%); background-size: 200% 100%; animation: shimmer 1.4s infinite; border-radius: var(--radius-md); height: 52px; }
+    @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+
+    .success { display: flex; flex-direction: column; align-items: center; text-align: center; padding: 36px 8px 8px; }
+    .success-icon { width: 72px; height: 72px; border-radius: 50%; display: grid; place-items: center; background: var(--primary-light); color: var(--primary); font-size: 32px; margin-bottom: 18px; }
+    .success h2 { font-family: 'DM Serif Display', serif; font-size: 30px; line-height: 1.15; margin-bottom: 8px; }
+    .success p { color: var(--text-muted); font-size: 15px; line-height: 1.5; max-width: 28ch; }
+
+    @media (max-width: 380px) {
+      .grid-2 { grid-template-columns: 1fr; }
+      .h1-brand { font-size: 28px; }
+    }
   </style>
 </head>
 <body>
-  <script>
-    (async function() {
-      const SUPABASE_URL = 'https://fzrpjbojyzzohcypgfzm.supabase.co';
-      const SUPABASE_KEY = 'sb_publishable_6WvoLA-b4diZ4_omsc-XUg_5iNrppdz';
-      
-      // Get ID from URL: editor.html?id=123
-      const params = new URLSearchParams(window.location.search);
-      const recordId = params.get('id');
+  <main class="page">
+    <section class="ui-card" id="card">
 
-      if (!recordId) {
-        document.body.innerHTML = '<div id="pichanga-overlay"><div id="pichanga-form"><p class="loading-msg">Error: No se encontró ID de pichanga.</p></div></div>';
+      <header class="header">
+        <div class="badge">✏️ Editar pichanga</div>
+        <h1 class="h1-brand">Edita tu <span>partido</span></h1>
+        <p class="subtitle">Actualiza los datos y guarda los cambios.</p>
+      </header>
+
+      <!-- Skeleton shown while loading -->
+      <div id="skeleton" class="form">
+        <div class="section">
+          <div class="skeleton"></div>
+          <div class="skeleton"></div>
+        </div>
+        <div class="section">
+          <div class="grid grid-2"><div class="skeleton"></div><div class="skeleton"></div></div>
+          <div class="grid grid-2"><div class="skeleton"></div><div class="skeleton"></div></div>
+          <div class="skeleton"></div>
+        </div>
+        <div class="skeleton" style="height:52px;border-radius:var(--radius-md)"></div>
+      </div>
+
+      <!-- Real form, hidden until data loads -->
+      <form class="form" id="edit-form" style="display:none;">
+        <section class="section">
+          <div class="field">
+            <label class="label-caps" for="p-title">Nombre</label>
+            <input type="text" id="p-title" class="ui-input" placeholder="Ej: Los Galácticos" />
+          </div>
+          <div class="field">
+            <label class="label-caps" for="p-lugar">Lugar</label>
+            <input type="text" id="p-lugar" class="ui-input" placeholder="Cancha o dirección" />
+          </div>
+        </section>
+
+        <section class="section">
+          <div class="grid grid-2">
+            <div class="field">
+              <label class="label-caps" for="p-date">Fecha</label>
+              <input type="date" id="p-date" class="ui-input" />
+            </div>
+            <div class="field">
+              <label class="label-caps" for="p-count">Jugadores</label>
+              <input type="number" id="p-count" class="ui-input" min="2" />
+            </div>
+          </div>
+
+          <div class="grid grid-2">
+            <div class="field">
+              <label class="label-caps" for="p-start">Inicio</label>
+              <input type="time" id="p-start" class="ui-input" />
+            </div>
+            <div class="field">
+              <label class="label-caps" for="p-end">Fin</label>
+              <input type="time" id="p-end" class="ui-input" />
+            </div>
+          </div>
+
+          <div class="field">
+            <label class="label-caps" for="p-quota">Cuota por persona (S/)</label>
+            <input type="text" id="p-quota" class="ui-input" inputmode="decimal" />
+          </div>
+        </section>
+
+        <div class="error-box" id="error-box">
+          <strong>Error al guardar</strong>
+          <code id="error-detail"></code>
+        </div>
+
+        <div class="actions">
+          <button type="submit" class="btn-brand-primary" id="btn-save">Guardar cambios</button>
+          <button type="button" class="btn-secondary" id="btn-cancel">Cancelar</button>
+        </div>
+      </form>
+
+    </section>
+  </main>
+
+  <script src="config.js"></script>
+  <script>
+    const SUPABASE_URL = window.ENV.SUPABASE_URL;
+    const SUPABASE_KEY = window.ENV.SUPABASE_KEY;
+
+    const params = new URLSearchParams(window.location.search);
+    const recordId = params.get('id');
+
+    const skeleton = document.getElementById('skeleton');
+    const editForm = document.getElementById('edit-form');
+    const errorBox = document.getElementById('error-box');
+    const errorDetail = document.getElementById('error-detail');
+    const btnSave = document.getElementById('btn-save');
+
+    function showError(msg) {
+      errorDetail.textContent = msg;
+      errorBox.classList.add('visible');
+      errorBox.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+
+    function hideError() {
+      errorBox.classList.remove('visible');
+    }
+
+    // No ID in URL — show fatal error
+    if (!recordId) {
+      skeleton.innerHTML = `<p style="color:var(--error);font-weight:600;font-size:14px;">⚠ No se encontró ID de pichanga en la URL.</p>`;
+    } else {
+      // Load existing data
+      (async () => {
+        try {
+          const res = await fetch(`${SUPABASE_URL}/rest/v1/pichangas?id_pichanga=eq.${recordId}`, {
+            headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${SUPABASE_KEY}` }
+          });
+          const data = await res.json();
+          const p = data[0];
+          if (!p) throw new Error('Pichanga no encontrada.');
+
+          // Fill form
+          document.getElementById('p-title').value  = p.titulo || '';
+          document.getElementById('p-lugar').value  = p.lugar || '';
+          document.getElementById('p-date').value   = p.fecha_pichanga || '';
+          document.getElementById('p-start').value  = p.hora_inicio || '';
+          document.getElementById('p-end').value    = p.hora_fin || '';
+          document.getElementById('p-quota').value  = (p.cuota || 0).toFixed(2);
+          document.getElementById('p-count').value  = p.cantidad || '';
+
+          // Swap skeleton → form
+          skeleton.style.display = 'none';
+          editForm.style.display = 'flex';
+
+        } catch (err) {
+          skeleton.innerHTML = `<p style="color:var(--error);font-weight:600;font-size:14px;">⚠ ${err.message}</p>`;
+        }
+      })();
+    }
+
+    document.getElementById('btn-cancel').addEventListener('click', () => window.history.back());
+
+    document.getElementById('edit-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      hideError();
+
+      const updateData = {
+        titulo:         document.getElementById('p-title').value.trim(),
+        lugar:          document.getElementById('p-lugar').value.trim(),
+        fecha_pichanga: document.getElementById('p-date').value,
+        hora_inicio:    document.getElementById('p-start').value,
+        hora_fin:       document.getElementById('p-end').value,
+        cuota:          parseFloat(document.getElementById('p-quota').value),
+        cantidad:       parseInt(document.getElementById('p-count').value, 10)
+      };
+
+      if (!updateData.lugar) {
+        showError('El lugar no puede estar vacío.');
         return;
       }
 
-      // 1. Create UI Structure
-      const overlay = document.createElement('div'); overlay.id = 'pichanga-overlay';
-      const form = document.createElement('div'); form.id = 'pichanga-form';
-      form.innerHTML = `<h2 style="margin:0; color:var(--primary); font-size:20px; font-weight:800; text-align:center; margin-bottom:10px;">📝 Editar Pichanga</h2>
-                        <p class="loading-msg" id="load-status">Cargando datos...</p>`;
-      overlay.appendChild(form);
-      document.body.appendChild(overlay);
+      btnSave.disabled = true;
+      btnSave.textContent = 'Guardando...';
 
-      const createField = (labelTxt, id, type = 'text') => {
-        const div = document.createElement('div');
-        div.innerHTML = `<label class="p-label">${labelTxt}</label><input type="${type}" id="${id}" class="p-input">`;
-        return div;
-      };
-
-      // 2. Fetch Existing Data
       try {
         const res = await fetch(`${SUPABASE_URL}/rest/v1/pichangas?id_pichanga=eq.${recordId}`, {
-          headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` }
+          method: 'PATCH',
+          headers: {
+            apikey: SUPABASE_KEY,
+            Authorization: `Bearer ${SUPABASE_KEY}`,
+            'Content-Type': 'application/json',
+            Prefer: 'return=representation'
+          },
+          body: JSON.stringify(updateData)
         });
-        const data = await res.json();
-        const pichanga = data[0];
 
-        if (!pichanga) throw new Error("Pichanga no encontrada");
+        const body = await res.json().catch(() => null);
 
-        // Render inputs with existing data
-        document.getElementById('load-status').remove();
-        
-        form.appendChild(createField('Título', 'p-title'));
-        form.appendChild(createField('Lugar', 'p-lugar'));
-        form.appendChild(createField('Fecha', 'p-date', 'date'));
+        if (!res.ok) {
+          const msg = body?.message || body?.error || JSON.stringify(body) || `HTTP ${res.status}`;
+          const hint = body?.hint ? `\nHint: ${body.hint}` : '';
+          const detail = body?.details ? `\nDetalle: ${body.details}` : '';
+          throw new Error(`[${res.status}] ${msg}${hint}${detail}`);
+        }
 
-        const timeRow = document.createElement('div');
-        timeRow.className = 'p-two-col';
-        timeRow.innerHTML = `<div><label class="p-label">Inicio</label><input type="time" id="p-start" class="p-input"></div>
-                             <div><label class="p-label">Fin</label><input type="time" id="p-end" class="p-input"></div>`;
-        form.appendChild(timeRow);
-
-        const rowRow = document.createElement('div');
-        rowRow.className = 'p-two-col';
-        rowRow.appendChild(createField('Cuota', 'p-quota'));
-        rowRow.appendChild(createField('N° Jugadores', 'p-count', 'number'));
-        form.appendChild(rowRow);
-
-        // Fill values
-        document.getElementById('p-title').value = pichanga.titulo;
-        document.getElementById('p-lugar').value = pichanga.lugar || '';
-        document.getElementById('p-date').value = pichanga.fecha_pichanga;
-        document.getElementById('p-start').value = pichanga.hora_inicio;
-        document.getElementById('p-end').value = pichanga.hora_fin;
-        document.getElementById('p-quota').value = pichanga.cuota.toFixed(2);
-        document.getElementById('p-count').value = pichanga.cantidad;
-
-        // Buttons
-        const btnSave = document.createElement('button');
-        btnSave.textContent = 'Guardar Cambios';
-        btnSave.className = 'btn-gen';
-        
-        const btnCancel = document.createElement('button');
-        btnCancel.textContent = 'Cancelar';
-        btnCancel.className = 'btn-cancel';
-        btnCancel.onclick = () => window.history.back();
-
-        form.append(btnSave, btnCancel);
-
-        // 3. Update Logic
-        btnSave.onclick = async () => {
-          btnSave.disabled = true;
-          btnSave.textContent = 'Guardando...';
-
-          const updateData = {
-            titulo: document.getElementById('p-title').value,
-            lugar: document.getElementById('p-lugar').value,
-            fecha_pichanga: document.getElementById('p-date').value,
-            hora_inicio: document.getElementById('p-start').value,
-            hora_fin: document.getElementById('p-end').value,
-            cuota: parseFloat(document.getElementById('p-quota').value),
-            cantidad: parseInt(document.getElementById('p-count').value)
-          };
-
-          const patchRes = await fetch(`${SUPABASE_URL}/rest/v1/pichangas?id_pichanga=eq.${recordId}`, {
-            method: 'PATCH',
-            headers: {
-              'apikey': SUPABASE_KEY,
-              'Authorization': `Bearer ${SUPABASE_KEY}`,
-              'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(updateData)
-          });
-
-          if (patchRes.ok) {
-            alert('¡Actualizado correctamente!');
-            window.close(); // Or redirect
-          } else {
-            alert('Error al actualizar');
-            btnSave.disabled = false;
-            btnSave.textContent = 'Guardar Cambios';
-          }
-        };
+        document.getElementById('card').innerHTML = `
+          <section class="success">
+            <div class="success-icon">✓</div>
+            <h2>Cambios guardados</h2>
+            <p>La pichanga fue actualizada correctamente.</p>
+            <button class="btn-brand-primary" style="margin-top:24px" onclick="window.close()">Cerrar</button>
+          </section>
+        `;
 
       } catch (err) {
-        document.getElementById('load-status').textContent = "Error: " + err.message;
+        console.error('Error:', err);
+        showError(err.message);
+        btnSave.disabled = false;
+        btnSave.textContent = 'Guardar cambios';
       }
-    })();
+    });
   </script>
 </body>
 </html>
