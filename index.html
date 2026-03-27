@@ -29,6 +29,16 @@
       --radius-md: 14px;
       --radius-sm: 12px;
     }
+    
+    /* Estilos del Toggle Switch */
+    .switch-field { flex-direction: row; align-items: center; justify-content: space-between; padding: 4px 0; }
+    .switch { position: relative; display: inline-block; width: 46px; height: 24px; }
+    .switch input { opacity: 0; width: 0; height: 0; }
+    .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: var(--text-light); transition: .3s; border-radius: 24px; }
+    .slider:before { position: absolute; content: ""; height: 18px; width: 18px; left: 3px; bottom: 3px; background-color: white; transition: .3s; border-radius: 50%; }
+    input:checked + .slider { background-color: var(--primary); }
+    input:checked + .slider:before { transform: translateX(22px); }
+
 
     * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
     html { -webkit-text-size-adjust: 100%; }
@@ -63,6 +73,7 @@
     .label-caps { font-size: 11px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.07em; }
     .grid { display: grid; gap: 12px; }
     .grid-2 { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+    
 
     .ui-input, .btn-option, .btn-brand-primary, .btn-secondary { width: 100%; min-height: 52px; font-family: inherit; font-size: 16px; border-radius: var(--radius-md); }
     .ui-input { padding: 14px 12px; border: 1.5px solid var(--border); background: var(--bg-muted); color: var(--text-main); transition: all 0.2s ease; outline: none; min-width: 0; overflow: hidden; text-overflow: ellipsis; }
@@ -106,13 +117,13 @@
       <header class="header">
         <div class="badge">⚽ Nueva pichanga</div>
         <h1 class="h1-brand">Organiza tu <span>partido</span></h1>
-        <p class="subtitle">Completa lo esencial y publica la lista en segundos.</p>
+        <p class="subtitle">Completa los datos y el bot hará el resto.</p>
       </header>
 
       <form class="form" id="pichanga-form">
         <section class="section">
           <div class="field">
-            <label class="label-caps" for="p-title">Nombre</label>
+            <label class="label-caps" for="p-title">Nombre del evento</label>
             <input type="text" id="p-title" class="ui-input" value="PICHANGUITA #07" placeholder="Ej: Los Galácticos" />
           </div>
           <div class="field">
@@ -120,6 +131,7 @@
             <input type="text" id="p-lugar" class="ui-input" placeholder="Cancha o dirección" />
           </div>
         </section>
+
 
         <section class="section">
           <div class="grid grid-2">
@@ -133,13 +145,22 @@
             </div>
           </div>
 
+          <div class="field" style="flex-direction: row; align-items: center; justify-content: space-between; padding: 2px 0;">
+  <label class="label-caps" for="p-backups" style="margin-bottom: 0;">Permitir Suplentes</label>
+  <label class="switch">
+    <input type="checkbox" id="p-backups" checked>
+    <span class="slider round"></span>
+  </label>
+</div>
+
+          
           <div class="grid grid-2">
             <div class="field">
-              <label class="label-caps" for="p-start">Inicio</label>
+              <label class="label-caps" for="p-start">Hora inicio</label>
               <input type="time" id="p-start" class="ui-input" value="19:00" />
             </div>
             <div class="field">
-              <label class="label-caps" for="p-end">Fin</label>
+              <label class="label-caps" for="p-end">Hora fin</label>
               <input type="time" id="p-end" class="ui-input" value="20:00" />
             </div>
           </div>
@@ -244,7 +265,8 @@
         metodo_pago: document.getElementById('cb-yape').checked ? 'YAPE' : 'PLIN',
         numero_pago: document.getElementById('p-num').value.trim(),
         titular_pago: document.getElementById('p-nom').value.trim(),
-        cantidad: parseInt(document.getElementById('p-count').value, 10)
+        cantidad: parseInt(document.getElementById('p-count').value, 10),
+        permitir_backups: document.getElementById('p-backups').checked //
       };
 
       if (!payload.lugar || !payload.numero_pago) {
