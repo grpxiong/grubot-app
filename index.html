@@ -209,111 +209,124 @@
     </section>
   </main>
 
-  <script src="config.js"></script>
-  <script>
-    const SUPABASE_URL = window.ENV.SUPABASE_URL;
-    const SUPABASE_KEY = window.ENV.SUPABASE_KEY;
+ <script src="config.js"></script>
+<script>
+  const SUPABASE_URL = window.ENV.SUPABASE_URL;
+  const SUPABASE_KEY = window.ENV.SUPABASE_KEY;
 
-    const form = document.getElementById('pichanga-form');
-    const createBtn = document.getElementById('btn-crear');
-    const quotaInput = document.getElementById('p-quota');
-    const phoneInput = document.getElementById('p-num');
-    const dateInput = document.getElementById('p-date');
-    const errorBox = document.getElementById('error-box');
-    const errorDetail = document.getElementById('error-detail');
+  const form = document.getElementById('pichanga-form');
+  const createBtn = document.getElementById('btn-crear');
+  const quotaInput = document.getElementById('p-quota');
+  const phoneInput = document.getElementById('p-num');
+  const dateInput = document.getElementById('p-date');
+  const errorBox = document.getElementById('error-box');
+  const errorDetail = document.getElementById('error-detail');
 
-    const tomorrow = new Date();
-    tomorrow.setDate(tomorrow.getDate() + 1);
-    dateInput.value = tomorrow.toISOString().split('T')[0];
-    dateInput.min = new Date().toISOString().split('T')[0];
+  const tomorrow = new Date();
+  tomorrow.setDate(tomorrow.getDate() + 1);
+  dateInput.value = tomorrow.toISOString().split('T')[0];
+  dateInput.min = new Date().toISOString().split('T')[0];
 
-    const lockCursor = (el) => setTimeout(() => { const l = el.value.length; el.setSelectionRange(l, l); }, 0);
-    ['focus', 'click', 'keyup'].forEach(evt => quotaInput.addEventListener(evt, () => lockCursor(quotaInput)));
-    quotaInput.addEventListener('input', (e) => {
-      let val = e.target.value.replace(/\D/g, '');
-      e.target.value = (parseInt(val || 0, 10) / 100).toFixed(2);
-      lockCursor(e.target);
-    });
+  const lockCursor = (el) => setTimeout(() => { const l = el.value.length; el.setSelectionRange(l, l); }, 0);
+  ['focus', 'click', 'keyup'].forEach(evt => quotaInput.addEventListener(evt, () => lockCursor(quotaInput)));
+  quotaInput.addEventListener('input', (e) => {
+    let val = e.target.value.replace(/\D/g, '');
+    e.target.value = (parseInt(val || 0, 10) / 100).toFixed(2);
+    lockCursor(e.target);
+  });
 
-    phoneInput.addEventListener('input', (e) => {
-      e.target.value = e.target.value.replace(/\D/g, '').slice(0, 9);
-    });
+  phoneInput.addEventListener('input', (e) => {
+    e.target.value = e.target.value.replace(/\D/g, '').slice(0, 9);
+  });
 
-    document.getElementById('btn-cancel').addEventListener('click', () => window.close());
+  document.getElementById('btn-cancel').addEventListener('click', () => window.close());
 
-    function showError(msg) {
-      errorDetail.textContent = msg;
-      errorBox.classList.add('visible');
-      errorBox.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  function showError(msg) {
+    errorDetail.textContent = msg;
+    errorBox.classList.add('visible');
+    errorBox.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
+
+  function hideError() {
+    errorBox.classList.remove('visible');
+  }
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    hideError();
+
+    const payload = {
+      titulo: document.getElementById('p-title').value.trim(),
+      lugar: document.getElementById('p-lugar').value.trim(),
+      fecha_pichanga: document.getElementById('p-date').value,
+      hora_inicio: document.getElementById('p-start').value,
+      hora_fin: document.getElementById('p-end').value,
+      cuota: parseFloat(document.getElementById('p-quota').value),
+      metodo_pago: document.getElementById('cb-yape').checked ? 'YAPE' : 'PLIN',
+      numero_pago: document.getElementById('p-num').value.trim(),
+      titular_pago: document.getElementById('p-nom').value.trim(),
+      cantidad: parseInt(document.getElementById('p-count').value, 10),
+      permite_backups: document.getElementById('p-backups').checked
+    };
+
+    if (!payload.lugar || !payload.numero_pago) {
+      showError('Completa el lugar y el número de pago.');
+      return;
     }
 
-    function hideError() {
-      errorBox.classList.remove('visible');
+    createBtn.disabled = true;
+    createBtn.textContent = 'Publicando...';
+
+    try {
+      const res = await fetch(`${SUPABASE_URL}/rest/v1/pichangas`, {
+        method: 'POST',
+        headers: {
+          apikey: SUPABASE_KEY,
+          Authorization: `Bearer ${SUPABASE_KEY}`,
+          'Content-Type': 'application/json',
+          Prefer: 'return=representation'
+        },
+        body: JSON.stringify(payload)
+      });
+
+      const body = await res.json().catch(() => null);
+
+      if (!res.ok) {
+        const msg = body?.message || body?.error || JSON.stringify(body) || `HTTP ${res.status}`;
+        const hint = body?.hint ? `\nHint: ${body.hint}` : '';
+        const detail = body?.details ? `\nDetalle: ${body.details}` : '';
+        throw new Error(`[${res.status}] ${msg}${hint}${detail}`);
+      }
+
+      // ✅ Insert succeeded — body[0] is the new pichanga row
+      const newPichanga = body[0];
+
+      // 🔔 Notify n8n
+      await fetch('http://216.238.104.205:5678/webhook/1ada8f2d-1ba6-4b0b-b755-caf712fbb699', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          event: 'pichanga_created',
+          match_id: newPichanga.id_pichanga_pub,
+          pichanga: newPichanga
+        })
+      }).catch(err => console.warn('n8n notify failed (non-blocking):', err));
+
+      document.querySelector('.ui-card').innerHTML = `
+        <section class="success">
+          <div class="success-icon">✓</div>
+          <h2>Lista publicada</h2>
+          <p>El bot enviará el mensaje al grupo en breve.</p>
+          <button class="btn-brand-primary" style="margin-top:24px" onclick="window.close()">Cerrar</button>
+        </section>
+      `;
+    } catch (error) {
+      console.error('Supabase error:', error);
+      showError(error.message);
+      createBtn.disabled = false;
+      createBtn.textContent = 'Publicar lista';
     }
-
-    form.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      hideError();
-
-      const payload = {
-        titulo: document.getElementById('p-title').value.trim(),
-        lugar: document.getElementById('p-lugar').value.trim(),
-        fecha_pichanga: document.getElementById('p-date').value,
-        hora_inicio: document.getElementById('p-start').value,
-        hora_fin: document.getElementById('p-end').value,
-        cuota: parseFloat(document.getElementById('p-quota').value),
-        metodo_pago: document.getElementById('cb-yape').checked ? 'YAPE' : 'PLIN',
-        numero_pago: document.getElementById('p-num').value.trim(),
-        titular_pago: document.getElementById('p-nom').value.trim(),
-        cantidad: parseInt(document.getElementById('p-count').value, 10),
-        permite_backups: document.getElementById('p-backups').checked //
-      };
-
-      if (!payload.lugar || !payload.numero_pago) {
-        showError('Completa el lugar y el número de pago.');
-        return;
-      }
-
-      createBtn.disabled = true;
-      createBtn.textContent = 'Publicando...';
-
-      try {
-        const res = await fetch(`${SUPABASE_URL}/rest/v1/pichangas`, {
-          method: 'POST',
-          headers: {
-            apikey: SUPABASE_KEY,
-            Authorization: `Bearer ${SUPABASE_KEY}`,
-            'Content-Type': 'application/json',
-            Prefer: 'return=representation'
-          },
-          body: JSON.stringify(payload)
-        });
-
-        // Read the body regardless so we can show the real Supabase error
-        const body = await res.json().catch(() => null);
-
-        if (!res.ok) {
-          const msg = body?.message || body?.error || JSON.stringify(body) || `HTTP ${res.status}`;
-          const hint = body?.hint ? `\nHint: ${body.hint}` : '';
-          const detail = body?.details ? `\nDetalle: ${body.details}` : '';
-          throw new Error(`[${res.status}] ${msg}${hint}${detail}`);
-        }
-
-        document.querySelector('.ui-card').innerHTML = `
-          <section class="success">
-            <div class="success-icon">✓</div>
-            <h2>Lista publicada</h2>
-            <p>El bot enviará el mensaje al grupo en breve.</p>
-            <button class="btn-brand-primary" style="margin-top:24px" onclick="window.close()">Cerrar</button>
-          </section>
-        `;
-      } catch (error) {
-        console.error('Supabase error:', error);
-        showError(error.message);
-        createBtn.disabled = false;
-        createBtn.textContent = 'Publicar lista';
-      }
-    });
-  </script>
+  });
+</script>
 </body>
 </html>
