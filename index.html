@@ -433,8 +433,8 @@
       createBtn.disabled = true;
       createBtn.textContent = 'Publicando...';
 
-      try {
-        // Guardar en Supabase
+try {
+        // 1. Guardar en Supabase (Obligatorio)
         const res = await fetch(`${window.ENV.SUPABASE_URL}/rest/v1/pichangas`, {
           method: 'POST',
           headers: {
@@ -448,36 +448,32 @@
 
         if (!res.ok) {
           const body = await res.json().catch(() => null);
-          const msg = body?.message || body?.error || JSON.stringify(body) || `HTTP ${res.status}`;
-          throw new Error(`[${res.status}] ${msg}`);
+          throw new Error(body?.message || `Error Supabase: ${res.status}`);
         }
 
         const data = await res.json();
         const newPichanga = data[0];
 
-        // Notificar a n8n — use sendBeacon so it survives the DOM replacement
-        const n8nPayload = JSON.stringify({
-          event: 'pichanga_created',
-          match_id: newPichanga.id_pichanga_pub,
-          pichanga: newPichanga
-        });
-
-        const beaconSent = navigator.sendBeacon?.(
-          window.ENV.N8N_WEBHOOK_URL,
-          new Blob([n8nPayload], { type: 'application/json' })
-        );
-
-        // Fallback if sendBeacon is unavailable or fails
-        if (!beaconSent) {
-          fetch(window.ENV.N8N_WEBHOOK_URL, {
+        // 2. Notificar a n8n (Esperamos la confirmación antes de cerrar)
+        // Quitamos sendBeacon porque suele dar problemas de CORS con n8n
+        try {
+          await fetch(window.ENV.N8N_WEBHOOK_URL, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: n8nPayload,
-            keepalive: true
-          }).catch(err => console.warn('n8n notify failed:', err));
+            mode: 'no-cors', // Úsalo solo si tienes problemas de CORS, aunque 'cors' es ideal
+            body: JSON.stringify({
+              event: 'pichanga_created',
+              match_id: newPichanga.id_pichanga_pub,
+              pichanga: newPichanga
+            })
+          });
+          console.log('[Grubot] n8n notified successfully');
+        } catch (n8nErr) {
+          console.warn('[Grubot] n8n delivery failed, but record was saved:', n8nErr);
+          // No lanzamos error aquí para que el usuario vea el éxito de Supabase
         }
 
-        // Éxito
+        // 3. Éxito: Solo cambiamos el UI cuando todo lo anterior terminó
         document.querySelector('.page').innerHTML = `
           <div class="success">
             <div class="success-icon">✓</div>
