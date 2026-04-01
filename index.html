@@ -93,6 +93,33 @@
 
     .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
 
+    /* ── Google Places dropdown fixes ── */
+.pac-container {
+  z-index: 99999 !important;
+  background-color: var(--bg-card);
+  border-radius: var(--radius);
+  border: 1.5px solid var(--border);
+  font-family: 'DM Sans', sans-serif;
+  margin-top: 4px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+  pointer-events: auto;
+}
+.pac-item {
+  padding: 10px 12px;
+  cursor: pointer;
+  border-top: 1px solid var(--bg-input);
+  color: var(--text-muted);
+  font-size: 13px;
+  line-height: 1.4;
+}
+.pac-item:hover { background-color: var(--primary-light); }
+.pac-item-query { color: var(--text-main); font-size: 14px; }
+.pac-matched { color: var(--primary); font-weight: 600; }
+.pac-logo:after { display: none; }
+
+/* Prevent cards from clipping the dropdown */
+.card { overflow: visible; }
+    
     .toggle-row {
       display: flex; align-items: center;
       justify-content: space-between; padding: 2px 0;
@@ -143,9 +170,6 @@
       width: 64px; height: 64px; border-radius: 50%; background: var(--primary-light);
       color: var(--primary); font-size: 28px; margin: 0 auto 16px; display: grid; place-items: center;
     }
-
-    /* Estilos Autocomplete de Google */
-    .pac-container { border-radius: 12px; border: 1px solid var(--border); box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
 
     @media (min-width: 480px) {
       body { padding: 24px 16px; }
@@ -252,31 +276,48 @@
   <script src="config.js"></script>
   <script>
     // 1. Iniciar Autocomplete (Callback de Google)
-    function initAutocomplete() {
-      const input = document.getElementById('p-lugar');
-      const autocomplete = new google.maps.places.Autocomplete(input, {
-        componentRestrictions: { country: 'pe' },
-        fields: ['formatted_address', 'geometry', 'name'],
-        types: ['establishment', 'geocode'],
-      });
+function initAutocomplete() {
+  const input = document.getElementById('p-lugar');
+  if (!input) return;
 
-      input.addEventListener('keydown', (e) => { if (e.key === 'Enter') e.preventDefault(); });
+  const autocomplete = new google.maps.places.Autocomplete(input, {
+    componentRestrictions: { country: 'pe' },
+    fields: ['formatted_address', 'geometry', 'name'],
+    types: ['establishment', 'geocode'],
+  });
 
-      autocomplete.addListener('place_changed', () => {
-        const place = autocomplete.getPlace();
-        if (!place.geometry) return;
-        input.value = place.formatted_address || place.name;
-      });
+  // Fix: move pac-container to body so it's never clipped by parent elements
+  google.maps.event.addListener(autocomplete, 'place_changed', () => {});
+  const observer = new MutationObserver(() => {
+    const pac = document.querySelector('.pac-container');
+    if (pac && pac.parentElement !== document.body) {
+      document.body.appendChild(pac);
     }
+  });
+  observer.observe(document.body, { childList: true, subtree: true });
 
+  input.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') e.preventDefault();
+  });
+
+  autocomplete.addListener('place_changed', () => {
+    const place = autocomplete.getPlace();
+    if (!place.geometry) return;
+    input.value = place.formatted_address || place.name;
+  });
+}
     // 2. Carga Dinámica de Google Maps usando config.js
-    (function loadGoogle() {
-      const script = document.createElement('script');
-      script.src = `https://maps.googleapis.com/maps/api/js?key=${window.ENV.GOOGLE_MAPS_KEY}&libraries=places&callback=initAutocomplete`;
-      script.async = true;
-      script.defer = true;
-      document.head.appendChild(script);
-    })();
+(function loadGoogle() {
+  if (!window.ENV?.GOOGLE_MAPS_KEY) {
+    console.error('Falta GOOGLE_MAPS_KEY en config.js');
+    return;
+  }
+  const script = document.createElement('script');
+  script.src = `https://maps.googleapis.com/maps/api/js?key=${window.ENV.GOOGLE_MAPS_KEY}&libraries=places&callback=initAutocomplete`;
+  script.async = true;
+  script.defer = true;
+  document.head.appendChild(script);
+})();
 
     // 3. Lógica de Interfaz
     const form = document.getElementById('pichanga-form');
@@ -338,7 +379,11 @@
           body: JSON.stringify(payload)
         });
 
-        if (!res.ok) throw new Error('Error al guardar en base de datos');
+if (!res.ok) {
+  const body = await res.json().catch(() => null);
+  const msg = body?.message || body?.error || JSON.stringify(body) || `HTTP ${res.status}`;
+  throw new Error(`[${res.status}] ${msg}`);
+}
         
         const data = await res.json();
         const newPichanga = data[0];
@@ -352,6 +397,7 @@
             match_id: newPichanga.id_pichanga_pub,
             pichanga: newPichanga
           })
+           .catch(err => console.warn('n8n notify failed:', err));
         });
 
         // Éxito
