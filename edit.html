@@ -569,24 +569,27 @@
           throw new Error(`[${res.status}] ${msg}${hint}${detail}`);
         }
 
-        const updatedPichanga = body[0];
+        const updatedPichanga = body?.[0] || null;
 
         // 2. Notify n8n
         const n8nData = {
           event: 'pichanga_updated',
-          match_id: updatedPichanga.id_pichanga_pub,
-          pichanga: updatedPichanga
+          match_id: updatedPichanga?.id_pichanga_pub || recordId,
+          pichanga: updatedPichanga || { ...updateData, id_pichanga_pub: recordId }
         };
 
+        console.log('[Grubot] Sending to n8n:', window.ENV.N8N_WEBHOOK_URL, n8nData);
+
         try {
-          await fetch(window.ENV.N8N_WEBHOOK_URL, {
+          const n8nRes = await fetch(window.ENV.N8N_WEBHOOK_URL, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(n8nData),
             keepalive: true
           });
+          console.log('[Grubot] n8n response status:', n8nRes.status);
         } catch (n8nErr) {
-          console.warn('n8n delivery failed, but record was saved:', n8nErr);
+          console.warn('[Grubot] n8n delivery failed, but record was saved:', n8nErr);
         }
 
         // 3. Show success
