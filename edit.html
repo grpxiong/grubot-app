@@ -69,6 +69,7 @@
       border-radius: 16px;
       padding: 14px;
       display: flex; flex-direction: column; gap: 10px;
+      overflow: visible;
     }
     .card-label {
       font-size: 10px; font-weight: 700; color: var(--text-light);
@@ -96,6 +97,33 @@
     #p-quota { text-align: right; letter-spacing: 1px; font-variant-numeric: tabular-nums; }
 
     .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+
+    /* ── Google Places dropdown fixes ── */
+    .pac-container {
+      z-index: 99999 !important;
+      background-color: var(--bg-card);
+      border-radius: var(--radius);
+      border: 1.5px solid var(--border);
+      font-family: 'DM Sans', sans-serif;
+      margin-top: 4px;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+      pointer-events: auto;
+    }
+    .pac-item {
+      padding: 10px 12px;
+      cursor: pointer;
+      border-top: 1px solid var(--bg-input);
+      color: var(--text-muted);
+      font-size: 13px;
+      line-height: 1.4;
+      padding-left: 12px;
+    }
+    .pac-item:hover { background-color: var(--primary-light); }
+    .pac-item-query { color: var(--text-main); font-size: 14px; }
+    .pac-matched { color: var(--primary); font-weight: 600; }
+    .pac-logo:after { display: none; }
+    .pac-icon, .pac-icon-marker { display: none; }
+    .hdpi .pac-icon, .hdpi .pac-icon-marker { display: none; }
 
     /* Toggle */
     .toggle-row {
@@ -237,7 +265,7 @@
         </div>
         <div class="field">
           <label class="label" for="p-lugar">Lugar</label>
-          <input type="text" id="p-lugar" class="ui-input" placeholder="Cancha o dirección" />
+          <input type="text" id="p-lugar" class="ui-input" placeholder="Cancha o dirección" autocomplete="off" />
         </div>
       </div>
 
@@ -293,7 +321,7 @@
         <div class="grid-2">
           <div class="field">
             <label class="label" for="p-num">Número</label>
-            <input type="text" id="p-num" class="ui-input" placeholder="999888777" inputmode="numeric" maxlength="9" />
+            <input type="text" id="p-num" class="ui-input" placeholder="999888777" inputmode="numeric" maxlength="9" pattern="[0-9]*" />
           </div>
           <div class="field">
             <label class="label" for="p-nom">Titular</label>
@@ -330,19 +358,111 @@
     const quotaInput = document.getElementById('p-quota');
     const phoneInput = document.getElementById('p-num');
 
-    // Quota formatting
-    const lockCursor = (el) => setTimeout(() => { const l = el.value.length; el.setSelectionRange(l, l); }, 0);
-    ['focus', 'click', 'keyup'].forEach(evt => quotaInput.addEventListener(evt, () => lockCursor(quotaInput)));
-    quotaInput.addEventListener('input', (e) => {
-      let val = e.target.value.replace(/\D/g, '');
-      e.target.value = (parseInt(val || 0, 10) / 100).toFixed(2);
-      lockCursor(e.target);
+    // ─── ATM-style quota input (right-to-left) ───
+    let quotaCents = 0;
+
+    quotaInput.addEventListener('keydown', (e) => {
+      const allowed = ['Backspace', 'Delete', 'Tab', 'Escape', 'Enter',
+                        'ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'];
+      if (allowed.includes(e.key)) {
+        if (e.key === 'Backspace') {
+          e.preventDefault();
+          quotaCents = Math.floor(quotaCents / 10);
+          quotaInput.value = (quotaCents / 100).toFixed(2);
+        }
+        return;
+      }
+      if (!/^[0-9]$/.test(e.key)) {
+        e.preventDefault();
+        return;
+      }
+      e.preventDefault();
+      if (quotaCents >= 999999) return;
+      quotaCents = quotaCents * 10 + parseInt(e.key, 10);
+      quotaInput.value = (quotaCents / 100).toFixed(2);
     });
 
-    phoneInput.addEventListener('input', (e) => {
-      e.target.value = e.target.value.replace(/\D/g, '').slice(0, 9);
+    quotaInput.addEventListener('focus', () => { quotaInput.select(); });
+
+    quotaInput.addEventListener('paste', (e) => {
+      e.preventDefault();
+      const pasted = (e.clipboardData || window.clipboardData).getData('text');
+      const digits = pasted.replace(/\D/g, '');
+      if (digits) {
+        quotaCents = parseInt(digits, 10);
+        if (quotaCents > 999999) quotaCents = 999999;
+        quotaInput.value = (quotaCents / 100).toFixed(2);
+      }
     });
 
+    // ─── Número input — only allow digits ───
+    phoneInput.addEventListener('keydown', (e) => {
+      const allowed = ['Backspace', 'Delete', 'Tab', 'Escape', 'Enter',
+                        'ArrowLeft', 'ArrowRight', 'Home', 'End'];
+      if (allowed.includes(e.key) || e.ctrlKey || e.metaKey) return;
+      if (!/^[0-9]$/.test(e.key)) {
+        e.preventDefault();
+      }
+    });
+
+    phoneInput.addEventListener('paste', (e) => {
+      e.preventDefault();
+      const pasted = (e.clipboardData || window.clipboardData).getData('text');
+      const digits = pasted.replace(/\D/g, '').slice(0, 9);
+      phoneInput.value = digits;
+    });
+
+    // ─── Google Places Autocomplete ───
+    function initAutocomplete() {
+      const input = document.getElementById('p-lugar');
+      if (!input) return;
+
+      const autocomplete = new google.maps.places.Autocomplete(input, {
+        componentRestrictions: { country: 'pe' },
+        fields: ['formatted_address', 'geometry', 'name'],
+        types: ['establishment', 'geocode'],
+      });
+
+      // Move pac-container to body so it's never clipped
+      const observer = new MutationObserver(() => {
+        const pac = document.querySelector('.pac-container');
+        if (pac && pac.parentElement !== document.body) {
+          document.body.appendChild(pac);
+        }
+      });
+      observer.observe(document.body, { childList: true, subtree: true });
+
+      input.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') e.preventDefault();
+      });
+
+      autocomplete.addListener('place_changed', () => {
+        const place = autocomplete.getPlace();
+        if (!place.geometry) return;
+        const name = place.name || '';
+        const addr = place.formatted_address || '';
+        if (name && addr && !addr.startsWith(name)) {
+          input.value = `${name}, ${addr}`;
+        } else {
+          input.value = addr || name;
+        }
+      });
+    }
+
+    // Load Google Maps API dynamically
+    (function loadGoogle() {
+      if (!window.ENV?.GOOGLE_MAPS_KEY) {
+        console.warn('Falta GOOGLE_MAPS_KEY en config.js — Places autocomplete desactivado.');
+        return;
+      }
+      const script = document.createElement('script');
+      script.src = `https://maps.googleapis.com/maps/api/js?key=${window.ENV.GOOGLE_MAPS_KEY}&libraries=places&callback=initAutocomplete`;
+      script.async = true;
+      script.defer = true;
+      document.head.appendChild(script);
+    })();
+
+    // ─── Helpers ───
     function showError(msg) {
       errorDetail.textContent = msg;
       errorBox.classList.add('visible');
@@ -353,6 +473,7 @@
       errorBox.classList.remove('visible');
     }
 
+    // ─── Load existing pichanga data ───
     if (!recordId) {
       skeleton.innerHTML = `<p style="color:var(--error);font-weight:600;font-size:14px;">⚠ No se encontró ID de pichanga en la URL.</p>`;
     } else {
@@ -371,11 +492,15 @@
           document.getElementById('p-date').value   = p.fecha_pichanga || '';
           document.getElementById('p-start').value  = p.hora_inicio || '';
           document.getElementById('p-end').value    = p.hora_fin || '';
-          document.getElementById('p-quota').value  = (p.cuota || 0).toFixed(2);
           document.getElementById('p-count').value  = p.cantidad || '';
           document.getElementById('p-backups').checked = p.permite_backups ?? true;
           document.getElementById('p-num').value    = p.numero_pago || '';
           document.getElementById('p-nom').value    = p.titular_pago || '';
+
+          // Set quota and sync quotaCents
+          const cuota = p.cuota || 0;
+          quotaCents = Math.round(cuota * 100);
+          document.getElementById('p-quota').value = cuota.toFixed(2);
 
           // Payment method
           if (p.metodo_pago === 'PLIN') {
@@ -395,6 +520,7 @@
 
     document.getElementById('btn-cancel').addEventListener('click', () => window.history.back());
 
+    // ─── Submit: update Supabase + notify n8n ───
     document.getElementById('edit-form').addEventListener('submit', async (e) => {
       e.preventDefault();
       hideError();
@@ -422,6 +548,7 @@
       btnSave.textContent = 'Guardando...';
 
       try {
+        // 1. Update in Supabase
         const res = await fetch(`${SUPABASE_URL}/rest/v1/pichangas?id_pichanga_pub=eq.${recordId}`, {
           method: 'PATCH',
           headers: {
@@ -442,6 +569,27 @@
           throw new Error(`[${res.status}] ${msg}${hint}${detail}`);
         }
 
+        const updatedPichanga = body[0];
+
+        // 2. Notify n8n
+        const n8nData = {
+          event: 'pichanga_updated',
+          match_id: updatedPichanga.id_pichanga_pub,
+          pichanga: updatedPichanga
+        };
+
+        try {
+          await fetch(window.ENV.N8N_WEBHOOK_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(n8nData),
+            keepalive: true
+          });
+        } catch (n8nErr) {
+          console.warn('n8n delivery failed, but record was saved:', n8nErr);
+        }
+
+        // 3. Show success
         document.getElementById('page').innerHTML = `
           <section class="success">
             <div class="success-icon">✓</div>
