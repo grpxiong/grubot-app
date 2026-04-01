@@ -305,7 +305,14 @@
       autocomplete.addListener('place_changed', () => {
         const place = autocomplete.getPlace();
         if (!place.geometry) return;
-        input.value = place.formatted_address || place.name;
+        // Combine name + address, avoiding duplication if address already contains the name
+        const name = place.name || '';
+        const addr = place.formatted_address || '';
+        if (name && addr && !addr.startsWith(name)) {
+          input.value = `${name}, ${addr}`;
+        } else {
+          input.value = addr || name;
+        }
       });
     }
 
