@@ -94,32 +94,32 @@
     .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
 
     /* ── Google Places dropdown fixes ── */
-.pac-container {
-  z-index: 99999 !important;
-  background-color: var(--bg-card);
-  border-radius: var(--radius);
-  border: 1.5px solid var(--border);
-  font-family: 'DM Sans', sans-serif;
-  margin-top: 4px;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
-  pointer-events: auto;
-}
-.pac-item {
-  padding: 10px 12px;
-  cursor: pointer;
-  border-top: 1px solid var(--bg-input);
-  color: var(--text-muted);
-  font-size: 13px;
-  line-height: 1.4;
-}
-.pac-item:hover { background-color: var(--primary-light); }
-.pac-item-query { color: var(--text-main); font-size: 14px; }
-.pac-matched { color: var(--primary); font-weight: 600; }
-.pac-logo:after { display: none; }
+    .pac-container {
+      z-index: 99999 !important;
+      background-color: var(--bg-card);
+      border-radius: var(--radius);
+      border: 1.5px solid var(--border);
+      font-family: 'DM Sans', sans-serif;
+      margin-top: 4px;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+      pointer-events: auto;
+    }
+    .pac-item {
+      padding: 10px 12px;
+      cursor: pointer;
+      border-top: 1px solid var(--bg-input);
+      color: var(--text-muted);
+      font-size: 13px;
+      line-height: 1.4;
+    }
+    .pac-item:hover { background-color: var(--primary-light); }
+    .pac-item-query { color: var(--text-main); font-size: 14px; }
+    .pac-matched { color: var(--primary); font-weight: 600; }
+    .pac-logo:after { display: none; }
 
-/* Prevent cards from clipping the dropdown */
-.card { overflow: visible; }
-    
+    /* Prevent cards from clipping the dropdown */
+    .card { overflow: visible; }
+
     .toggle-row {
       display: flex; align-items: center;
       justify-content: space-between; padding: 2px 0;
@@ -237,7 +237,7 @@
         <div class="card-label">Pago</div>
         <div class="field">
           <label class="label">Cuota (S/)</label>
-          <input type="text" id="p-quota" class="ui-input" value="0.00" inputmode="decimal" />
+          <input type="text" id="p-quota" class="ui-input" value="0.00" inputmode="decimal" style="text-align: right; font-variant-numeric: tabular-nums;" />
         </div>
         <div class="segmented">
           <div>
@@ -252,7 +252,7 @@
         <div class="grid-2">
           <div class="field">
             <label class="label">Número</label>
-            <input type="text" id="p-num" class="ui-input" placeholder="999888777" maxlength="9" />
+            <input type="text" id="p-num" class="ui-input" placeholder="999888777" maxlength="9" inputmode="numeric" pattern="[0-9]*" />
           </div>
           <div class="field">
             <label class="label">Titular</label>
@@ -276,54 +276,55 @@
   <script src="config.js"></script>
   <script>
     // 1. Iniciar Autocomplete (Callback de Google)
-function initAutocomplete() {
-  const input = document.getElementById('p-lugar');
-  if (!input) return;
+    function initAutocomplete() {
+      const input = document.getElementById('p-lugar');
+      if (!input) return;
 
-  const autocomplete = new google.maps.places.Autocomplete(input, {
-    componentRestrictions: { country: 'pe' },
-    fields: ['formatted_address', 'geometry', 'name'],
-    types: ['establishment', 'geocode'],
-  });
+      const autocomplete = new google.maps.places.Autocomplete(input, {
+        componentRestrictions: { country: 'pe' },
+        fields: ['formatted_address', 'geometry', 'name'],
+        types: ['establishment', 'geocode'],
+      });
 
-  // Fix: move pac-container to body so it's never clipped by parent elements
-  google.maps.event.addListener(autocomplete, 'place_changed', () => {});
-  const observer = new MutationObserver(() => {
-    const pac = document.querySelector('.pac-container');
-    if (pac && pac.parentElement !== document.body) {
-      document.body.appendChild(pac);
+      // Fix: move pac-container to body so it's never clipped by parent elements
+      const observer = new MutationObserver(() => {
+        const pac = document.querySelector('.pac-container');
+        if (pac && pac.parentElement !== document.body) {
+          document.body.appendChild(pac);
+        }
+      });
+      observer.observe(document.body, { childList: true, subtree: true });
+
+      input.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') e.preventDefault();
+      });
+
+      autocomplete.addListener('place_changed', () => {
+        const place = autocomplete.getPlace();
+        if (!place.geometry) return;
+        input.value = place.formatted_address || place.name;
+      });
     }
-  });
-  observer.observe(document.body, { childList: true, subtree: true });
 
-  input.addEventListener('keydown', (e) => {
-    if (e.key === 'Enter') e.preventDefault();
-  });
-
-  autocomplete.addListener('place_changed', () => {
-    const place = autocomplete.getPlace();
-    if (!place.geometry) return;
-    input.value = place.formatted_address || place.name;
-  });
-}
     // 2. Carga Dinámica de Google Maps usando config.js
-(function loadGoogle() {
-  if (!window.ENV?.GOOGLE_MAPS_KEY) {
-    console.error('Falta GOOGLE_MAPS_KEY en config.js');
-    return;
-  }
-  const script = document.createElement('script');
-  script.src = `https://maps.googleapis.com/maps/api/js?key=${window.ENV.GOOGLE_MAPS_KEY}&libraries=places&callback=initAutocomplete`;
-  script.async = true;
-  script.defer = true;
-  document.head.appendChild(script);
-})();
+    (function loadGoogle() {
+      if (!window.ENV?.GOOGLE_MAPS_KEY) {
+        console.error('Falta GOOGLE_MAPS_KEY en config.js');
+        return;
+      }
+      const script = document.createElement('script');
+      script.src = `https://maps.googleapis.com/maps/api/js?key=${window.ENV.GOOGLE_MAPS_KEY}&libraries=places&callback=initAutocomplete`;
+      script.async = true;
+      script.defer = true;
+      document.head.appendChild(script);
+    })();
 
     // 3. Lógica de Interfaz
     const form = document.getElementById('pichanga-form');
     const createBtn = document.getElementById('btn-crear');
     const quotaInput = document.getElementById('p-quota');
     const dateInput = document.getElementById('p-date');
+    const numInput = document.getElementById('p-num');
 
     // Fecha por defecto: Mañana
     const tomorrow = new Date();
@@ -331,10 +332,66 @@ function initAutocomplete() {
     dateInput.value = tomorrow.toISOString().split('T')[0];
     dateInput.min = new Date().toISOString().split('T')[0];
 
-    // Formateo de Cuota
-    quotaInput.addEventListener('input', (e) => {
-      let val = e.target.value.replace(/\D/g, '');
-      e.target.value = (parseInt(val || 0, 10) / 100).toFixed(2);
+    // ─── FIX 1: ATM-style quota input (right-to-left) ───
+    // Stores the raw integer value in cents
+    let quotaCents = 0;
+
+    quotaInput.addEventListener('keydown', (e) => {
+      // Allow: Backspace, Delete, Tab, Escape, Enter, arrows
+      const allowed = ['Backspace', 'Delete', 'Tab', 'Escape', 'Enter',
+                        'ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'];
+      if (allowed.includes(e.key)) {
+        if (e.key === 'Backspace') {
+          e.preventDefault();
+          quotaCents = Math.floor(quotaCents / 10);
+          quotaInput.value = (quotaCents / 100).toFixed(2);
+        }
+        return;
+      }
+      // Block anything that isn't a digit
+      if (!/^[0-9]$/.test(e.key)) {
+        e.preventDefault();
+        return;
+      }
+      e.preventDefault();
+      // Prevent absurdly large values (max S/ 9,999.99)
+      if (quotaCents >= 999999) return;
+      quotaCents = quotaCents * 10 + parseInt(e.key, 10);
+      quotaInput.value = (quotaCents / 100).toFixed(2);
+    });
+
+    // Also handle focus — select all so user starts fresh if they click in
+    quotaInput.addEventListener('focus', () => {
+      quotaInput.select();
+    });
+
+    // Prevent pasting non-numeric content
+    quotaInput.addEventListener('paste', (e) => {
+      e.preventDefault();
+      const pasted = (e.clipboardData || window.clipboardData).getData('text');
+      const digits = pasted.replace(/\D/g, '');
+      if (digits) {
+        quotaCents = parseInt(digits, 10);
+        if (quotaCents > 999999) quotaCents = 999999;
+        quotaInput.value = (quotaCents / 100).toFixed(2);
+      }
+    });
+
+    // ─── FIX 3: Número input — only allow digits ───
+    numInput.addEventListener('keydown', (e) => {
+      const allowed = ['Backspace', 'Delete', 'Tab', 'Escape', 'Enter',
+                        'ArrowLeft', 'ArrowRight', 'Home', 'End'];
+      if (allowed.includes(e.key) || e.ctrlKey || e.metaKey) return;
+      if (!/^[0-9]$/.test(e.key)) {
+        e.preventDefault();
+      }
+    });
+
+    numInput.addEventListener('paste', (e) => {
+      e.preventDefault();
+      const pasted = (e.clipboardData || window.clipboardData).getData('text');
+      const digits = pasted.replace(/\D/g, '').slice(0, 9);
+      numInput.value = digits;
     });
 
     // Envío de Datos
@@ -379,16 +436,16 @@ function initAutocomplete() {
           body: JSON.stringify(payload)
         });
 
-if (!res.ok) {
-  const body = await res.json().catch(() => null);
-  const msg = body?.message || body?.error || JSON.stringify(body) || `HTTP ${res.status}`;
-  throw new Error(`[${res.status}] ${msg}`);
-}
-        
+        if (!res.ok) {
+          const body = await res.json().catch(() => null);
+          const msg = body?.message || body?.error || JSON.stringify(body) || `HTTP ${res.status}`;
+          throw new Error(`[${res.status}] ${msg}`);
+        }
+
         const data = await res.json();
         const newPichanga = data[0];
 
-        // Notificar a n8n
+        // FIX 2: Notificar a n8n — .catch() was misplaced inside fetch() parentheses
         await fetch(window.ENV.N8N_WEBHOOK_URL, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -397,8 +454,7 @@ if (!res.ok) {
             match_id: newPichanga.id_pichanga_pub,
             pichanga: newPichanga
           })
-           .catch(err => console.warn('n8n notify failed:', err));
-        });
+        }).catch(err => console.warn('n8n notify failed:', err));
 
         // Éxito
         document.querySelector('.page').innerHTML = `
@@ -408,7 +464,7 @@ if (!res.ok) {
             <p>Grubot enviará el mensaje al grupo en un momento.</p>
             <button class="btn-primary" style="margin-top:20px" onclick="window.close()">Cerrar</button>
           </div>`;
-          
+
       } catch (err) {
         createBtn.disabled = false;
         createBtn.textContent = 'Publicar lista';
