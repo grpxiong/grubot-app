@@ -38,7 +38,6 @@
       font-size: 14px;
     }
 
-    /* ── Layout ── */
     .page {
       width: 100%;
       max-width: 420px;
@@ -46,108 +45,61 @@
       padding: 16px 14px 32px;
     }
 
-    /* ── Header ── */
-    .header {
-      padding: 10px 0 16px;
-    }
+    .header { padding: 10px 0 16px; }
     .badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      padding: 3px 10px;
-      border-radius: 999px;
-      background: var(--primary-light);
-      color: var(--primary);
-      font-size: 11px;
-      font-weight: 600;
-      letter-spacing: 0.06em;
-      text-transform: uppercase;
-      margin-bottom: 8px;
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 3px 10px; border-radius: 999px;
+      background: var(--primary-light); color: var(--primary);
+      font-size: 11px; font-weight: 600; letter-spacing: 0.06em;
+      text-transform: uppercase; margin-bottom: 8px;
     }
     .h1-brand {
       font-family: 'Syne', sans-serif;
-      font-size: 24px;
-      font-weight: 500;
-      line-height: 1.2;
-      letter-spacing: -0.03em;
-      margin-bottom: 4px;
+      font-size: 24px; font-weight: 800;
+      line-height: 1.1; letter-spacing: -0.02em; margin-bottom: 4px;
     }
     .h1-brand span { color: var(--primary); }
-    .subtitle {
-      font-size: 13px;
-      color: var(--text-muted);
-      line-height: 1.4;
-    }
+    .subtitle { font-size: 13px; color: var(--text-muted); line-height: 1.4; }
 
-    /* ── Form ── */
     .form { display: flex; flex-direction: column; gap: 12px; }
 
-    /* ── Section card ── */
     .card {
       background: var(--bg-card);
       border: 1px solid var(--border);
       border-radius: 16px;
       padding: 14px;
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
+      display: flex; flex-direction: column; gap: 10px;
     }
     .card-label {
-      font-size: 10px;
-      font-weight: 700;
-      color: var(--text-light);
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-      padding-bottom: 2px;
-      border-bottom: 1px solid var(--border);
+      font-size: 10px; font-weight: 700; color: var(--text-light);
+      text-transform: uppercase; letter-spacing: 0.08em;
+      padding-bottom: 2px; border-bottom: 1px solid var(--border);
     }
 
-    /* ── Field ── */
     .field { display: flex; flex-direction: column; gap: 4px; }
-    .label {
-      font-size: 11px;
-      font-weight: 600;
-      color: var(--text-muted);
-      letter-spacing: 0.03em;
-    }
+    .label { font-size: 11px; font-weight: 600; color: var(--text-muted); letter-spacing: 0.03em; }
 
-    /* ── Inputs ── */
     .ui-input {
-      width: 100%;
-      height: 42px;
-      padding: 0 11px;
-      border: 1.5px solid var(--border);
-      border-radius: var(--radius-sm);
-      background: var(--bg-input);
-      color: var(--text-main);
-      font-family: inherit;
-      font-size: 14px;
-      outline: none;
+      width: 100%; height: 42px; padding: 0 11px;
+      border: 1.5px solid var(--border); border-radius: var(--radius-sm);
+      background: var(--bg-input); color: var(--text-main);
+      font-family: inherit; font-size: 14px; outline: none;
       transition: border-color 0.15s, box-shadow 0.15s, background 0.15s;
       min-width: 0;
     }
     .ui-input::placeholder { color: var(--text-light); }
     .ui-input:focus {
-      border-color: var(--border-focus);
-      background: #fff;
+      border-color: var(--border-focus); background: #fff;
       box-shadow: 0 0 0 3px var(--primary-glow);
     }
-    input[type="date"], input[type="time"] {
-      -webkit-appearance: none;
-      appearance: none;
-    }
+    input[type="date"], input[type="time"] { -webkit-appearance: none; appearance: none; }
     #p-quota { text-align: right; letter-spacing: 1px; font-variant-numeric: tabular-nums; }
 
-    /* ── Grid ── */
     .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-    .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
 
-    /* ── Toggle ── */
     .toggle-row {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 2px 0;
+      display: flex; align-items: center;
+      justify-content: space-between; padding: 2px 0;
     }
     .toggle-label { font-size: 13px; font-weight: 500; color: var(--text-main); }
     .switch { position: relative; display: inline-block; width: 40px; height: 22px; flex-shrink: 0; }
@@ -155,91 +107,53 @@
     .slider {
       position: absolute; cursor: pointer;
       top: 0; left: 0; right: 0; bottom: 0;
-      background: var(--text-light);
-      border-radius: 22px;
-      transition: .25s;
+      background: var(--text-light); border-radius: 22px; transition: .25s;
     }
     .slider:before {
       position: absolute; content: "";
-      height: 16px; width: 16px;
-      left: 3px; bottom: 3px;
-      background: white;
-      border-radius: 50%;
-      transition: .25s;
+      height: 16px; width: 16px; left: 3px; bottom: 3px;
+      background: white; border-radius: 50%; transition: .25s;
     }
     input:checked + .slider { background: var(--primary); }
     input:checked + .slider:before { transform: translateX(18px); }
 
-    /* ── Segmented ── */
     .segmented { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
     .segmented input { display: none; }
     .btn-seg {
       display: flex; align-items: center; justify-content: center;
-      height: 38px;
-      border: 1.5px solid var(--border);
-      border-radius: var(--radius-sm);
-      background: var(--bg-input);
-      color: var(--text-muted);
-      font-family: inherit;
-      font-size: 13px;
-      font-weight: 700;
-      cursor: pointer;
-      transition: all 0.15s;
-      letter-spacing: 0.02em;
+      height: 38px; border: 1.5px solid var(--border); border-radius: var(--radius-sm);
+      background: var(--bg-input); color: var(--text-muted);
+      font-family: inherit; font-size: 13px; font-weight: 700;
+      cursor: pointer; transition: all 0.15s; letter-spacing: 0.02em;
     }
     .segmented input:checked + .btn-seg {
-      border-color: var(--primary);
-      background: var(--primary-light);
-      color: var(--primary);
+      border-color: var(--primary); background: var(--primary-light); color: var(--primary);
     }
 
-    /* ── Divider ── */
-    .divider {
-      height: 1px;
-      background: var(--border);
-      margin: 2px 0;
-    }
-
-    /* ── Error ── */
     .error-box {
-      background: var(--error-bg);
-      border: 1.5px solid var(--error-border);
-      border-radius: var(--radius-sm);
-      padding: 10px 12px;
-      display: none;
+      background: var(--error-bg); border: 1.5px solid var(--error-border);
+      border-radius: var(--radius-sm); padding: 10px 12px; display: none;
     }
     .error-box.visible { display: block; }
     .error-box strong { display: block; font-size: 12px; font-weight: 700; color: var(--error); margin-bottom: 3px; }
     .error-box code { display: block; font-size: 11px; color: #b91c1c; word-break: break-all; white-space: pre-wrap; font-family: monospace; line-height: 1.5; }
 
-    /* ── Actions ── */
     .actions { display: flex; flex-direction: column; gap: 8px; padding-top: 2px; }
     .btn-primary {
       width: 100%; height: 48px;
-      background: var(--primary);
-      color: white;
-      border: none;
-      border-radius: var(--radius);
-      font-family: inherit;
-      font-size: 15px;
-      font-weight: 700;
-      cursor: pointer;
-      transition: background 0.15s, transform 0.1s, opacity 0.15s;
-      box-shadow: 0 6px 16px -4px rgba(5,150,105,0.35);
-      letter-spacing: 0.01em;
+      background: var(--primary); color: white; border: none;
+      border-radius: var(--radius); font-family: inherit; font-size: 15px; font-weight: 700;
+      cursor: pointer; transition: background 0.15s, transform 0.1s, opacity 0.15s;
+      box-shadow: 0 6px 16px -4px rgba(5,150,105,0.35); letter-spacing: 0.01em;
     }
     .btn-primary:hover { background: var(--primary-hover); }
     .btn-primary:active { transform: scale(0.985); }
     .btn-primary:disabled { opacity: 0.65; cursor: not-allowed; }
     .btn-ghost {
-      width: 100%; height: 38px;
-      background: transparent; border: none;
-      color: var(--text-muted);
-      font-family: inherit; font-size: 13px; font-weight: 600;
-      cursor: pointer;
+      width: 100%; height: 38px; background: transparent; border: none;
+      color: var(--text-muted); font-family: inherit; font-size: 13px; font-weight: 600; cursor: pointer;
     }
 
-    /* ── Success ── */
     .success {
       display: flex; flex-direction: column; align-items: center;
       text-align: center; padding: 48px 16px 16px;
@@ -247,12 +161,32 @@
     .success-icon {
       width: 64px; height: 64px; border-radius: 50%;
       display: grid; place-items: center;
-      background: var(--primary-light);
-      color: var(--primary); font-size: 28px;
-      margin-bottom: 16px;
+      background: var(--primary-light); color: var(--primary);
+      font-size: 28px; margin-bottom: 16px;
     }
     .success h2 { font-family: 'Syne', sans-serif; font-size: 26px; font-weight: 800; margin-bottom: 6px; }
     .success p { color: var(--text-muted); font-size: 14px; line-height: 1.5; max-width: 26ch; }
+
+    /* ── Google Autocomplete ── */
+    .pac-container {
+      background-color: var(--bg-card);
+      border-radius: var(--radius);
+      border: 1.5px solid var(--border);
+      font-family: 'DM Sans', sans-serif;
+      margin-top: 4px;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+      z-index: 9999;
+    }
+    .pac-item {
+      padding: 10px 12px;
+      cursor: pointer;
+      border-top: 1px solid var(--bg-input);
+      color: var(--text-muted);
+      font-size: 13px;
+    }
+    .pac-item:hover { background-color: var(--primary-light); }
+    .pac-item-query { color: var(--text-main); font-size: 14px; }
+    .pac-logo:after { display: none; }
 
     @media (min-width: 480px) {
       body { padding: 24px 16px; }
@@ -267,6 +201,7 @@
     }
   </style>
 </head>
+
 <body>
   <main class="page">
     <header class="header">
@@ -286,7 +221,7 @@
         </div>
         <div class="field">
           <label class="label" for="p-lugar">Lugar</label>
-          <input type="text" id="p-lugar" class="ui-input" placeholder="Cancha o dirección" />
+          <input type="text" id="p-lugar" class="ui-input" placeholder="Cancha o dirección" autocomplete="off" />
         </div>
       </div>
 
@@ -364,7 +299,17 @@
   </main>
 
   <script src="config.js"></script>
-  <script>
+<script>
+  // --- CARGA DINÁMICA DE GOOGLE MAPS ---
+  (function loadGoogleMaps() {
+    const script = document.createElement('script');
+    // Usamos la key que definiste en config.js
+    script.src = `https://maps.googleapis.com/maps/api/js?key=${window.ENV.GOOGLE_MAPS_KEY}&libraries=places&callback=initAutocomplete`;
+    script.async = true;
+    script.defer = true;
+    document.head.appendChild(script);
+  })();
+
     const SUPABASE_URL = window.ENV.SUPABASE_URL;
     const SUPABASE_KEY = window.ENV.SUPABASE_KEY;
 
@@ -395,6 +340,28 @@
 
     document.getElementById('btn-cancel').addEventListener('click', () => window.close());
 
+    // FIX: declared globally so Maps callback can find it
+    function initAutocomplete() {
+      const input = document.getElementById('p-lugar');
+      const autocomplete = new google.maps.places.Autocomplete(input, {
+        componentRestrictions: { country: 'pe' },
+        fields: ['formatted_address', 'geometry', 'name'],
+        types: ['establishment', 'geocode'],
+      });
+
+      // Prevent form submit on Enter while autocomplete dropdown is open
+      input.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') e.preventDefault();
+      });
+
+      // FIX: use formatted_address only — avoids duplicate name + address string
+      autocomplete.addListener('place_changed', () => {
+        const place = autocomplete.getPlace();
+        if (!place.geometry) return;
+        input.value = place.formatted_address || place.name;
+      });
+    }
+
     function showError(msg) {
       errorDetail.textContent = msg;
       errorBox.classList.add('visible');
@@ -410,16 +377,16 @@
       hideError();
 
       const payload = {
-        titulo: document.getElementById('p-title').value.trim(),
-        lugar: document.getElementById('p-lugar').value.trim(),
-        fecha_pichanga: document.getElementById('p-date').value,
-        hora_inicio: document.getElementById('p-start').value,
-        hora_fin: document.getElementById('p-end').value,
-        cuota: parseFloat(document.getElementById('p-quota').value),
-        metodo_pago: document.getElementById('cb-yape').checked ? 'YAPE' : 'PLIN',
-        numero_pago: document.getElementById('p-num').value.trim(),
-        titular_pago: document.getElementById('p-nom').value.trim(),
-        cantidad: parseInt(document.getElementById('p-count').value, 10),
+        titulo:          document.getElementById('p-title').value.trim(),
+        lugar:           document.getElementById('p-lugar').value.trim(),
+        fecha_pichanga:  document.getElementById('p-date').value,
+        hora_inicio:     document.getElementById('p-start').value,
+        hora_fin:        document.getElementById('p-end').value,
+        cuota:           parseFloat(document.getElementById('p-quota').value),
+        metodo_pago:     document.getElementById('cb-yape').checked ? 'YAPE' : 'PLIN',
+        numero_pago:     document.getElementById('p-num').value.trim(),
+        titular_pago:    document.getElementById('p-nom').value.trim(),
+        cantidad:        parseInt(document.getElementById('p-count').value, 10),
         permite_backups: document.getElementById('p-backups').checked
       };
 
