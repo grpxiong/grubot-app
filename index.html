@@ -405,6 +405,7 @@
     });
 
     // Envío de Datos
+    // Envío de Datos
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
       const errorBox = document.getElementById('error-box');
@@ -433,8 +434,8 @@
       createBtn.disabled = true;
       createBtn.textContent = 'Publicando...';
 
-try {
-        // 1. Guardar en Supabase (Obligatorio)
+      try {
+        // 1. Guardar en Supabase
         const res = await fetch(`${window.ENV.SUPABASE_URL}/rest/v1/pichangas`, {
           method: 'POST',
           headers: {
@@ -454,26 +455,25 @@ try {
         const data = await res.json();
         const newPichanga = data[0];
 
-        // 2. Notificar a n8n (Esperamos la confirmación antes de cerrar)
-        // Quitamos sendBeacon porque suele dar problemas de CORS con n8n
+        // 2. Notificar a n8n
+        const n8nData = {
+          event: 'pichanga_created',
+          match_id: newPichanga.id_pichanga_pub,
+          pichanga: newPichanga
+        };
+
         try {
           await fetch(window.ENV.N8N_WEBHOOK_URL, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            mode: 'no-cors', // Úsalo solo si tienes problemas de CORS, aunque 'cors' es ideal
-            body: JSON.stringify({
-              event: 'pichanga_created',
-              match_id: newPichanga.id_pichanga_pub,
-              pichanga: newPichanga
-            })
+            body: JSON.stringify(n8nData),
+            keepalive: true 
           });
-          console.log('[Grubot] n8n notified successfully');
         } catch (n8nErr) {
-          console.warn('[Grubot] n8n delivery failed, but record was saved:', n8nErr);
-          // No lanzamos error aquí para que el usuario vea el éxito de Supabase
+          console.warn('n8n delivery failed, but record was saved:', n8nErr);
         }
 
-        // 3. Éxito: Solo cambiamos el UI cuando todo lo anterior terminó
+        // 3. Mostrar Éxito
         document.querySelector('.page').innerHTML = `
           <div class="success">
             <div class="success-icon">✓</div>
