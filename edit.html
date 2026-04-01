@@ -4,176 +4,314 @@
   <meta charset="UTF-8" />
   <title>Editar Pichanga</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
 
   <style>
     :root {
       --primary: #059669;
       --primary-hover: #047857;
-      --primary-light: rgba(5, 150, 105, 0.08);
-      --primary-glow: rgba(5, 150, 105, 0.2);
+      --primary-light: rgba(5, 150, 105, 0.09);
+      --primary-glow: rgba(5, 150, 105, 0.18);
       --bg: #f0fdf4;
       --bg-card: #ffffff;
-      --bg-muted: #f8fafc;
+      --bg-input: #f4f9f6;
       --border: #d1fae5;
       --border-focus: #059669;
-      --text-main: #1e293b;
+      --text-main: #0f1f17;
       --text-muted: #64748b;
-      --text-light: #94a3b8;
+      --text-light: #a1b5ab;
       --error: #ef4444;
       --error-bg: #fef2f2;
       --error-border: #fecaca;
-      --shadow: 0 20px 60px -10px rgba(5, 150, 105, 0.15), 0 4px 16px rgba(0, 0, 0, 0.06);
-      --shadow-button: 0 10px 20px -8px rgba(5, 150, 105, 0.28);
-      --radius-lg: 28px;
-      --radius-md: 14px;
+      --radius: 12px;
+      --radius-sm: 8px;
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
     html { -webkit-text-size-adjust: 100%; }
+
     body {
       min-height: 100vh;
       background: var(--bg);
       color: var(--text-main);
       font-family: 'DM Sans', sans-serif;
-      background-image:
-        radial-gradient(ellipse at 20% 20%, rgba(5,150,105,0.08) 0%, transparent 60%),
-        radial-gradient(ellipse at 80% 80%, rgba(4,120,87,0.06) 0%, transparent 60%);
+      font-size: 14px;
     }
 
-    .page { width: 100%; max-width: 480px; margin: 0 auto; min-height: 100vh; padding: 18px; display: flex; align-items: stretch; }
-    .ui-card { width: 100%; background: var(--bg-card); border-radius: 0; padding: 28px 18px 24px; border: none; }
-
-    @media (min-width: 640px) {
-      body { padding: 32px 16px; }
-      .page { min-height: auto; align-items: center; }
-      .ui-card { border-radius: var(--radius-lg); padding: 40px 36px; border: 1px solid var(--border); box-shadow: var(--shadow); }
+    .page {
+      width: 100%;
+      max-width: 420px;
+      margin: 0 auto;
+      padding: 16px 14px 32px;
     }
 
-    .header { margin-bottom: 24px; }
-    .badge { display: inline-flex; align-items: center; gap: 8px; min-height: 32px; padding: 0 12px; border-radius: 999px; background: var(--primary-light); color: var(--primary); font-size: 12px; font-weight: 600; margin-bottom: 14px; }
-    .h1-brand { font-family: 'DM Serif Display', serif; font-size: 30px; line-height: 1.15; letter-spacing: -0.02em; margin-bottom: 8px; }
+    .header { padding: 10px 0 16px; }
+    .badge {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 3px 10px; border-radius: 999px;
+      background: var(--primary-light); color: var(--primary);
+      font-size: 11px; font-weight: 600; letter-spacing: 0.06em;
+      text-transform: uppercase; margin-bottom: 8px;
+    }
+    .h1-brand {
+      font-family: 'Syne', sans-serif;
+      font-size: 24px; font-weight: 800;
+      line-height: 1.1; letter-spacing: -0.02em; margin-bottom: 4px;
+    }
     .h1-brand span { color: var(--primary); }
-    .subtitle { font-size: 14px; line-height: 1.5; color: var(--text-muted); max-width: 32ch; }
+    .subtitle { font-size: 13px; color: var(--text-muted); line-height: 1.4; }
 
-    .form { display: flex; flex-direction: column; gap: 20px; }
-    .section { display: flex; flex-direction: column; gap: 16px; }
-    .field { display: flex; flex-direction: column; gap: 8px; min-width: 0; overflow: hidden; }
-    .label-caps { font-size: 11px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.07em; }
-    .grid { display: grid; gap: 12px; }
-    .grid-2 { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+    .form { display: flex; flex-direction: column; gap: 12px; }
 
-    .ui-input, .btn-brand-primary, .btn-secondary { width: 100%; min-height: 52px; font-family: inherit; font-size: 16px; border-radius: var(--radius-md); }
-    .ui-input { padding: 14px 12px; border: 1.5px solid var(--border); background: var(--bg-muted); color: var(--text-main); transition: all 0.2s ease; outline: none; min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 14px;
+      display: flex; flex-direction: column; gap: 10px;
+    }
+    .card-label {
+      font-size: 10px; font-weight: 700; color: var(--text-light);
+      text-transform: uppercase; letter-spacing: 0.08em;
+      padding-bottom: 2px; border-bottom: 1px solid var(--border);
+    }
+
+    .field { display: flex; flex-direction: column; gap: 4px; }
+    .label { font-size: 11px; font-weight: 600; color: var(--text-muted); letter-spacing: 0.03em; }
+
+    .ui-input {
+      width: 100%; height: 42px; padding: 0 11px;
+      border: 1.5px solid var(--border); border-radius: var(--radius-sm);
+      background: var(--bg-input); color: var(--text-main);
+      font-family: inherit; font-size: 14px; outline: none;
+      transition: border-color 0.15s, box-shadow 0.15s, background 0.15s;
+      min-width: 0;
+    }
     .ui-input::placeholder { color: var(--text-light); }
-    .ui-input:focus { border-color: var(--border-focus); background: white; box-shadow: 0 0 0 4px var(--primary-glow); }
+    .ui-input:focus {
+      border-color: var(--border-focus); background: #fff;
+      box-shadow: 0 0 0 3px var(--primary-glow);
+    }
+    input[type="date"], input[type="time"] { -webkit-appearance: none; appearance: none; }
+    #p-quota { text-align: right; letter-spacing: 1px; font-variant-numeric: tabular-nums; }
 
-    input[type="date"], input[type="time"] { -webkit-appearance: none; appearance: none; max-width: 100%; }
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
 
-    .actions { display: flex; flex-direction: column; gap: 10px; padding-top: 4px; }
-    .btn-brand-primary { background: var(--primary); color: white; border: none; padding: 16px; font-weight: 700; box-shadow: var(--shadow-button); transition: transform 0.1s, background 0.2s, opacity 0.2s; cursor: pointer; }
-    .btn-brand-primary:hover { background: var(--primary-hover); }
-    .btn-brand-primary:active { transform: scale(0.98); }
-    .btn-brand-primary:disabled { opacity: 0.7; cursor: not-allowed; }
-    .btn-secondary { background: transparent; border: none; color: var(--text-muted); font-weight: 600; cursor: pointer; }
+    /* Toggle */
+    .toggle-row {
+      display: flex; align-items: center;
+      justify-content: space-between; padding: 2px 0;
+    }
+    .toggle-label { font-size: 13px; font-weight: 500; color: var(--text-main); }
+    .switch { position: relative; display: inline-block; width: 40px; height: 22px; flex-shrink: 0; }
+    .switch input { opacity: 0; width: 0; height: 0; }
+    .slider {
+      position: absolute; cursor: pointer;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: var(--text-light); border-radius: 22px; transition: .25s;
+    }
+    .slider:before {
+      position: absolute; content: "";
+      height: 16px; width: 16px; left: 3px; bottom: 3px;
+      background: white; border-radius: 50%; transition: .25s;
+    }
+    input:checked + .slider { background: var(--primary); }
+    input:checked + .slider:before { transform: translateX(18px); }
 
-    .error-box { background: var(--error-bg); border: 1.5px solid var(--error-border); border-radius: var(--radius-md); padding: 14px 16px; display: none; }
-    .error-box.visible { display: block; }
-    .error-box strong { display: block; font-size: 13px; font-weight: 700; color: var(--error); margin-bottom: 4px; }
-    .error-box code { display: block; font-size: 12px; color: #b91c1c; word-break: break-all; white-space: pre-wrap; font-family: monospace; line-height: 1.5; }
+    /* Segmented */
+    .segmented { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+    .segmented input { display: none; }
+    .btn-seg {
+      display: flex; align-items: center; justify-content: center;
+      height: 38px; border: 1.5px solid var(--border); border-radius: var(--radius-sm);
+      background: var(--bg-input); color: var(--text-muted);
+      font-family: inherit; font-size: 13px; font-weight: 700;
+      cursor: pointer; transition: all 0.15s; letter-spacing: 0.02em;
+    }
+    .segmented input:checked + .btn-seg {
+      border-color: var(--primary); background: var(--primary-light); color: var(--primary);
+    }
 
-    .skeleton { background: linear-gradient(90deg, var(--border) 25%, #e8f5e9 50%, var(--border) 75%); background-size: 200% 100%; animation: shimmer 1.4s infinite; border-radius: var(--radius-md); height: 52px; }
+    /* Skeleton */
+    .skeleton {
+      background: linear-gradient(90deg, var(--border) 25%, #e8f5e9 50%, var(--border) 75%);
+      background-size: 200% 100%;
+      animation: shimmer 1.4s infinite;
+      border-radius: var(--radius-sm);
+      height: 42px;
+    }
     @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
 
-    .success { display: flex; flex-direction: column; align-items: center; text-align: center; padding: 36px 8px 8px; }
-    .success-icon { width: 72px; height: 72px; border-radius: 50%; display: grid; place-items: center; background: var(--primary-light); color: var(--primary); font-size: 32px; margin-bottom: 18px; }
-    .success h2 { font-family: 'DM Serif Display', serif; font-size: 30px; line-height: 1.15; margin-bottom: 8px; }
-    .success p { color: var(--text-muted); font-size: 15px; line-height: 1.5; max-width: 28ch; }
+    /* Error */
+    .error-box {
+      background: var(--error-bg); border: 1.5px solid var(--error-border);
+      border-radius: var(--radius-sm); padding: 10px 12px; display: none;
+    }
+    .error-box.visible { display: block; }
+    .error-box strong { display: block; font-size: 12px; font-weight: 700; color: var(--error); margin-bottom: 3px; }
+    .error-box code { display: block; font-size: 11px; color: #b91c1c; word-break: break-all; white-space: pre-wrap; font-family: monospace; line-height: 1.5; }
 
-    @media (max-width: 380px) {
-      .grid-2 { grid-template-columns: 1fr; }
-      .h1-brand { font-size: 28px; }
+    /* Actions */
+    .actions { display: flex; flex-direction: column; gap: 8px; padding-top: 2px; }
+    .btn-primary {
+      width: 100%; height: 48px;
+      background: var(--primary); color: white; border: none;
+      border-radius: var(--radius); font-family: inherit; font-size: 15px; font-weight: 700;
+      cursor: pointer; transition: background 0.15s, transform 0.1s, opacity 0.15s;
+      box-shadow: 0 6px 16px -4px rgba(5,150,105,0.35); letter-spacing: 0.01em;
+    }
+    .btn-primary:hover { background: var(--primary-hover); }
+    .btn-primary:active { transform: scale(0.985); }
+    .btn-primary:disabled { opacity: 0.65; cursor: not-allowed; }
+    .btn-ghost {
+      width: 100%; height: 38px; background: transparent; border: none;
+      color: var(--text-muted); font-family: inherit; font-size: 13px; font-weight: 600; cursor: pointer;
+    }
+
+    /* Success */
+    .success {
+      display: flex; flex-direction: column; align-items: center;
+      text-align: center; padding: 48px 16px 16px;
+    }
+    .success-icon {
+      width: 64px; height: 64px; border-radius: 50%;
+      display: grid; place-items: center;
+      background: var(--primary-light); color: var(--primary);
+      font-size: 28px; margin-bottom: 16px;
+    }
+    .success h2 { font-family: 'Syne', sans-serif; font-size: 26px; font-weight: 800; margin-bottom: 6px; }
+    .success p { color: var(--text-muted); font-size: 14px; line-height: 1.5; max-width: 26ch; }
+
+    @media (min-width: 480px) {
+      body { padding: 24px 16px; }
+      .page {
+        background: var(--bg-card);
+        border: 1px solid var(--border);
+        border-radius: 20px;
+        box-shadow: 0 20px 60px -10px rgba(5,150,105,0.12);
+        margin-top: 24px;
+        padding: 20px 18px 28px;
+      }
     }
   </style>
 </head>
 <body>
-  <main class="page">
-    <section class="ui-card" id="card">
+  <main class="page" id="page">
+    <header class="header">
+      <div class="badge">✏️ Editar pichanga</div>
+      <h1 class="h1-brand">Edita tu <span>partido</span></h1>
+      <p class="subtitle">Actualiza los datos y guarda los cambios.</p>
+    </header>
 
-      <header class="header">
-        <div class="badge">✏️ Editar pichanga</div>
-        <h1 class="h1-brand">Edita tu <span>partido</span></h1>
-        <p class="subtitle">Actualiza los datos y guarda los cambios.</p>
-      </header>
+    <!-- Skeleton -->
+    <div id="skeleton" class="form">
+      <div class="card">
+        <div class="skeleton" style="height:12px;width:60px;border-radius:4px"></div>
+        <div class="skeleton"></div>
+        <div class="skeleton"></div>
+      </div>
+      <div class="card">
+        <div class="skeleton" style="height:12px;width:80px;border-radius:4px"></div>
+        <div class="grid-2"><div class="skeleton"></div><div class="skeleton"></div></div>
+        <div class="grid-2"><div class="skeleton"></div><div class="skeleton"></div></div>
+        <div class="skeleton"></div>
+      </div>
+      <div class="card">
+        <div class="skeleton" style="height:12px;width:40px;border-radius:4px"></div>
+        <div class="skeleton"></div>
+        <div class="grid-2"><div class="skeleton"></div><div class="skeleton"></div></div>
+        <div class="grid-2"><div class="skeleton"></div><div class="skeleton"></div></div>
+      </div>
+      <div class="skeleton" style="height:48px;border-radius:12px"></div>
+    </div>
 
-      <!-- Skeleton shown while loading -->
-      <div id="skeleton" class="form">
-        <div class="section">
-          <div class="skeleton"></div>
-          <div class="skeleton"></div>
+    <!-- Real form, hidden until data loads -->
+    <form class="form" id="edit-form" style="display:none;">
+
+      <!-- Evento -->
+      <div class="card">
+        <div class="card-label">Evento</div>
+        <div class="field">
+          <label class="label" for="p-title">Nombre</label>
+          <input type="text" id="p-title" class="ui-input" placeholder="Ej: Los Galácticos" />
         </div>
-        <div class="section">
-          <div class="grid grid-2"><div class="skeleton"></div><div class="skeleton"></div></div>
-          <div class="grid grid-2"><div class="skeleton"></div><div class="skeleton"></div></div>
-          <div class="skeleton"></div>
+        <div class="field">
+          <label class="label" for="p-lugar">Lugar</label>
+          <input type="text" id="p-lugar" class="ui-input" placeholder="Cancha o dirección" />
         </div>
-        <div class="skeleton" style="height:52px;border-radius:var(--radius-md)"></div>
       </div>
 
-      <!-- Real form, hidden until data loads -->
-      <form class="form" id="edit-form" style="display:none;">
-        <section class="section">
+      <!-- Horario -->
+      <div class="card">
+        <div class="card-label">Horario &amp; Jugadores</div>
+        <div class="grid-2">
           <div class="field">
-            <label class="label-caps" for="p-title">Nombre</label>
-            <input type="text" id="p-title" class="ui-input" placeholder="Ej: Los Galácticos" />
+            <label class="label" for="p-date">Fecha</label>
+            <input type="date" id="p-date" class="ui-input" />
           </div>
           <div class="field">
-            <label class="label-caps" for="p-lugar">Lugar</label>
-            <input type="text" id="p-lugar" class="ui-input" placeholder="Cancha o dirección" />
+            <label class="label" for="p-count">Jugadores</label>
+            <input type="number" id="p-count" class="ui-input" min="2" />
           </div>
-        </section>
-
-        <section class="section">
-          <div class="grid grid-2">
-            <div class="field">
-              <label class="label-caps" for="p-date">Fecha</label>
-              <input type="date" id="p-date" class="ui-input" />
-            </div>
-            <div class="field">
-              <label class="label-caps" for="p-count">Jugadores</label>
-              <input type="number" id="p-count" class="ui-input" min="2" />
-            </div>
-          </div>
-
-          <div class="grid grid-2">
-            <div class="field">
-              <label class="label-caps" for="p-start">Inicio</label>
-              <input type="time" id="p-start" class="ui-input" />
-            </div>
-            <div class="field">
-              <label class="label-caps" for="p-end">Fin</label>
-              <input type="time" id="p-end" class="ui-input" />
-            </div>
-          </div>
-
-          <div class="field">
-            <label class="label-caps" for="p-quota">Cuota por persona (S/)</label>
-            <input type="text" id="p-quota" class="ui-input" inputmode="decimal" />
-          </div>
-        </section>
-
-        <div class="error-box" id="error-box">
-          <strong>Error al guardar</strong>
-          <code id="error-detail"></code>
         </div>
-
-        <div class="actions">
-          <button type="submit" class="btn-brand-primary" id="btn-save">Guardar cambios</button>
-          <button type="button" class="btn-secondary" id="btn-cancel">Cancelar</button>
+        <div class="grid-2">
+          <div class="field">
+            <label class="label" for="p-start">Inicio</label>
+            <input type="time" id="p-start" class="ui-input" />
+          </div>
+          <div class="field">
+            <label class="label" for="p-end">Fin</label>
+            <input type="time" id="p-end" class="ui-input" />
+          </div>
         </div>
-      </form>
+        <div class="toggle-row">
+          <span class="toggle-label">Permitir suplentes</span>
+          <label class="switch">
+            <input type="checkbox" id="p-backups">
+            <span class="slider"></span>
+          </label>
+        </div>
+      </div>
 
-    </section>
+      <!-- Pago -->
+      <div class="card">
+        <div class="card-label">Pago</div>
+        <div class="field">
+          <label class="label" for="p-quota">Cuota por persona (S/)</label>
+          <input type="text" id="p-quota" class="ui-input" inputmode="decimal" />
+        </div>
+        <div class="segmented">
+          <div>
+            <input type="radio" name="pay-method" id="cb-yape" checked />
+            <label class="btn-seg" for="cb-yape">Yape</label>
+          </div>
+          <div>
+            <input type="radio" name="pay-method" id="cb-plin" />
+            <label class="btn-seg" for="cb-plin">Plin</label>
+          </div>
+        </div>
+        <div class="grid-2">
+          <div class="field">
+            <label class="label" for="p-num">Número</label>
+            <input type="text" id="p-num" class="ui-input" placeholder="999888777" inputmode="numeric" maxlength="9" />
+          </div>
+          <div class="field">
+            <label class="label" for="p-nom">Titular</label>
+            <input type="text" id="p-nom" class="ui-input" placeholder="Nombre" />
+          </div>
+        </div>
+      </div>
+
+      <div class="error-box" id="error-box">
+        <strong>Error al guardar</strong>
+        <code id="error-detail"></code>
+      </div>
+
+      <div class="actions">
+        <button type="submit" class="btn-primary" id="btn-save">Guardar cambios</button>
+        <button type="button" class="btn-ghost" id="btn-cancel">Cancelar</button>
+      </div>
+    </form>
   </main>
 
   <script src="config.js"></script>
@@ -189,6 +327,21 @@
     const errorBox = document.getElementById('error-box');
     const errorDetail = document.getElementById('error-detail');
     const btnSave = document.getElementById('btn-save');
+    const quotaInput = document.getElementById('p-quota');
+    const phoneInput = document.getElementById('p-num');
+
+    // Quota formatting
+    const lockCursor = (el) => setTimeout(() => { const l = el.value.length; el.setSelectionRange(l, l); }, 0);
+    ['focus', 'click', 'keyup'].forEach(evt => quotaInput.addEventListener(evt, () => lockCursor(quotaInput)));
+    quotaInput.addEventListener('input', (e) => {
+      let val = e.target.value.replace(/\D/g, '');
+      e.target.value = (parseInt(val || 0, 10) / 100).toFixed(2);
+      lockCursor(e.target);
+    });
+
+    phoneInput.addEventListener('input', (e) => {
+      e.target.value = e.target.value.replace(/\D/g, '').slice(0, 9);
+    });
 
     function showError(msg) {
       errorDetail.textContent = msg;
@@ -200,11 +353,9 @@
       errorBox.classList.remove('visible');
     }
 
-    // No ID in URL — show fatal error
     if (!recordId) {
       skeleton.innerHTML = `<p style="color:var(--error);font-weight:600;font-size:14px;">⚠ No se encontró ID de pichanga en la URL.</p>`;
     } else {
-      // Load existing data
       (async () => {
         try {
           const res = await fetch(`${SUPABASE_URL}/rest/v1/pichangas?id_pichanga_pub=eq.${recordId}`, {
@@ -222,8 +373,17 @@
           document.getElementById('p-end').value    = p.hora_fin || '';
           document.getElementById('p-quota').value  = (p.cuota || 0).toFixed(2);
           document.getElementById('p-count').value  = p.cantidad || '';
+          document.getElementById('p-backups').checked = p.permite_backups ?? true;
+          document.getElementById('p-num').value    = p.numero_pago || '';
+          document.getElementById('p-nom').value    = p.titular_pago || '';
 
-          // Swap skeleton → form
+          // Payment method
+          if (p.metodo_pago === 'PLIN') {
+            document.getElementById('cb-plin').checked = true;
+          } else {
+            document.getElementById('cb-yape').checked = true;
+          }
+
           skeleton.style.display = 'none';
           editForm.style.display = 'flex';
 
@@ -240,13 +400,17 @@
       hideError();
 
       const updateData = {
-        titulo:         document.getElementById('p-title').value.trim(),
-        lugar:          document.getElementById('p-lugar').value.trim(),
-        fecha_pichanga: document.getElementById('p-date').value,
-        hora_inicio:    document.getElementById('p-start').value,
-        hora_fin:       document.getElementById('p-end').value,
-        cuota:          parseFloat(document.getElementById('p-quota').value),
-        cantidad:       parseInt(document.getElementById('p-count').value, 10)
+        titulo:          document.getElementById('p-title').value.trim(),
+        lugar:           document.getElementById('p-lugar').value.trim(),
+        fecha_pichanga:  document.getElementById('p-date').value,
+        hora_inicio:     document.getElementById('p-start').value,
+        hora_fin:        document.getElementById('p-end').value,
+        cuota:           parseFloat(document.getElementById('p-quota').value),
+        cantidad:        parseInt(document.getElementById('p-count').value, 10),
+        permite_backups: document.getElementById('p-backups').checked,
+        metodo_pago:     document.getElementById('cb-yape').checked ? 'YAPE' : 'PLIN',
+        numero_pago:     document.getElementById('p-num').value.trim(),
+        titular_pago:    document.getElementById('p-nom').value.trim(),
       };
 
       if (!updateData.lugar) {
@@ -278,12 +442,12 @@
           throw new Error(`[${res.status}] ${msg}${hint}${detail}`);
         }
 
-        document.getElementById('card').innerHTML = `
+        document.getElementById('page').innerHTML = `
           <section class="success">
             <div class="success-icon">✓</div>
             <h2>Cambios guardados</h2>
             <p>La pichanga fue actualizada correctamente.</p>
-            <button class="btn-brand-primary" style="margin-top:24px" onclick="window.close()">Cerrar</button>
+            <button class="btn-primary" style="margin-top:20px;max-width:200px" onclick="window.close()">Cerrar</button>
           </section>
         `;
 
