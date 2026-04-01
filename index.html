@@ -455,16 +455,27 @@
         const data = await res.json();
         const newPichanga = data[0];
 
-        // FIX 2: Notificar a n8n — .catch() was misplaced inside fetch() parentheses
-        await fetch(window.ENV.N8N_WEBHOOK_URL, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            event: 'pichanga_created',
-            match_id: newPichanga.id_pichanga_pub,
-            pichanga: newPichanga
-          })
-        }).catch(err => console.warn('n8n notify failed:', err));
+        // Notificar a n8n — use sendBeacon so it survives the DOM replacement
+        const n8nPayload = JSON.stringify({
+          event: 'pichanga_created',
+          match_id: newPichanga.id_pichanga_pub,
+          pichanga: newPichanga
+        });
+
+        const beaconSent = navigator.sendBeacon?.(
+          window.ENV.N8N_WEBHOOK_URL,
+          new Blob([n8nPayload], { type: 'application/json' })
+        );
+
+        // Fallback if sendBeacon is unavailable or fails
+        if (!beaconSent) {
+          fetch(window.ENV.N8N_WEBHOOK_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: n8nPayload,
+            keepalive: true
+          }).catch(err => console.warn('n8n notify failed:', err));
+        }
 
         // Éxito
         document.querySelector('.page').innerHTML = `
