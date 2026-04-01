@@ -573,7 +573,7 @@
 
         // 2. Notify n8n
         const n8nData = {
-          event: 'pichanga_updated',
+          event: 'pichanga_created',
           match_id: updatedPichanga?.id_pichanga_pub || recordId,
           pichanga: updatedPichanga || { ...updateData, id_pichanga_pub: recordId }
         };
