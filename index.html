@@ -459,7 +459,10 @@
         const data = await res.json();
         const newPichanga = data[0];
 
-        // 2. Notify n8n — await fully before changing UI
+        // 2. Notify n8n
+        // Using text/plain to avoid CORS preflight (OPTIONS request)
+        // that n8n webhooks often don't handle properly on mobile browsers.
+        // n8n will still receive valid JSON in the body.
         const n8nData = {
           event: 'pichanga_created',
           match_id: newPichanga.id_pichanga_pub,
@@ -467,13 +470,16 @@
         };
 
         try {
-          const n8nRes = await fetch(window.ENV.N8N_WEBHOOK_URL, {
+          await fetch(window.ENV.N8N_WEBHOOK_URL, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: { 'Content-Type': 'text/plain' },
             body: JSON.stringify(n8nData),
+            mode: 'no-cors',
             keepalive: true
           });
-          console.log('[Grubot] n8n response:', n8nRes.status);
+          // Note: mode 'no-cors' returns an opaque response (status 0),
+          // so we can't read the status, but the POST is guaranteed to be sent.
+          console.log('[Grubot] n8n request sent (no-cors mode)');
         } catch (n8nErr) {
           console.warn('[Grubot] n8n failed, record saved:', n8nErr);
         }
