@@ -90,16 +90,67 @@
     }
 
     .ui-input::placeholder { color: var(--text-light); }
-    
+
     .ui-input:focus {
       border-color: var(--border-focus); background: #fff;
       box-shadow: 0 0 0 3px var(--primary-glow);
     }
-    
+
+    /* Force uppercase for event name */
+    #p-title {
+      text-transform: uppercase;
+    }
+    #p-title::placeholder {
+      text-transform: none;
+    }
+
     input[type="date"], input[type="time"] { -webkit-appearance: none; appearance: none; }
     #p-quota { text-align: right; letter-spacing: 1px; font-variant-numeric: tabular-nums; }
-    
+
     .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+
+    /* ── Input wrapper with clear button ── */
+    .input-wrap {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+
+    .input-wrap .ui-input {
+      padding-right: 34px;
+    }
+
+    .btn-clear {
+      position: absolute;
+      right: 6px;
+      width: 24px;
+      height: 24px;
+      border: none;
+      border-radius: 50%;
+      background: var(--border);
+      color: var(--text-muted);
+      font-size: 13px;
+      font-weight: 700;
+      line-height: 1;
+      cursor: pointer;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.15s, color 0.15s;
+      padding: 0;
+      flex-shrink: 0;
+      -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
+    }
+
+    .btn-clear:active {
+      background: var(--text-light);
+      color: white;
+    }
+
+    .btn-clear.visible {
+      display: flex;
+    }
 
     /* ── Google Places dropdown fixes ── */
     .pac-container {
@@ -167,7 +218,7 @@
       height: 42px;
     }
     @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
-    
+
     .error-box {
       background: var(--error-bg); border: 1.5px solid var(--error-border);
       border-radius: var(--radius-sm); padding: 10px 12px; display: none;
@@ -193,7 +244,7 @@
       color: var(--text-muted); font-size: 13px; font-weight: 600; cursor: pointer;
     }
 
-    /* Success — pre-built in DOM, toggled via display */
+    /* Success */
     .success-view {
       display: none;
       text-align: center;
@@ -230,11 +281,17 @@
         <div class="card-label">Evento</div>
         <div class="field">
           <label class="label">Nombre</label>
-          <input type="text" id="p-title" class="ui-input" value="PICHANGUITA #07" />
+          <div class="input-wrap">
+            <input type="text" id="p-title" class="ui-input" value="PICHANGUITA #07" autocapitalize="characters" />
+            <button type="button" class="btn-clear visible" data-target="p-title" aria-label="Limpiar">✕</button>
+          </div>
         </div>
         <div class="field">
           <label class="label">Lugar</label>
-          <input type="text" id="p-lugar" class="ui-input" placeholder="Cancha o dirección" autocomplete="off" />
+          <div class="input-wrap">
+            <input type="text" id="p-lugar" class="ui-input" placeholder="Cancha o dirección" autocomplete="off" autocapitalize="words" />
+            <button type="button" class="btn-clear" data-target="p-lugar" aria-label="Limpiar">✕</button>
+          </div>
         </div>
       </div>
 
@@ -292,7 +349,7 @@
           </div>
           <div class="field">
             <label class="label">Titular</label>
-            <input type="text" id="p-nom" class="ui-input" placeholder="Nombre" />
+            <input type="text" id="p-nom" class="ui-input" placeholder="Nombre" autocapitalize="words" />
           </div>
         </div>
       </div>
@@ -308,7 +365,7 @@
       </div>
     </form>
 
-    <!-- Success (pre-built in DOM, hidden until needed) -->
+    <!-- Success -->
     <div class="success-view" id="success-view">
       <div class="success-icon">✓</div>
       <h2>¡Lista Lista!</h2>
@@ -319,7 +376,56 @@
 
   <script src="config.js"></script>
   <script>
-    // 1. Google Places Autocomplete
+    // ─── 1. Force uppercase + alphanumeric only on event name ───
+    const titleInput = document.getElementById('p-title');
+
+    titleInput.addEventListener('input', () => {
+      const pos = titleInput.selectionStart;
+      // Keep only letters, digits, spaces, # and common symbols
+      const cleaned = titleInput.value.replace(/[^A-Za-z0-9\s#\-_.]/g, '').toUpperCase();
+      if (titleInput.value !== cleaned) {
+        titleInput.value = cleaned;
+        titleInput.setSelectionRange(pos, pos);
+      }
+    });
+
+    // ─── 2. Clear buttons for Nombre and Lugar ───
+    function setupClearButton(btnEl) {
+      const targetId = btnEl.dataset.target;
+      const input = document.getElementById(targetId);
+
+      function toggleVisibility() {
+        btnEl.classList.toggle('visible', input.value.length > 0);
+      }
+
+      btnEl.addEventListener('click', () => {
+        input.value = '';
+        btnEl.classList.remove('visible');
+        input.focus();
+        // Dispatch input event so other listeners react
+        input.dispatchEvent(new Event('input', { bubbles: true }));
+      });
+
+      input.addEventListener('input', toggleVisibility);
+      // Initialize on load
+      toggleVisibility();
+    }
+
+    document.querySelectorAll('.btn-clear').forEach(setupClearButton);
+
+    // ─── 3. Autocapitalize every word on Titular (JS fallback for desktop) ───
+    const nomInput = document.getElementById('p-nom');
+
+    nomInput.addEventListener('input', () => {
+      const pos = nomInput.selectionStart;
+      const capitalized = nomInput.value.replace(/\b\w/g, c => c.toUpperCase());
+      if (nomInput.value !== capitalized) {
+        nomInput.value = capitalized;
+        nomInput.setSelectionRange(pos, pos);
+      }
+    });
+
+    // ─── Google Places Autocomplete ───
     function initAutocomplete() {
       const input = document.getElementById('p-lugar');
       if (!input) return;
@@ -352,10 +458,13 @@
         } else {
           input.value = addr || name;
         }
+        // Update clear button visibility after autocomplete fills in
+        const clearBtn = input.parentElement.querySelector('.btn-clear');
+        if (clearBtn) clearBtn.classList.toggle('visible', input.value.length > 0);
       });
     }
 
-    // 2. Load Google Maps
+    // Load Google Maps
     (function loadGoogle() {
       if (!window.ENV?.GOOGLE_MAPS_KEY) {
         console.error('Falta GOOGLE_MAPS_KEY en config.js');
@@ -368,7 +477,7 @@
       document.head.appendChild(script);
     })();
 
-    // 3. UI Logic
+    // ─── UI Logic ───
     const form = document.getElementById('pichanga-form');
     const createBtn = document.getElementById('btn-crear');
     const quotaInput = document.getElementById('p-quota');
@@ -429,7 +538,7 @@
       numInput.value = pasted.replace(/\D/g, '').slice(0, 9);
     });
 
-    // ─── Show success (toggle visibility, no DOM destruction) ───
+    // ─── Show success ───
     function showSuccess() {
       document.getElementById('header-view').style.display = 'none';
       document.getElementById('pichanga-form').style.display = 'none';
@@ -443,7 +552,7 @@
       errorBox.style.display = 'none';
 
       const payload = {
-        titulo:          document.getElementById('p-title').value.trim(),
+        titulo:          document.getElementById('p-title').value.trim().toUpperCase(),
         lugar:           document.getElementById('p-lugar').value.trim(),
         fecha_pichanga:  document.getElementById('p-date').value,
         hora_inicio:     document.getElementById('p-start').value,
@@ -466,7 +575,6 @@
       createBtn.textContent = 'Publicando...';
 
       try {
-        // 1. Save to Supabase
         const res = await fetch(`${window.ENV.SUPABASE_URL}/rest/v1/pichangas`, {
           method: 'POST',
           headers: {
@@ -486,10 +594,6 @@
         const data = await res.json();
         const newPichanga = data[0];
 
-        // 2. Notify n8n
-        // Using text/plain to avoid CORS preflight (OPTIONS request)
-        // that n8n webhooks often don't handle properly on mobile browsers.
-        // n8n will still receive valid JSON in the body.
         const n8nData = {
           event: 'pichanga_created',
           match_id: newPichanga.id_pichanga_pub,
@@ -508,7 +612,6 @@
           console.warn('[Grubot] n8n failed, record saved:', n8nErr);
         }
 
-        // 3. Show success — only AFTER n8n fetch resolves
         showSuccess();
 
       } catch (err) {
