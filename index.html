@@ -474,12 +474,9 @@
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(n8nData),
-            mode: 'no-cors',
             keepalive: true
           });
-          // Note: mode 'no-cors' returns an opaque response (status 0),
-          // so we can't read the status, but the POST is guaranteed to be sent.
-          console.log('[Grubot] n8n request sent (no-cors mode)');
+          console.log('[Grubot] n8n request sent');
         } catch (n8nErr) {
           console.warn('[Grubot] n8n failed, record saved:', n8nErr);
         }
