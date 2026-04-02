@@ -472,7 +472,7 @@
         try {
           await fetch(window.ENV.N8N_WEBHOOK_URL, {
             method: 'POST',
-            headers: { 'Content-Type': 'text/plain' },
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(n8nData),
             mode: 'no-cors',
             keepalive: true
