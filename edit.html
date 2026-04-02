@@ -196,19 +196,21 @@
       color: var(--text-muted); font-family: inherit; font-size: 13px; font-weight: 600; cursor: pointer;
     }
 
-    /* Success */
-    .success {
-      display: flex; flex-direction: column; align-items: center;
-      text-align: center; padding: 48px 16px 16px;
+    /* Success — pre-built in DOM, toggled via display */
+    .success-view {
+      display: none;
+      text-align: center;
+      padding: 48px 16px;
     }
+    .success-view.active { display: block; }
     .success-icon {
       width: 64px; height: 64px; border-radius: 50%;
       display: grid; place-items: center;
       background: var(--primary-light); color: var(--primary);
-      font-size: 28px; margin-bottom: 16px;
+      font-size: 28px; margin: 0 auto 16px;
     }
-    .success h2 { font-family: 'Syne', sans-serif; font-size: 26px; font-weight: 800; margin-bottom: 6px; }
-    .success p { color: var(--text-muted); font-size: 14px; line-height: 1.5; max-width: 26ch; }
+    .success-view h2 { font-family: 'Syne', sans-serif; font-size: 26px; font-weight: 800; margin-bottom: 6px; }
+    .success-view p { color: var(--text-muted); font-size: 14px; line-height: 1.5; max-width: 26ch; margin: 0 auto; }
 
     @media (min-width: 480px) {
       body { padding: 24px 16px; }
@@ -225,7 +227,8 @@
 </head>
 <body>
   <main class="page" id="page">
-    <header class="header">
+    <!-- Header -->
+    <header class="header" id="header-view">
       <div class="badge">✏️ Editar pichanga</div>
       <h1 class="h1-brand">Edita tu <span>partido</span></h1>
       <p class="subtitle">Actualiza los datos y guarda los cambios.</p>
@@ -255,7 +258,6 @@
 
     <!-- Real form, hidden until data loads -->
     <form class="form" id="edit-form" style="display:none;">
-
       <!-- Evento -->
       <div class="card">
         <div class="card-label">Evento</div>
@@ -340,6 +342,14 @@
         <button type="button" class="btn-ghost" id="btn-cancel">Cancelar</button>
       </div>
     </form>
+
+    <!-- Success (pre-built in DOM, hidden until needed) -->
+    <div class="success-view" id="success-view">
+      <div class="success-icon">✓</div>
+      <h2>Cambios guardados</h2>
+      <p>La pichanga fue actualizada correctamente.</p>
+      <button class="btn-primary" style="margin-top:20px;max-width:200px" onclick="window.close()">Cerrar</button>
+    </div>
   </main>
 
   <script src="config.js"></script>
@@ -372,10 +382,7 @@
         }
         return;
       }
-      if (!/^[0-9]$/.test(e.key)) {
-        e.preventDefault();
-        return;
-      }
+      if (!/^[0-9]$/.test(e.key)) { e.preventDefault(); return; }
       e.preventDefault();
       if (quotaCents >= 999999) return;
       quotaCents = quotaCents * 10 + parseInt(e.key, 10);
@@ -400,16 +407,13 @@
       const allowed = ['Backspace', 'Delete', 'Tab', 'Escape', 'Enter',
                         'ArrowLeft', 'ArrowRight', 'Home', 'End'];
       if (allowed.includes(e.key) || e.ctrlKey || e.metaKey) return;
-      if (!/^[0-9]$/.test(e.key)) {
-        e.preventDefault();
-      }
+      if (!/^[0-9]$/.test(e.key)) { e.preventDefault(); }
     });
 
     phoneInput.addEventListener('paste', (e) => {
       e.preventDefault();
       const pasted = (e.clipboardData || window.clipboardData).getData('text');
-      const digits = pasted.replace(/\D/g, '').slice(0, 9);
-      phoneInput.value = digits;
+      phoneInput.value = pasted.replace(/\D/g, '').slice(0, 9);
     });
 
     // ─── Google Places Autocomplete ───
@@ -423,7 +427,6 @@
         types: ['establishment', 'geocode'],
       });
 
-      // Move pac-container to body so it's never clipped
       const observer = new MutationObserver(() => {
         const pac = document.querySelector('.pac-container');
         if (pac && pac.parentElement !== document.body) {
@@ -473,6 +476,14 @@
       errorBox.classList.remove('visible');
     }
 
+    // ─── Show success (toggle visibility, no DOM destruction) ───
+    function showSuccess() {
+      document.getElementById('header-view').style.display = 'none';
+      document.getElementById('skeleton').style.display = 'none';
+      document.getElementById('edit-form').style.display = 'none';
+      document.getElementById('success-view').classList.add('active');
+    }
+
     // ─── Load existing pichanga data ───
     if (!recordId) {
       skeleton.innerHTML = `<p style="color:var(--error);font-weight:600;font-size:14px;">⚠ No se encontró ID de pichanga en la URL.</p>`;
@@ -486,7 +497,6 @@
           const p = data[0];
           if (!p) throw new Error('Pichanga no encontrada.');
 
-          // Fill form
           document.getElementById('p-title').value  = p.titulo || '';
           document.getElementById('p-lugar').value  = p.lugar || '';
           document.getElementById('p-date').value   = p.fecha_pichanga || '';
@@ -497,12 +507,10 @@
           document.getElementById('p-num').value    = p.numero_pago || '';
           document.getElementById('p-nom').value    = p.titular_pago || '';
 
-          // Set quota and sync quotaCents
           const cuota = p.cuota || 0;
           quotaCents = Math.round(cuota * 100);
           document.getElementById('p-quota').value = cuota.toFixed(2);
 
-          // Payment method
           if (p.metodo_pago === 'PLIN') {
             document.getElementById('cb-plin').checked = true;
           } else {
@@ -520,7 +528,7 @@
 
     document.getElementById('btn-cancel').addEventListener('click', () => window.history.back());
 
-    // ─── Submit: update Supabase + notify n8n ───
+    // ─── Submit ───
     document.getElementById('edit-form').addEventListener('submit', async (e) => {
       e.preventDefault();
       hideError();
@@ -560,47 +568,36 @@
           body: JSON.stringify(updateData)
         });
 
-        const body = await res.json().catch(() => null);
-
         if (!res.ok) {
+          const body = await res.json().catch(() => null);
           const msg = body?.message || body?.error || JSON.stringify(body) || `HTTP ${res.status}`;
-          const hint = body?.hint ? `\nHint: ${body.hint}` : '';
-          const detail = body?.details ? `\nDetalle: ${body.details}` : '';
-          throw new Error(`[${res.status}] ${msg}${hint}${detail}`);
+          throw new Error(`[${res.status}] ${msg}`);
         }
 
-        const updatedPichanga = body?.[0] || null;
+        const data = await res.json();
+        const updatedPichanga = data[0];
 
-        // 2. Notify n8n
+        // 2. Notify n8n — same pattern as working create form
         const n8nData = {
           event: 'pichanga_created',
-          match_id: updatedPichanga?.id_pichanga_pub || recordId,
-          pichanga: updatedPichanga || { ...updateData, id_pichanga_pub: recordId }
+          match_id: updatedPichanga.id_pichanga_pub,
+          pichanga: updatedPichanga
         };
 
-        console.log('[Grubot] Sending to n8n:', window.ENV.N8N_WEBHOOK_URL, n8nData);
-
         try {
-          const n8nRes = await fetch(window.ENV.N8N_WEBHOOK_URL, {
+          await fetch(window.ENV.N8N_WEBHOOK_URL, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(n8nData),
             keepalive: true
           });
-          console.log('[Grubot] n8n response status:', n8nRes.status);
+          console.log('[Grubot] n8n request sent');
         } catch (n8nErr) {
-          console.warn('[Grubot] n8n delivery failed, but record was saved:', n8nErr);
+          console.warn('[Grubot] n8n failed, record saved:', n8nErr);
         }
 
-        // 3. Show success
-        document.getElementById('page').innerHTML = `
-          <section class="success">
-            <div class="success-icon">✓</div>
-            <h2>Cambios guardados</h2>
-            <p>La pichanga fue actualizada correctamente.</p>
-            <button class="btn-primary" style="margin-top:20px;max-width:200px" onclick="window.close()">Cerrar</button>
-          </section>
-        `;
+        // 3. Show success — only AFTER n8n fetch resolves
+        showSuccess();
 
       } catch (err) {
         console.error('Error:', err);
