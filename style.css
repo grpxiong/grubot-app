@@ -84,21 +84,41 @@ body {
 
 /* Used in Edit Form */
 .card {
-  background: var(--bg-card);
-  border: 1px solid var(--border);
+  background: white;
   border-radius: 16px;
-  padding: 14px;
-  display: flex; flex-direction: column; gap: 10px;
-}
-.card-label {
-  font-size: 10px; font-weight: 700; color: var(--text-light);
-  text-transform: uppercase; letter-spacing: 0.08em;
-  padding-bottom: 2px; border-bottom: 1px solid var(--border);
-  margin-bottom: 5px;
+  padding: 24px;
+  margin-bottom: 20px;
+  border: 1px solid #e2e8f0;
 }
 
-.field { display: flex; flex-direction: column; gap: 8px; min-width: 0; }
-.label-caps, .label { font-size: 11px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.07em; }
+.card-label {
+  font-family: 'Syne', sans-serif;
+  font-weight: 800;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  color: #cbd5e0;
+  margin-bottom: 20px;
+  border-bottom: 1px solid #edf2f7;
+  padding-bottom: 8px;
+}
+
+.label-caps,
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.label {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  color: #8898aa;
+  letter-spacing: 0.025em;
+}
 
 .ui-input { 
   width: 100%; min-height: 52px; padding: 14px 12px; 
@@ -109,7 +129,12 @@ body {
 }
 .ui-input:focus { border-color: var(--border-focus); background: white; box-shadow: 0 0 0 4px var(--primary-glow); }
 
-.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 16px;
+}
 
 /* --- TOGGLE SWITCH --- */
 .switch { position: relative; display: inline-block; width: 46px; height: 24px; flex-shrink: 0; }
@@ -118,6 +143,14 @@ body {
 .slider:before { position: absolute; content: ""; height: 18px; width: 18px; left: 3px; bottom: 3px; background-color: white; transition: .3s; border-radius: 50%; }
 input:checked + .slider { background-color: var(--primary); }
 input:checked + .slider:before { transform: translateX(22px); }
+
+.toggle-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 0;
+  border-top: 1px solid #edf2f7;
+}
 
 /* --- SEGMENTED CONTROLS --- */
 .segmented { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
