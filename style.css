@@ -357,11 +357,11 @@ body.app-mode {
   padding: 14px;
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 7px;
 }
 
 .card + .card {
-  margin-top: 10px;
+  margin-top: 1px;
 }
 
 .card-label {
@@ -370,7 +370,7 @@ body.app-mode {
   color: var(--text-light);
   text-transform: uppercase;
   letter-spacing: 0.08em;
-  padding-bottom: 4px;
+  padding-bottom: 1px;
   border-bottom: 1px solid var(--border);
 }
 
@@ -392,8 +392,8 @@ body.app-mode {
 .ui-input,
 .ui-select {
   width: 100%;
-  height: 46px;
-  padding: 0 14px;
+  height: 42px;
+  padding: 0 11px;
   border: 1.5px solid var(--border);
   border-radius: var(--radius-sm);
   background: var(--bg-input);
@@ -598,8 +598,8 @@ body.app-mode {
 .switch {
   position: relative;
   display: inline-block;
-  width: 44px;
-  height: 24px;
+  width: 40px;
+  height: 22px;
   flex-shrink: 0;
 }
 
@@ -621,8 +621,8 @@ body.app-mode {
 .slider-toggle::before {
   content: '';
   position: absolute;
-  height: 18px;
-  width: 18px;
+  height: 16px;
+  width: 16px;
   left: 3px;
   bottom: 3px;
   background: white;
@@ -644,15 +644,15 @@ body.app-mode {
   inset: 0;
   cursor: pointer;
   background: var(--text-light);
-  border-radius: 24px;
+  border-radius: 22px;
   transition: 0.25s;
 }
 
 .slider::before {
   content: '';
   position: absolute;
-  height: 18px;
-  width: 18px;
+  height: 16px;
+  width: 16px;
   left: 3px;
   bottom: 3px;
   background: white;
@@ -665,7 +665,7 @@ body.app-mode {
 }
 
 .switch input:checked + .slider::before {
-  transform: translateX(20px);
+  transform: translateX(18px);
 }
 
 /* Segmented controls */
