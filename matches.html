@@ -1,61 +1,482 @@
-<!-- From Uiverse.io by zanina-yassine --> 
-<div class="master-container">
-  <div class="card cart">
-    <label class="title">Your cart</label>
-    <div class="products">
-      <div class="product">
-        <svg fill="none" viewBox="0 0 60 60" height="60" width="60" xmlns="http://www.w3.org/2000/svg">
-<rect fill="#FFF6EE" rx="8.25" height="60" width="60"></rect>
-<path stroke-linejoin="round" stroke-linecap="round" stroke-width="2.25" stroke="#FF8413" fill="#FFB672" d="M34.2812 18H25.7189C21.9755 18 18.7931 20.5252 17.6294 24.0434C17.2463 25.2017 17.0547 25.7808 17.536 26.3904C18.0172 27 18.8007 27 20.3675 27H39.6325C41.1993 27 41.9827 27 42.4639 26.3904C42.9453 25.7808 42.7538 25.2017 42.3707 24.0434C41.207 20.5252 38.0246 18 34.2812 18Z"></path>
-<path fill="#FFB672" d="M18 36H17.25C16.0074 36 15 34.9926 15 33.75C15 32.5074 16.0074 31.5 17.25 31.5H29.0916C29.6839 31.5 30.263 31.6754 30.7557 32.0039L33.668 33.9453C34.1718 34.2812 34.8282 34.2812 35.332 33.9453L38.2443 32.0039C38.7371 31.6754 39.3161 31.5 39.9084 31.5H42.75C43.9926 31.5 45 32.5074 45 33.75C45 34.9926 43.9926 36 42.75 36H42M18 36L18.6479 38.5914C19.1487 40.5947 20.9486 42 23.0135 42H36.9865C39.0514 42 40.8513 40.5947 41.3521 38.5914L42 36M18 36H28.5ZM42 36H39.75Z"></path>
-<path stroke-linejoin="round" stroke-linecap="round" stroke-width="2.25" stroke="#FF8413" d="M18 36H17.25C16.0074 36 15 34.9926 15 33.75C15 32.5074 16.0074 31.5 17.25 31.5H29.0916C29.6839 31.5 30.263 31.6754 30.7557 32.0039L33.668 33.9453C34.1718 34.2812 34.8282 34.2812 35.332 33.9453L38.2443 32.0039C38.7371 31.6754 39.3161 31.5 39.9084 31.5H42.75C43.9926 31.5 45 32.5074 45 33.75C45 34.9926 43.9926 36 42.75 36H42M18 36L18.6479 38.5914C19.1487 40.5947 20.9486 42 23.0135 42H36.9865C39.0514 42 40.8513 40.5947 41.3521 38.5914L42 36M18 36H28.5M42 36H39.75"></path>
-<path stroke-linejoin="round" stroke-linecap="round" stroke-width="3" stroke="#FF8413" d="M34.512 22.5H34.4982"></path>
-<path stroke-linejoin="round" stroke-linecap="round" stroke-width="2.25" stroke="#FF8413" d="M27.75 21.75L26.25 23.25"></path>
-</svg>
-        <div>
-          <span>Cheese Burger</span>
-          <p>Extra Spicy</p>
-          <p>No mayo</p>
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>Grubot — Panel de Control</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no" />
+  <meta name="theme-color" content="#059669" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <link rel="manifest" href="manifest.json" />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+
+<body>
+<div class="screen-wrap" id="partido-screen">
+
+  <!-- ═══════════════════════════════════════
+       VIEW 1: MATCH LIST
+       ═══════════════════════════════════════ -->
+  <div id="match-list-view">
+
+    <!-- Section header with + button -->
+    <div class="section-header fade-in">
+      <div>
+        <h2 class="section-title">Tus partidos</h2>
+        <p class="section-sub" id="match-count-label">Cargando...</p>
+      </div>
+      <button class="btn-add" id="btn-new-match" title="Crear partido">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+        </svg>
+      </button>
+    </div>
+
+    <!-- Filter tabs -->
+    <div class="filter-row fade-in stagger-1" id="filter-row">
+      <button class="filter-chip active" data-filter="upcoming">Próximos</button>
+      <button class="filter-chip" data-filter="past">Anteriores</button>
+      <button class="filter-chip" data-filter="all">Todos</button>
+    </div>
+
+    <!-- Match cards -->
+    <div class="match-list" id="match-list"></div>
+
+    <!-- Empty state -->
+    <div class="empty-state" id="empty-matches" style="display:none;">
+      <div class="empty-icon">🏟️</div>
+      <h3>Sin partidos</h3>
+      <p>Crea tu primera pichanga con el botón +</p>
+    </div>
+
+    <!-- Loading skeletons -->
+    <div id="match-skeletons" class="match-list">
+      <div class="match-card-skeleton">
+        <div class="skeleton" style="height:14px;width:70%;border-radius:4px"></div>
+        <div style="display:flex;gap:12px;margin-top:10px;">
+          <div class="skeleton" style="height:12px;width:40%;border-radius:4px"></div>
+          <div class="skeleton" style="height:12px;width:30%;border-radius:4px"></div>
         </div>
-        <div class="quantity">
-          <button>
-            <svg fill="none" viewBox="0 0 24 24" height="14" width="14" xmlns="http://www.w3.org/2000/svg">
-              <path stroke-linejoin="round" stroke-linecap="round" stroke-width="2.5" stroke="#47484b" d="M20 12L4 12"></path>
-            </svg>
-          </button>
-          <label>2</label>
-          <button>
-            <svg fill="none" viewBox="0 0 24 24" height="14" width="14" xmlns="http://www.w3.org/2000/svg">
-              <path stroke-linejoin="round" stroke-linecap="round" stroke-width="2.5" stroke="#47484b" d="M12 4V20M20 12H4"></path>
-            </svg>
-          </button>
+        <div style="display:flex;gap:8px;margin-top:12px;">
+          <div class="skeleton" style="height:28px;width:60px;border-radius:999px"></div>
+          <div class="skeleton" style="height:28px;width:50px;border-radius:999px"></div>
         </div>
-        <label class="price small">$23.99</label>
+      </div>
+      <div class="match-card-skeleton">
+        <div class="skeleton" style="height:14px;width:55%;border-radius:4px"></div>
+        <div style="display:flex;gap:12px;margin-top:10px;">
+          <div class="skeleton" style="height:12px;width:35%;border-radius:4px"></div>
+          <div class="skeleton" style="height:12px;width:25%;border-radius:4px"></div>
+        </div>
+        <div style="display:flex;gap:8px;margin-top:12px;">
+          <div class="skeleton" style="height:28px;width:60px;border-radius:999px"></div>
+          <div class="skeleton" style="height:28px;width:50px;border-radius:999px"></div>
+        </div>
       </div>
     </div>
   </div>
 
-  <div class="card coupons">
-    <label class="title">Apply coupons</label>
-    <form class="form">
-        <input type="text" placeholder="Apply your coupons here" class="input_field">
-        <button>Apply</button>
-    </form>
+  <!-- ═══════════════════════════════════════
+       VIEW 2: MATCH DETAIL
+       ═══════════════════════════════════════ -->
+  <div id="match-detail-view" style="display:none;">
+
+    <button class="btn-back fade-in" id="btn-back-list">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M19 12H5"/><path d="m12 19-7-7 7-7"/>
+      </svg>
+      <span>Partidos</span>
+    </button>
+
+    <div class="match-hero fade-in stagger-1" id="detail-hero">
+      <div class="match-badge" id="detail-badge">⚡ Próximo partido</div>
+      <div class="match-title" id="detail-title">—</div>
+      <div class="match-details">
+        <div class="match-detail-row">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+          <span id="detail-date">—</span>
+        </div>
+        <div class="match-detail-row">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+          <span id="detail-time">—</span>
+        </div>
+        <div class="match-detail-row">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
+          <span id="detail-location">—</span>
+        </div>
+        <div class="match-detail-row">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" x2="12" y1="2" y2="22"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+          <span id="detail-price">—</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="quick-stats fade-in stagger-2">
+      <div class="stat-card">
+        <div class="stat-num accent" id="detail-inscritos">0</div>
+        <div class="stat-lbl">Inscritos</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num warn" id="detail-faltan">0</div>
+        <div class="stat-lbl">Faltan</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num" id="detail-suplentes">0</div>
+        <div class="stat-lbl">Suplentes</div>
+      </div>
+    </div>
+
+    <div class="card fade-in stagger-3">
+      <div class="card-label">Estado del partido</div>
+      <div class="segmented-3">
+        <div>
+          <input type="radio" name="detail-status" id="dst-open" value="abierto" checked />
+          <label class="seg-btn" for="dst-open">🟢 Abierto</label>
+        </div>
+        <div>
+          <input type="radio" name="detail-status" id="dst-closed" value="cerrado" />
+          <label class="seg-btn" for="dst-closed">🔒 Cerrado</label>
+        </div>
+        <div>
+          <input type="radio" name="detail-status" id="dst-cancel" value="cancelado" />
+          <label class="seg-btn" for="dst-cancel">❌ Cancelado</label>
+        </div>
+      </div>
+      <p id="detail-status-hint" style="font-size:11px;color:var(--text-light);margin-top:2px;">
+        El bot acepta inscripciones automáticamente.
+      </p>
+    </div>
+
+    <div class="card fade-in stagger-4">
+      <div class="card-label">Jugadores inscritos</div>
+      <div class="detail-player-list" id="detail-player-list"></div>
+      <button class="btn-secondary" id="btn-go-jugadores" style="margin-top:4px;">
+        👥&ensp;Ver todos los jugadores
+      </button>
+    </div>
+
+    <div class="fade-in stagger-4" style="margin-top:12px;display:flex;flex-direction:column;gap:8px;">
+      <button class="btn-primary" id="btn-detail-share">
+        📤&ensp;Enviar lista al grupo
+      </button>
+      <button class="btn-secondary" id="btn-detail-edit">
+        ✏️&ensp;Editar partido
+      </button>
+    </div>
   </div>
 
-  <div class="card checkout">
-    <label class="title">Checkout</label>
-    <div class="details">
-      <span>Your cart subtotal:</span>
-      <span>47.99$</span>
-      <span>Discount through applied coupons:</span>
-      <span>3.99$</span>
-      <span>Shipping fees:</span>
-      <span>4.99$</span>
-    </div>
-    <div class="checkout--footer">
-      <label class="price"><sup>$</sup>57.99</label>
-      <button class="checkout-btn">Checkout</button>
-    </div>
-  </div>
 </div>
+
+<!-- ── Screen Styles ── -->
+<style>
+  .section-header {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 14px;
+  }
+  .section-title {
+    font-family: 'Syne', sans-serif; font-size: 22px; font-weight: 800;
+    letter-spacing: -0.02em; color: var(--text-main); line-height: 1.1;
+  }
+  .section-sub { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+
+  .btn-add {
+    width: 42px; height: 42px; border: none; border-radius: 12px;
+    background: var(--primary); color: white;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; box-shadow: 0 4px 12px rgba(5,150,105,0.3);
+    transition: background 0.15s, transform 0.1s; touch-action: manipulation; flex-shrink: 0;
+  }
+  .btn-add:active { background: var(--primary-hover); transform: scale(0.93); }
+  .btn-add svg { width: 20px; height: 20px; }
+
+  .filter-row {
+    display: flex; gap: 6px; margin-bottom: 14px;
+    overflow-x: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none;
+  }
+  .filter-row::-webkit-scrollbar { display: none; }
+
+  .filter-chip {
+    padding: 6px 14px; border: 1.5px solid var(--border); border-radius: 999px;
+    background: var(--bg-card); color: var(--text-muted); font-family: inherit;
+    font-size: 12px; font-weight: 700; white-space: nowrap; cursor: pointer;
+    transition: all 0.15s; touch-action: manipulation;
+  }
+  .filter-chip.active { background: var(--primary); border-color: var(--primary); color: white; }
+  .filter-chip:active:not(.active) { border-color: var(--primary); color: var(--primary); }
+
+  .match-card {
+    background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg);
+    padding: 14px 16px; cursor: pointer;
+    transition: border-color 0.15s, box-shadow 0.15s, transform 0.1s;
+    touch-action: manipulation; position: relative; overflow: hidden;
+  }
+  .match-card + .match-card { margin-top: 8px; }
+  .match-card:active { transform: scale(0.985); border-color: var(--primary); box-shadow: 0 0 0 3px var(--primary-glow); }
+
+  .match-card::before {
+    content: ''; position: absolute; left: 0; top: 12px; bottom: 12px; width: 3px;
+    border-radius: 0 3px 3px 0; background: var(--primary);
+  }
+  .match-card.past::before { background: var(--text-light); }
+  .match-card.cancelled::before { background: var(--error); }
+
+  .mc-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; }
+  .mc-title {
+    font-family: 'Syne', sans-serif; font-size: 16px; font-weight: 800;
+    letter-spacing: -0.01em; color: var(--text-main); line-height: 1.2;
+  }
+  .mc-status {
+    padding: 2px 8px; border-radius: 999px; font-size: 10px; font-weight: 700;
+    letter-spacing: 0.04em; text-transform: uppercase; white-space: nowrap; flex-shrink: 0; margin-top: 2px;
+  }
+  .mc-status.open { background: var(--primary-light); color: var(--primary); }
+  .mc-status.closed { background: var(--warning-light); color: var(--warning); }
+  .mc-status.cancelled { background: var(--error-bg); color: var(--error); }
+
+  .mc-info { display: flex; flex-wrap: wrap; gap: 4px 14px; margin-top: 8px; font-size: 12px; color: var(--text-muted); }
+  .mc-info-item { display: flex; align-items: center; gap: 4px; }
+  .mc-info-item svg { width: 13px; height: 13px; color: var(--text-light); flex-shrink: 0; }
+
+  .mc-footer {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--border);
+  }
+  .mc-players { display: flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 600; color: var(--text-muted); }
+  .mc-players-bar { width: 60px; height: 5px; background: var(--bg-input); border-radius: 5px; overflow: hidden; }
+  .mc-players-fill { height: 100%; background: var(--primary); border-radius: 5px; transition: width 0.3s ease; }
+  .mc-arrow { width: 24px; height: 24px; color: var(--text-light); display: flex; align-items: center; justify-content: center; }
+  .mc-arrow svg { width: 16px; height: 16px; }
+
+  .match-card-skeleton {
+    background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 14px 16px;
+  }
+  .match-card-skeleton + .match-card-skeleton { margin-top: 8px; }
+
+  .btn-back {
+    display: flex; align-items: center; gap: 6px; border: none; background: none;
+    color: var(--primary); font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 700;
+    cursor: pointer; padding: 4px 0; margin-bottom: 14px; touch-action: manipulation;
+  }
+  .btn-back:active { opacity: 0.7; }
+  .btn-back svg { width: 18px; height: 18px; }
+
+  .detail-player-list { display: flex; flex-direction: column; gap: 6px; }
+  .detail-player-row {
+    display: flex; align-items: center; gap: 10px; padding: 8px 10px;
+    background: var(--bg-input); border: 1px solid var(--border); border-radius: var(--radius-sm);
+  }
+  .dp-num {
+    width: 26px; height: 26px; border-radius: 6px; background: var(--primary-light);
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Syne', sans-serif; font-size: 11px; font-weight: 800; color: var(--primary); flex-shrink: 0;
+  }
+  .dp-num.sup { background: var(--warning-light); color: var(--warning); }
+  .dp-name { font-size: 13px; font-weight: 600; color: var(--text-main); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex: 1; min-width: 0; }
+  .dp-badge { font-size: 10px; font-weight: 700; color: var(--text-light); }
+</style>
+
+<!-- ── Screen Logic ── -->
+<script>
+(function() {
+  const { toast } = window.grubot;
+
+  const DEMO_MATCHES = [
+    {
+      id: 'p001', titulo: 'PICHANGUITA #07', fecha_pichanga: '2025-04-09',
+      hora_inicio: '19:00', hora_fin: '20:00', lugar: 'Canchas La Molina',
+      cuota: 15, metodo_pago: 'YAPE', cantidad: 10, estado: 'abierto', inscritos: 7, suplentes: 2,
+      jugadores: [
+        { nombre: 'Carlos Ramírez', tipo: 'titular' }, { nombre: 'Miguel Torres', tipo: 'titular' },
+        { nombre: 'Andrés Villanueva', tipo: 'titular' }, { nombre: 'Jorge Medina', tipo: 'titular' },
+        { nombre: 'Luis Paredes', tipo: 'titular' }, { nombre: 'Diego Castillo', tipo: 'titular' },
+        { nombre: 'Fernando Reyes', tipo: 'titular' }, { nombre: 'Roberto Díaz', tipo: 'suplente' },
+        { nombre: 'Pablo Quispe', tipo: 'suplente' },
+      ],
+    },
+    {
+      id: 'p002', titulo: 'PICHANGUITA #06', fecha_pichanga: '2025-04-02',
+      hora_inicio: '19:00', hora_fin: '20:00', lugar: 'La Videna Sport',
+      cuota: 12, metodo_pago: 'PLIN', cantidad: 10, estado: 'cerrado', inscritos: 10, suplentes: 1,
+      jugadores: [
+        { nombre: 'Carlos Ramírez', tipo: 'titular' }, { nombre: 'Miguel Torres', tipo: 'titular' },
+        { nombre: 'Andrés Villanueva', tipo: 'titular' },
+      ],
+    },
+    {
+      id: 'p003', titulo: 'PICHANGUITA #05', fecha_pichanga: '2025-03-26',
+      hora_inicio: '20:00', hora_fin: '21:00', lugar: 'Complejo Balta',
+      cuota: 15, metodo_pago: 'YAPE', cantidad: 12, estado: 'cerrado', inscritos: 12, suplentes: 0,
+      jugadores: [],
+    },
+  ];
+
+  let allMatches = [];
+  let currentFilter = 'upcoming';
+
+  const dias = ['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'];
+  const diasFull = ['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'];
+  const meses = ['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
+  const mesesFull = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+
+  function fmtDateShort(iso) { const d = new Date(iso + 'T12:00:00'); return dias[d.getDay()] + ' ' + d.getDate() + ' ' + meses[d.getMonth()]; }
+  function fmtDateFull(iso) { const d = new Date(iso + 'T12:00:00'); return diasFull[d.getDay()] + ' ' + d.getDate() + ' de ' + mesesFull[d.getMonth()] + ', ' + d.getFullYear(); }
+  function fmtTime(t) { if (!t) return ''; const [h, m] = t.split(':').map(Number); return ((h % 12) || 12) + ':' + String(m).padStart(2, '0') + ' ' + (h >= 12 ? 'PM' : 'AM'); }
+  function fmtTimeRange(s, e) { return e ? fmtTime(s) + ' — ' + fmtTime(e) : fmtTime(s); }
+  function isUpcoming(iso) { const t = new Date(); t.setHours(0,0,0,0); return new Date(iso + 'T23:59:59') >= t; }
+  function statusClass(e) { return e === 'abierto' ? 'open' : e === 'cancelado' ? 'cancelled' : 'closed'; }
+  function statusLabel(e) { return { abierto:'Abierto', cerrado:'Cerrado', cancelado:'Cancelado' }[e] || e; }
+
+  const hints = { abierto: 'El bot acepta inscripciones automáticamente.', cerrado: 'Solo el admin puede agregar jugadores.', cancelado: 'Se notificará a los jugadores inscritos.' };
+
+  function renderList(matches) {
+    const list = document.getElementById('match-list');
+    const empty = document.getElementById('empty-matches');
+    document.getElementById('match-skeletons').style.display = 'none';
+
+    let filtered = matches;
+    if (currentFilter === 'upcoming') filtered = matches.filter(m => isUpcoming(m.fecha_pichanga));
+    if (currentFilter === 'past') filtered = matches.filter(m => !isUpcoming(m.fecha_pichanga));
+
+    if (!filtered.length) { list.innerHTML = ''; empty.style.display = 'block'; document.getElementById('match-count-label').textContent = '0 partidos'; return; }
+    empty.style.display = 'none';
+    document.getElementById('match-count-label').textContent = filtered.length + ' partido' + (filtered.length !== 1 ? 's' : '');
+
+    list.innerHTML = filtered.map((m, i) => {
+      const pct = m.cantidad ? Math.round((m.inscritos / m.cantidad) * 100) : 0;
+      const isPast = !isUpcoming(m.fecha_pichanga);
+      return `
+        <div class="match-card ${isPast ? 'past' : ''} ${m.estado === 'cancelado' ? 'cancelled' : ''} fade-in" style="animation-delay:${Math.min(i * 0.04, 0.2)}s" data-id="${m.id}">
+          <div class="mc-top">
+            <div class="mc-title">${m.titulo}</div>
+            <span class="mc-status ${statusClass(m.estado)}">${statusLabel(m.estado)}</span>
+          </div>
+          <div class="mc-info">
+            <div class="mc-info-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>${fmtDateShort(m.fecha_pichanga)}</div>
+            <div class="mc-info-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>${fmtTime(m.hora_inicio)}</div>
+            <div class="mc-info-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>${m.lugar}</div>
+          </div>
+          <div class="mc-footer">
+            <div class="mc-players"><span>${m.inscritos}/${m.cantidad}</span><div class="mc-players-bar"><div class="mc-players-fill" style="width:${pct}%"></div></div></div>
+            <div class="mc-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg></div>
+          </div>
+        </div>`;
+    }).join('');
+
+    list.querySelectorAll('.match-card').forEach(card => {
+      card.addEventListener('click', () => {
+        const match = allMatches.find(m => m.id === card.dataset.id);
+        if (match) openDetail(match);
+      });
+    });
+  }
+
+  document.querySelectorAll('.filter-chip').forEach(chip => {
+    chip.addEventListener('click', () => {
+      document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+      chip.classList.add('active');
+      currentFilter = chip.dataset.filter;
+      renderList(allMatches);
+    });
+  });
+
+  function openDetail(m) {
+    document.getElementById('match-list-view').style.display = 'none';
+    const detail = document.getElementById('match-detail-view');
+    detail.style.display = 'block';
+    document.getElementById('partido-screen').closest('.content')?.scrollTo(0, 0);
+
+    const upcoming = isUpcoming(m.fecha_pichanga);
+    document.getElementById('detail-badge').textContent = upcoming ? '⚡ Próximo partido' : '📋 Partido finalizado';
+    document.getElementById('detail-title').textContent = m.titulo;
+    document.getElementById('detail-date').textContent = fmtDateFull(m.fecha_pichanga);
+    document.getElementById('detail-time').textContent = fmtTimeRange(m.hora_inicio, m.hora_fin);
+    document.getElementById('detail-location').textContent = m.lugar;
+    document.getElementById('detail-price').textContent = 'S/ ' + (m.cuota || 0).toFixed(2) + ' por persona (' + (m.metodo_pago || 'Yape') + ')';
+
+    const total = m.cantidad || 10;
+    document.getElementById('detail-inscritos').textContent = m.inscritos || 0;
+    document.getElementById('detail-faltan').textContent = Math.max(0, total - (m.inscritos || 0));
+    document.getElementById('detail-suplentes').textContent = m.suplentes || 0;
+
+    const radioMap = { abierto: 'dst-open', cerrado: 'dst-closed', cancelado: 'dst-cancel' };
+    const r = document.getElementById(radioMap[m.estado] || 'dst-open');
+    if (r) r.checked = true;
+    document.getElementById('detail-status-hint').textContent = hints[m.estado || 'abierto'];
+
+    const playerList = document.getElementById('detail-player-list');
+    const jugadores = m.jugadores || [];
+    if (jugadores.length) {
+      const tit = jugadores.filter(j => j.tipo === 'titular');
+      const sup = jugadores.filter(j => j.tipo === 'suplente');
+      const preview = [...tit.slice(0, 4), ...sup.slice(0, 1)];
+      const remaining = jugadores.length - preview.length;
+      playerList.innerHTML = preview.map(j => {
+        const isSup = j.tipo === 'suplente';
+        const label = isSup ? 'S' + (sup.indexOf(j) + 1) : String(tit.indexOf(j) + 1);
+        return `<div class="detail-player-row"><div class="dp-num ${isSup ? 'sup' : ''}">${label}</div><div class="dp-name">${j.nombre}</div><div class="dp-badge">${isSup ? 'Suplente' : 'Titular'}</div></div>`;
+      }).join('') + (remaining > 0 ? `<div style="text-align:center;padding:4px 0;font-size:12px;color:var(--text-light);font-weight:600;">+${remaining} más</div>` : '');
+    } else {
+      playerList.innerHTML = '<div style="text-align:center;padding:16px 0;font-size:13px;color:var(--text-light);">Sin jugadores inscritos aún</div>';
+    }
+    detail.dataset.matchId = m.id;
+  }
+
+  document.querySelectorAll('[name="detail-status"]').forEach(radio => {
+    radio.addEventListener('change', () => {
+      document.getElementById('detail-status-hint').textContent = hints[radio.value] || '';
+      toast('Estado: ' + statusLabel(radio.value));
+    });
+  });
+
+  document.getElementById('btn-back-list').addEventListener('click', () => {
+    document.getElementById('match-detail-view').style.display = 'none';
+    document.getElementById('match-list-view').style.display = 'block';
+  });
+
+  document.getElementById('btn-detail-share').addEventListener('click', function() {
+    this.disabled = true; this.textContent = 'Enviando...';
+    setTimeout(() => { toast('Lista enviada al grupo ✓'); this.disabled = false; this.textContent = '📤  Enviar lista al grupo'; }, 800);
+  });
+
+  document.getElementById('btn-detail-edit').addEventListener('click', () => {
+    const id = document.getElementById('match-detail-view').dataset.matchId;
+    // TODO: window.location.href = 'editar.html?id=' + id;
+    toast('Abriendo editor...');
+  });
+
+  document.getElementById('btn-go-jugadores').addEventListener('click', () => {
+    document.querySelector('[data-screen="jugadores"]')?.click();
+  });
+
+  document.getElementById('btn-new-match').addEventListener('click', () => {
+    // TODO: window.open('crear.html', '_blank');
+    toast('Abriendo formulario...');
+  });
+
+  async function loadMatches() {
+    const URL = window.ENV?.SUPABASE_URL;
+    const KEY = window.ENV?.SUPABASE_KEY;
+    if (!URL || !KEY || URL.includes('your-project')) {
+      setTimeout(() => { allMatches = DEMO_MATCHES; renderList(allMatches); }, 400);
+      return;
+    }
+    try {
+      const res = await fetch(URL + '/rest/v1/pichangas?order=fecha_pichanga.desc&limit=20', { headers: { apikey: KEY, Authorization: 'Bearer ' + KEY } });
+      const rows = await res.json();
+      allMatches = rows.map(p => ({
+        id: p.id_pichanga_pub || p.id, titulo: p.titulo, fecha_pichanga: p.fecha_pichanga,
+        hora_inicio: p.hora_inicio, hora_fin: p.hora_fin, lugar: p.lugar, cuota: p.cuota,
+        metodo_pago: p.metodo_pago, cantidad: p.cantidad, estado: p.estado || 'abierto',
+        inscritos: 0, suplentes: 0, jugadores: [],
+      }));
+      renderList(allMatches);
+    } catch (err) { console.warn('[Partido] Load error:', err.message); allMatches = DEMO_MATCHES; renderList(allMatches); }
+  }
+
+  loadMatches();
+})();
+</script>
+  </script>
+</body>
+</html>
