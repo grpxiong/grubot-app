@@ -127,8 +127,9 @@ a {
 
 .grid-2 {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 8px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  align-items: start;
 }
 
 /* ═══════════════════════════════════════════════════════════════
@@ -206,7 +207,8 @@ a {
 .field {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 6px; /* Increased from 4px */
+  margin-bottom: 4px; /* Space between different fields */
 }
 
 .label {
@@ -282,7 +284,7 @@ a {
 }
 
 .input-wrap .ui-input {
-  padding-right: 34px;
+  padding-right: 40px;
 }
 
 /* Buttons */
