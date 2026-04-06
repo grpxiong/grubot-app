@@ -114,7 +114,7 @@ a {
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 10px;
   width: 100%;
-  min-width: 0;
+  overflow: visible;
 }
 
 /* ═══════════════════════════════════════════════════════════════
@@ -192,9 +192,7 @@ a {
 .field {
   display: flex;
   flex-direction: column;
-  gap: 6px;
-  margin-bottom: 4px;
-  min-width: 0;        /* iOS Safari: prevents grid cell overflow */
+  gap: 4px;
 }
 
 .label {
@@ -212,9 +210,10 @@ a {
   appearance: none;
   display: block;
   width: 100%;
+  min-width: 0;        /* ← here, not on .field */
   height: 46px;
-  padding: 12px 12px;        /* vertical padding forces centering on iOS */
-  line-height: normal;       /* prevents Safari from collapsing line-height */
+  padding: 0 12px;
+  line-height: normal;
   border: 1.5px solid var(--border);
   border-radius: var(--radius-sm);
   background: var(--bg-input);
