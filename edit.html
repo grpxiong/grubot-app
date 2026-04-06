@@ -228,10 +228,12 @@
         const name = place.name || '';
         const addr = place.formatted_address || '';
         if (name && addr && !addr.startsWith(name)) {
-          input.value = `${name}, ${addr}`;
+          input.value = `${name} - ${addr}`;
         } else {
           input.value = addr || name;
         }
+        const clearBtn = input.parentElement.querySelector('.btn-clear');
+        if (clearBtn) clearBtn.classList.toggle('visible', input.value.length > 0);
       });
     }
 
