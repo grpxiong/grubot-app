@@ -168,10 +168,11 @@ a {
   background: var(--bg-card);
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
-  padding: 14px;
+  padding: 14px 14px 16px;  /* slight extra bottom breathing room */
   display: flex;
   flex-direction: column;
   gap: 7px;
+  overflow: visible;
 }
 
 .card + .card {
