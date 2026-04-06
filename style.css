@@ -195,7 +195,6 @@ a {
   gap: 6px;
   margin-bottom: 4px;
   min-width: 0;        /* iOS Safari: prevents grid cell overflow */
-  overflow: hidden;
 }
 
 .label {
