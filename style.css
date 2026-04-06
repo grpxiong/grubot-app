@@ -1,20 +1,3 @@
-.btn-clear {
-  position: absolute;
-  right: 6px;
-  width: 24px;
-  height: 24px;
-  border: none;
-  border-radius: 50%;
-  background: var(--border);
-  color: var(--text-muted);
-  font-size: 13px;
-  font-weight: 700;
-  display: none;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-}
-
 /* ═══════════════════════════════════════════════════════════════
    GRUBOT UNIFIED DESIGN SYSTEM
    ═══════════════════════════════════════════════════════════════ */
@@ -125,18 +108,13 @@ a {
 .form    { gap: 12px; }
 .actions { gap: 8px; margin-top: 8px; }
 
+/* ── Grid ── */
 .grid-2 {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr)); 
-  gap: 12px; /* Matches your .form gap for a "Swiss" aligned look */
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
   width: 100%;
-}
-.ui-input {
-  width: 100%;
-  min-height: 44px; /* Slightly taller for better mobile tap targets */
-  padding: 0 12px;
-  box-sizing: border-box; /* Crucial: ensures padding doesn't add to width */
-  font-size: 16px; /* Prevents iOS zoom-in lag */
+  min-width: 0;
 }
 
 /* ═══════════════════════════════════════════════════════════════
@@ -214,8 +192,10 @@ a {
 .field {
   display: flex;
   flex-direction: column;
-  gap: 6px; /* Increased from 4px */
-  margin-bottom: 4px; /* Space between different fields */
+  gap: 6px;
+  margin-bottom: 4px;
+  min-width: 0;        /* iOS Safari: prevents grid cell overflow */
+  overflow: hidden;
 }
 
 .label {
@@ -225,38 +205,38 @@ a {
   letter-spacing: 0.03em;
 }
 
-/* Inputs */
+/* ── Inputs — iOS Safari hardened ── */
 .ui-input,
 .ui-select {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  display: block;
   width: 100%;
-  min-height: 46px; 
-  padding: 8px 12px;
+  height: 46px;              /* fixed height — iOS mishandles min-height */
+  padding: 0 12px;
   border: 1.5px solid var(--border);
   border-radius: var(--radius-sm);
   background: var(--bg-input);
   color: var(--text-main);
-  font-size: 16px;
+  font-size: 16px;           /* prevents iOS auto-zoom on focus */
   outline: none;
-  transition: all 0.15s ease;
-  box-sizing: border-box; 
-  display: block;
+  transition: border-color 0.15s, box-shadow 0.15s, background 0.15s;
+  box-sizing: border-box;
 }
 
-.ui-input::placeholder,
-.textarea-input::placeholder {
+.ui-input::placeholder {
   color: var(--text-light);
 }
 
 .ui-input:focus,
-.ui-select:focus,
-.textarea-input:focus {
+.ui-select:focus {
   border-color: var(--border-focus);
   background: #fff;
   box-shadow: 0 0 0 3px var(--primary-glow);
 }
 
 .ui-select {
-  appearance: none;
   background-image: url("data:image/svg+xml,%3Csvg width='12' height='8' viewBox='0 0 12 8' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1.5L6 6.5L11 1.5' stroke='%2364748b' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
   background-repeat: no-repeat;
   background-position: right 14px center;
@@ -264,18 +244,33 @@ a {
 }
 
 .textarea-input {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
   width: 100%;
+  height: auto;
   min-height: 90px;
   padding: 11px 14px;
   border: 1.5px solid var(--border);
   border-radius: var(--radius-sm);
   background: var(--bg-input);
   color: var(--text-main);
-  font-size: 13px;
+  font-size: 16px;           /* prevents iOS auto-zoom */
   outline: none;
   resize: vertical;
   line-height: 1.5;
   transition: border-color 0.15s, box-shadow 0.15s, background 0.15s;
+  box-sizing: border-box;
+}
+
+.textarea-input::placeholder {
+  color: var(--text-light);
+}
+
+.textarea-input:focus {
+  border-color: var(--border-focus);
+  background: #fff;
+  box-shadow: 0 0 0 3px var(--primary-glow);
 }
 
 #p-quota {
@@ -540,8 +535,10 @@ a {
   display: grid;
   place-items: center;
 }
+
+/* Google Places Autocomplete */
 .pac-container {
-  z-index: 99999 !important; /* Ensures the dropdown appears above other elements */
+  z-index: 99999 !important;
   background-color: var(--bg-card);
   border-radius: var(--radius);
   border: 1.5px solid var(--border);
@@ -561,21 +558,20 @@ a {
   padding-left: 12px;
 }
 
-.pac-item:hover { 
-  background-color: var(--primary-light); 
+.pac-item:hover {
+  background-color: var(--primary-light);
 }
 
-.pac-item-query { 
-  color: var(--text-main); 
-  font-size: 14px; 
+.pac-item-query {
+  color: var(--text-main);
+  font-size: 14px;
 }
 
-.pac-matched { 
-  color: var(--primary); 
-  font-weight: 600; 
+.pac-matched {
+  color: var(--primary);
+  font-weight: 600;
 }
 
-/* These lines hide the "Powered by Google" logo and the pin icons */
 .pac-logo:after { display: none; }
 .pac-icon, .pac-icon-marker { display: none; }
 .hdpi .pac-icon, .hdpi .pac-icon-marker { display: none; }
