@@ -530,6 +530,45 @@ a {
   display: grid;
   place-items: center;
 }
+.pac-container {
+  z-index: 99999 !important; /* Ensures the dropdown appears above other elements */
+  background-color: var(--bg-card);
+  border-radius: var(--radius);
+  border: 1.5px solid var(--border);
+  font-family: 'DM Sans', sans-serif;
+  margin-top: 4px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+  pointer-events: auto;
+}
+
+.pac-item {
+  padding: 10px 12px;
+  cursor: pointer;
+  border-top: 1px solid var(--bg-input);
+  color: var(--text-muted);
+  font-size: 13px;
+  line-height: 1.4;
+  padding-left: 12px;
+}
+
+.pac-item:hover { 
+  background-color: var(--primary-light); 
+}
+
+.pac-item-query { 
+  color: var(--text-main); 
+  font-size: 14px; 
+}
+
+.pac-matched { 
+  color: var(--primary); 
+  font-weight: 600; 
+}
+
+/* These lines hide the "Powered by Google" logo and the pin icons */
+.pac-logo:after { display: none; }
+.pac-icon, .pac-icon-marker { display: none; }
+.hdpi .pac-icon, .hdpi .pac-icon-marker { display: none; }
 
 /* ═══════════════════════════════════════════════════════════════
    SCREEN SHARED STYLES
