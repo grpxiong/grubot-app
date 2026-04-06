@@ -213,13 +213,14 @@ a {
   appearance: none;
   display: block;
   width: 100%;
-  height: 46px;              /* fixed height — iOS mishandles min-height */
-  padding: 0 12px;
+  height: 46px;
+  padding: 12px 12px;        /* vertical padding forces centering on iOS */
+  line-height: normal;       /* prevents Safari from collapsing line-height */
   border: 1.5px solid var(--border);
   border-radius: var(--radius-sm);
   background: var(--bg-input);
   color: var(--text-main);
-  font-size: 16px;           /* prevents iOS auto-zoom on focus */
+  font-size: 16px;
   outline: none;
   transition: border-color 0.15s, box-shadow 0.15s, background 0.15s;
   box-sizing: border-box;
