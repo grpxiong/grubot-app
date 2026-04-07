@@ -252,9 +252,9 @@
     padding: 2px 8px; border-radius: 999px; font-size: 10px; font-weight: 700;
     letter-spacing: 0.04em; text-transform: uppercase; white-space: nowrap; flex-shrink: 0; margin-top: 2px;
   }
-  .mc-status.open { background: var(--primary-light); color: var(--primary); }
-  .mc-status.closed { background: var(--warning-light); color: var(--warning); }
-  .mc-status.cancelled { background: var(--error-bg); color: var(--error); }
+  .mc-status.open     { background: var(--primary-light); color: var(--primary); }
+  .mc-status.closed   { background: var(--warning-light); color: var(--warning); }
+  .mc-status.cancelled{ background: var(--error-bg); color: var(--error); }
 
   .mc-info { display: flex; flex-wrap: wrap; gap: 4px 14px; margin-top: 8px; font-size: 12px; color: var(--text-muted); }
   .mc-info-item { display: flex; align-items: center; gap: 4px; }
@@ -336,51 +336,76 @@
   let allMatches = [];
   let currentFilter = 'upcoming';
 
-  const dias = ['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'];
+  const dias     = ['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'];
   const diasFull = ['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'];
-  const meses = ['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
-  const mesesFull = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+  const meses    = ['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
+  const mesesFull= ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
 
   function fmtDateShort(iso) { const d = new Date(iso + 'T12:00:00'); return dias[d.getDay()] + ' ' + d.getDate() + ' ' + meses[d.getMonth()]; }
-  function fmtDateFull(iso) { const d = new Date(iso + 'T12:00:00'); return diasFull[d.getDay()] + ' ' + d.getDate() + ' de ' + mesesFull[d.getMonth()] + ', ' + d.getFullYear(); }
-  function fmtTime(t) { if (!t) return ''; const [h, m] = t.split(':').map(Number); return ((h % 12) || 12) + ':' + String(m).padStart(2, '0') + ' ' + (h >= 12 ? 'PM' : 'AM'); }
-  function fmtTimeRange(s, e) { return e ? fmtTime(s) + ' — ' + fmtTime(e) : fmtTime(s); }
-  function isUpcoming(iso) { const t = new Date(); t.setHours(0,0,0,0); return new Date(iso + 'T23:59:59') >= t; }
-  function statusClass(e) { return e === 'abierto' ? 'open' : e === 'cancelado' ? 'cancelled' : 'closed'; }
-  function statusLabel(e) { return { abierto:'Abierto', cerrado:'Cerrado', cancelado:'Cancelado' }[e] || e; }
+  function fmtDateFull(iso)  { const d = new Date(iso + 'T12:00:00'); return diasFull[d.getDay()] + ' ' + d.getDate() + ' de ' + mesesFull[d.getMonth()] + ', ' + d.getFullYear(); }
+  function fmtTime(t)        { if (!t) return ''; const [h, m] = t.split(':').map(Number); return ((h % 12) || 12) + ':' + String(m).padStart(2, '0') + ' ' + (h >= 12 ? 'PM' : 'AM'); }
+  function fmtTimeRange(s,e) { return e ? fmtTime(s) + ' — ' + fmtTime(e) : fmtTime(s); }
+  function isUpcoming(iso)   { const t = new Date(); t.setHours(0,0,0,0); return new Date(iso + 'T23:59:59') >= t; }
+  function statusClass(e)    { return e === 'abierto' ? 'open' : e === 'cancelado' ? 'cancelled' : 'closed'; }
+  function statusLabel(e)    { return { abierto:'Abierto', cerrado:'Cerrado', cancelado:'Cancelado' }[e] || e; }
 
-  const hints = { abierto: 'El bot acepta inscripciones automáticamente.', cerrado: 'Solo el admin puede agregar jugadores.', cancelado: 'Se notificará a los jugadores inscritos.' };
+  const hints = {
+    abierto:   'El bot acepta inscripciones automáticamente.',
+    cerrado:   'Solo el admin puede agregar jugadores.',
+    cancelado: 'Se notificará a los jugadores inscritos.'
+  };
 
   function renderList(matches) {
-    const list = document.getElementById('match-list');
+    const list  = document.getElementById('match-list');
     const empty = document.getElementById('empty-matches');
     document.getElementById('match-skeletons').style.display = 'none';
 
     let filtered = matches;
     if (currentFilter === 'upcoming') filtered = matches.filter(m => isUpcoming(m.fecha_pichanga));
-    if (currentFilter === 'past') filtered = matches.filter(m => !isUpcoming(m.fecha_pichanga));
+    if (currentFilter === 'past')     filtered = matches.filter(m => !isUpcoming(m.fecha_pichanga));
 
-    if (!filtered.length) { list.innerHTML = ''; empty.style.display = 'block'; document.getElementById('match-count-label').textContent = '0 partidos'; return; }
+    if (!filtered.length) {
+      list.innerHTML = '';
+      empty.style.display = 'block';
+      document.getElementById('match-count-label').textContent = '0 partidos';
+      return;
+    }
+
     empty.style.display = 'none';
     document.getElementById('match-count-label').textContent = filtered.length + ' partido' + (filtered.length !== 1 ? 's' : '');
 
     list.innerHTML = filtered.map((m, i) => {
-      const pct = m.cantidad ? Math.round((m.inscritos / m.cantidad) * 100) : 0;
+      const pct    = m.cantidad ? Math.round((m.inscritos / m.cantidad) * 100) : 0;
       const isPast = !isUpcoming(m.fecha_pichanga);
       return `
-        <div class="match-card ${isPast ? 'past' : ''} ${m.estado === 'cancelado' ? 'cancelled' : ''} fade-in" style="animation-delay:${Math.min(i * 0.04, 0.2)}s" data-id="${m.id}">
+        <div class="match-card ${isPast ? 'past' : ''} ${m.estado === 'cancelado' ? 'cancelled' : ''} fade-in"
+             style="animation-delay:${Math.min(i * 0.04, 0.2)}s" data-id="${m.id}">
           <div class="mc-top">
             <div class="mc-title">${m.titulo}</div>
             <span class="mc-status ${statusClass(m.estado)}">${statusLabel(m.estado)}</span>
           </div>
           <div class="mc-info">
-            <div class="mc-info-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>${fmtDateShort(m.fecha_pichanga)}</div>
-            <div class="mc-info-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>${fmtTime(m.hora_inicio)}</div>
-            <div class="mc-info-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>${m.lugar}</div>
+            <div class="mc-info-item">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+              ${fmtDateShort(m.fecha_pichanga)}
+            </div>
+            <div class="mc-info-item">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+              ${fmtTime(m.hora_inicio)}
+            </div>
+            <div class="mc-info-item">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
+              ${m.lugar}
+            </div>
           </div>
           <div class="mc-footer">
-            <div class="mc-players"><span>${m.inscritos}/${m.cantidad}</span><div class="mc-players-bar"><div class="mc-players-fill" style="width:${pct}%"></div></div></div>
-            <div class="mc-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg></div>
+            <div class="mc-players">
+              <span>${m.inscritos}/${m.cantidad}</span>
+              <div class="mc-players-bar"><div class="mc-players-fill" style="width:${pct}%"></div></div>
+            </div>
+            <div class="mc-arrow">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+            </div>
           </div>
         </div>`;
     }).join('');
@@ -409,17 +434,17 @@
     document.getElementById('partido-screen').closest('.content')?.scrollTo(0, 0);
 
     const upcoming = isUpcoming(m.fecha_pichanga);
-    document.getElementById('detail-badge').textContent = upcoming ? '⚡ Próximo partido' : '📋 Partido finalizado';
-    document.getElementById('detail-title').textContent = m.titulo;
-    document.getElementById('detail-date').textContent = fmtDateFull(m.fecha_pichanga);
-    document.getElementById('detail-time').textContent = fmtTimeRange(m.hora_inicio, m.hora_fin);
+    document.getElementById('detail-badge').textContent    = upcoming ? '⚡ Próximo partido' : '📋 Partido finalizado';
+    document.getElementById('detail-title').textContent    = m.titulo;
+    document.getElementById('detail-date').textContent     = fmtDateFull(m.fecha_pichanga);
+    document.getElementById('detail-time').textContent     = fmtTimeRange(m.hora_inicio, m.hora_fin);
     document.getElementById('detail-location').textContent = m.lugar;
-    document.getElementById('detail-price').textContent = 'S/ ' + (m.cuota || 0).toFixed(2) + ' por persona (' + (m.metodo_pago || 'Yape') + ')';
+    document.getElementById('detail-price').textContent    = 'S/ ' + (m.cuota || 0).toFixed(2) + ' por persona (' + (m.metodo_pago || 'Yape') + ')';
 
     const total = m.cantidad || 10;
-    document.getElementById('detail-inscritos').textContent = m.inscritos || 0;
-    document.getElementById('detail-faltan').textContent = Math.max(0, total - (m.inscritos || 0));
-    document.getElementById('detail-suplentes').textContent = m.suplentes || 0;
+    document.getElementById('detail-inscritos').textContent  = m.inscritos || 0;
+    document.getElementById('detail-faltan').textContent     = Math.max(0, total - (m.inscritos || 0));
+    document.getElementById('detail-suplentes').textContent  = m.suplentes || 0;
 
     const radioMap = { abierto: 'dst-open', cerrado: 'dst-closed', cancelado: 'dst-cancel' };
     const r = document.getElementById(radioMap[m.estado] || 'dst-open');
@@ -427,16 +452,20 @@
     document.getElementById('detail-status-hint').textContent = hints[m.estado || 'abierto'];
 
     const playerList = document.getElementById('detail-player-list');
-    const jugadores = m.jugadores || [];
+    const jugadores  = m.jugadores || [];
     if (jugadores.length) {
-      const tit = jugadores.filter(j => j.tipo === 'titular');
-      const sup = jugadores.filter(j => j.tipo === 'suplente');
-      const preview = [...tit.slice(0, 4), ...sup.slice(0, 1)];
+      const tit       = jugadores.filter(j => j.tipo === 'titular');
+      const sup       = jugadores.filter(j => j.tipo === 'suplente');
+      const preview   = [...tit.slice(0, 4), ...sup.slice(0, 1)];
       const remaining = jugadores.length - preview.length;
       playerList.innerHTML = preview.map(j => {
         const isSup = j.tipo === 'suplente';
         const label = isSup ? 'S' + (sup.indexOf(j) + 1) : String(tit.indexOf(j) + 1);
-        return `<div class="detail-player-row"><div class="dp-num ${isSup ? 'sup' : ''}">${label}</div><div class="dp-name">${j.nombre}</div><div class="dp-badge">${isSup ? 'Suplente' : 'Titular'}</div></div>`;
+        return `<div class="detail-player-row">
+          <div class="dp-num ${isSup ? 'sup' : ''}">${label}</div>
+          <div class="dp-name">${j.nombre}</div>
+          <div class="dp-badge">${isSup ? 'Suplente' : 'Titular'}</div>
+        </div>`;
       }).join('') + (remaining > 0 ? `<div style="text-align:center;padding:4px 0;font-size:12px;color:var(--text-light);font-weight:600;">+${remaining} más</div>` : '');
     } else {
       playerList.innerHTML = '<div style="text-align:center;padding:16px 0;font-size:13px;color:var(--text-light);">Sin jugadores inscritos aún</div>';
@@ -453,12 +482,17 @@
 
   document.getElementById('btn-back-list').addEventListener('click', () => {
     document.getElementById('match-detail-view').style.display = 'none';
-    document.getElementById('match-list-view').style.display = 'block';
+    document.getElementById('match-list-view').style.display  = 'block';
   });
 
   document.getElementById('btn-detail-share').addEventListener('click', function() {
-    this.disabled = true; this.textContent = 'Enviando...';
-    setTimeout(() => { toast('Lista enviada al grupo ✓'); this.disabled = false; this.textContent = '📤  Enviar lista al grupo'; }, 800);
+    this.disabled = true;
+    this.textContent = 'Enviando...';
+    setTimeout(() => {
+      toast('Lista enviada al grupo ✓');
+      this.disabled = false;
+      this.textContent = '📤  Enviar lista al grupo';
+    }, 800);
   });
 
   document.getElementById('btn-detail-edit').addEventListener('click', () => {
@@ -477,28 +511,53 @@
   });
 
   async function loadMatches() {
-    const URL = window.ENV?.SUPABASE_URL;
-    const KEY = window.ENV?.SUPABASE_KEY;
-    if (!URL || !KEY || URL.includes('your-project')) {
+    const SUPA_URL = window.ENV?.SUPABASE_URL;
+    const SUPA_KEY = window.ENV?.SUPABASE_KEY;
+
+    if (!SUPA_URL || !SUPA_KEY || SUPA_URL.includes('your-project')) {
+      console.log('[Partido] No Supabase config — using demo data');
       setTimeout(() => { allMatches = DEMO_MATCHES; renderList(allMatches); }, 400);
       return;
     }
+
     try {
-      const res = await fetch((`${SUPABASE_URL}/pichangas?order=fecha_pichanga.desc&limit=20`, { headers: { apikey: KEY, Authorization: `Bearer ${KEY}` } });
+      const res = await fetch(
+        `${SUPA_URL}/rest/v1/pichangas?order=fecha_pichanga.desc&limit=20`,
+        { headers: { apikey: SUPA_KEY, Authorization: `Bearer ${SUPA_KEY}` } }
+      );
+
+      if (!res.ok) {
+        const body = await res.json().catch(() => null);
+        throw new Error(`HTTP ${res.status} — ${body?.message || body?.error || 'sin detalle'}`);
+      }
+
       const rows = await res.json();
+      console.log('[Partido] Loaded', rows.length, 'matches from Supabase');
+
       allMatches = rows.map(p => ({
-        id: p.id_pichanga_pub || p.id, titulo: p.titulo, fecha_pichanga: p.fecha_pichanga,
-        hora_inicio: p.hora_inicio, hora_fin: p.hora_fin, lugar: p.lugar, cuota: p.cuota,
-        metodo_pago: p.metodo_pago, cantidad: p.cantidad, estado: p.estado || 'abierto',
-        inscritos: 0, suplentes: 0, jugadores: [],
+        id:            p.id_pichanga_pub || p.id,
+        titulo:        p.titulo,
+        fecha_pichanga:p.fecha_pichanga,
+        hora_inicio:   p.hora_inicio,
+        hora_fin:      p.hora_fin,
+        lugar:         p.lugar,
+        cuota:         p.cuota,
+        metodo_pago:   p.metodo_pago,
+        cantidad:      p.cantidad,
+        estado:        p.estado || 'abierto',
+        inscritos:     0,
+        suplentes:     0,
+        jugadores:     [],
       }));
+
       renderList(allMatches);
-    } catch (err) { 
-        console.warn('[Partido] Load error:', err.message);
-        console.error(err); // ← add this to see the full error in Safari devtools
-        allMatches = DEMO_MATCHES; 
-        renderList(allMatches);
-        }
+
+    } catch (err) {
+      console.warn('[Partido] Load error:', err.message);
+      console.error(err);
+      allMatches = DEMO_MATCHES;
+      renderList(allMatches);
+    }
   }
 
   loadMatches();
