@@ -343,7 +343,7 @@
         };
 
         try {
-          await fetch(window.ENV.N8N_WEBHOOK_URL, {
+          await fetch(`${SUPABASE_URL}/functions/v1/trigger-webhook`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(n8nData),
