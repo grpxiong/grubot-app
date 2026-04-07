@@ -411,8 +411,8 @@
     document.getElementById('detail-title').textContent    = m.titulo;
     document.getElementById('detail-date').textContent     = fmtDateFull(m.fecha_pichanga);
     document.getElementById('detail-time').textContent     = fmtTimeRange(m.hora_inicio, m.hora_fin);
-    document.getElementById('detail-location').textContent = m.lugar;
-    document.getElementById('detail-price').textContent    = 'S/ ' + (m.cuota || 0).toFixed(2) + ' por persona (' + (m.metodo_pago || 'Yape') + ')';
+    document.getElementById('detail-location').textContent = m.nombre_cancha;
+    document.getElementById('detail-price').textContent    = 'S/ ' + (m.cuota || 0).toFixed(2) + ' por persona · ' + (m.metodo_pago || 'Libre');
 
     const total = m.cantidad || 10;
     document.getElementById('detail-inscritos').textContent  = m.inscritos || 0;
@@ -470,7 +470,7 @@
 
   document.getElementById('btn-detail-edit').addEventListener('click', () => {
     const id = document.getElementById('match-detail-view').dataset.matchId;
-    window.location.href = 'edit.html?id=' + id;
+    window.location.href = 'edit.html?id=' + m.id_pichanga_pub;
   });
 
   document.getElementById('btn-go-jugadores').addEventListener('click', () => {
