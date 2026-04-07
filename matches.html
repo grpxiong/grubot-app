@@ -497,8 +497,7 @@
 
   document.getElementById('btn-detail-edit').addEventListener('click', () => {
     const id = document.getElementById('match-detail-view').dataset.matchId;
-    // TODO: window.location.href = 'editar.html?id=' + id;
-    toast('Abriendo editor...');
+    window.location.href = 'edit.html?id=' + id;
   });
 
   document.getElementById('btn-go-jugadores').addEventListener('click', () => {
@@ -506,8 +505,7 @@
   });
 
   document.getElementById('btn-new-match').addEventListener('click', () => {
-    // TODO: window.open('crear.html', '_blank');
-    toast('Abriendo formulario...');
+    window.open('create.html', '_blank');
   });
 
   async function loadMatches() {
