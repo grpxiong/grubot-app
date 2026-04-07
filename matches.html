@@ -301,7 +301,7 @@
 <!-- ── Screen Logic ── -->
 <script>
 (function() {
-  const { toast } = window.grubot;
+  const toast = window.grubot?.toast ?? ((msg) => console.log('[toast]', msg));
 
   const DEMO_MATCHES = [
     {
