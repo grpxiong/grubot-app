@@ -484,7 +484,7 @@
       return;
     }
     try {
-      const res = await fetch(URL + '/rest/v1/pichangas?order=fecha_pichanga.desc&limit=20', { headers: { apikey: KEY, Authorization: 'Bearer ' + KEY } });
+      const res = await fetch((`${SUPABASE_URL}/pichangas?order=fecha_pichanga.desc&limit=20`, { headers: { apikey: KEY, Authorization: `Bearer ${KEY}` } });
       const rows = await res.json();
       allMatches = rows.map(p => ({
         id: p.id_pichanga_pub || p.id, titulo: p.titulo, fecha_pichanga: p.fecha_pichanga,
@@ -493,12 +493,16 @@
         inscritos: 0, suplentes: 0, jugadores: [],
       }));
       renderList(allMatches);
-    } catch (err) { console.warn('[Partido] Load error:', err.message); allMatches = DEMO_MATCHES; renderList(allMatches); }
+    } catch (err) { 
+        console.warn('[Partido] Load error:', err.message);
+        console.error(err); // ← add this to see the full error in Safari devtools
+        allMatches = DEMO_MATCHES; 
+        renderList(allMatches);
+        }
   }
 
   loadMatches();
 })();
 </script>
-  </script>
 </body>
 </html>
