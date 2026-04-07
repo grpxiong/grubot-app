@@ -370,15 +370,19 @@
         };
 
         try {
-          await fetch(window.ENV.N8N_WEBHOOK_URL, {
+          await fetch(`${SUPABASE_URL}/functions/v1/trigger-webhook`, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: {
+              'Content-Type': 'application/json',
+              apikey: SUPABASE_KEY,
+              Authorization: `Bearer ${SUPABASE_KEY}`
+            },
             body: JSON.stringify(n8nData),
             keepalive: true
           });
-          console.log('[Grubot] n8n request sent');
+          console.log('[Grubot] webhook sent via edge function');
         } catch (n8nErr) {
-          console.warn('[Grubot] n8n failed, record saved:', n8nErr);
+          console.warn('[Grubot] webhook failed, record saved:', n8nErr);
         }
 
         // 3. Show success — only AFTER n8n fetch resolves
