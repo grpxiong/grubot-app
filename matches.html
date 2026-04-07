@@ -559,6 +559,9 @@
   }
 
   loadMatches();
+  console.log('ENV check:', window.ENV);
+  console.log('SUPABASE_URL:', window.ENV?.SUPABASE_URL);
+  console.log('SUPABASE_KEY:', window.ENV?.SUPABASE_KEY);
 })();
 </script>
 </body>
