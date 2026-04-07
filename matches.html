@@ -152,21 +152,6 @@
       </div>
     </div>
 
-    <div class="quick-stats fade-in stagger-2">
-      <div class="stat-card">
-        <div class="stat-num accent" id="detail-inscritos">0</div>
-        <div class="stat-lbl">Inscritos</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-num warn" id="detail-faltan">0</div>
-        <div class="stat-lbl">Faltan</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-num" id="detail-suplentes">0</div>
-        <div class="stat-lbl">Suplentes</div>
-      </div>
-    </div>
-
     <div class="card fade-in stagger-3">
       <div class="card-label">Estado del partido</div>
       <div class="segmented-3">
@@ -320,36 +305,6 @@
 <script>
 (function() {
   const toast = window.grubot?.toast ?? ((msg) => console.log('[toast]', msg));
-
-  const DEMO_MATCHES = [
-    {
-      id: 'p001', titulo: 'PICHANGUITA #07', fecha_pichanga: '2025-04-09',
-      hora_inicio: '19:00', hora_fin: '20:00', lugar: 'Canchas La Molina',
-      cuota: 15, metodo_pago: 'YAPE', cantidad: 10, estado: 'abierto', inscritos: 7, suplentes: 2,
-      jugadores: [
-        { nombre: 'Carlos Ramírez', tipo: 'titular' }, { nombre: 'Miguel Torres', tipo: 'titular' },
-        { nombre: 'Andrés Villanueva', tipo: 'titular' }, { nombre: 'Jorge Medina', tipo: 'titular' },
-        { nombre: 'Luis Paredes', tipo: 'titular' }, { nombre: 'Diego Castillo', tipo: 'titular' },
-        { nombre: 'Fernando Reyes', tipo: 'titular' }, { nombre: 'Roberto Díaz', tipo: 'suplente' },
-        { nombre: 'Pablo Quispe', tipo: 'suplente' },
-      ],
-    },
-    {
-      id: 'p002', titulo: 'PICHANGUITA #06', fecha_pichanga: '2025-04-02',
-      hora_inicio: '19:00', hora_fin: '20:00', lugar: 'La Videna Sport',
-      cuota: 12, metodo_pago: 'PLIN', cantidad: 10, estado: 'cerrado', inscritos: 10, suplentes: 1,
-      jugadores: [
-        { nombre: 'Carlos Ramírez', tipo: 'titular' }, { nombre: 'Miguel Torres', tipo: 'titular' },
-        { nombre: 'Andrés Villanueva', tipo: 'titular' },
-      ],
-    },
-    {
-      id: 'p003', titulo: 'PICHANGUITA #05', fecha_pichanga: '2025-03-26',
-      hora_inicio: '20:00', hora_fin: '21:00', lugar: 'Complejo Balta',
-      cuota: 15, metodo_pago: 'YAPE', cantidad: 12, estado: 'cerrado', inscritos: 12, suplentes: 0,
-      jugadores: [],
-    },
-  ];
 
   let allMatches = [];
   let currentFilter = 'upcoming';
