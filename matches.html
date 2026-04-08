@@ -478,12 +478,12 @@
   });
 
   // ── Open detail ──
-  function openDetail(m) {
+  async function openDetail(m) {
     document.getElementById('match-list-view').style.display = 'none';
     const detail = document.getElementById('match-detail-view');
     detail.style.display = 'flex';
     document.getElementById('partido-screen').closest('.content')?.scrollTo(0, 0);
-
+  
     const upcoming = isUpcoming(m.fecha_pichanga);
     document.getElementById('detail-badge').textContent    = upcoming ? '⚡ Próximo partido' : '📋 Partido finalizado';
     document.getElementById('detail-title').textContent    = m.titulo;
@@ -491,77 +491,111 @@
     document.getElementById('detail-time').textContent     = fmtTimeRange(m.hora_inicio, m.hora_fin);
     document.getElementById('detail-location').textContent = m.lugar;
     document.getElementById('detail-price').textContent    = 'S/ '+(m.cuota||0).toFixed(2)+' por persona ('+(m.metodo_pago||'Yape')+')';
-
-    const inscritos = m.inscritos  || 0;
-    const cantidad  = m.cantidad   || 10;
-    const suplentes = m.suplentes  || 0;
+  
+    const inscritos = m.inscritos || 0;
+    const cantidad  = m.cantidad  || 10;
+    const suplentes = m.suplentes || 0;
     const pct       = Math.round((inscritos / cantidad) * 100);
-
+  
     document.getElementById('detail-battery-count').textContent = inscritos+' / '+cantidad+' cupos';
     document.getElementById('detail-battery-sub').textContent   = suplentes > 0 ? '+'+suplentes+' suplente'+(suplentes>1?'s':'') : '';
     document.getElementById('detail-battery-fill').style.width  = pct+'%';
-
+  
     renderSeatDots(inscritos, cantidad, suplentes);
     applyEstado(m.estado || 'abierto');
-
-    // Player list — full, split titulares / suplentes
+  
+    detail.dataset.matchId = m.id;
+  
+    // Show loading state in player list while fetching
     const playerList = document.getElementById('detail-player-list');
-    const jugadores  = m.jugadores || [];
-
-    if (!jugadores.length) {
-      playerList.innerHTML = '<div style="text-align:center;padding:16px 0;font-size:13px;color:var(--text-light);">Sin jugadores inscritos aún</div>';
-    } else {
-      const tit = jugadores.filter(j => j.tipo === 'titular');
-      const sup = jugadores.filter(j => j.tipo === 'suplente');
-      let html  = '';
-
+    playerList.innerHTML = '<div style="text-align:center;padding:16px 0;font-size:13px;color:var(--text-light);">Cargando jugadores...</div>';
+  
+    // Fetch jugadores + personas in parallel
+    const SUPABASE_URL = window.ENV?.SUPABASE_URL;
+    const SUPABASE_KEY = window.ENV?.SUPABASE_KEY;
+  
+    try {
+      // Step 1 — fetch jugadores_pichanga for this match
+      const jugRes = await fetch(
+        `${SUPABASE_URL}/rest/v1/jugadores_pichanga?id_pichanga=eq.${m.id}&order=fecha_registro.asc`,
+        { headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${SUPABASE_KEY}` } }
+      );
+      if (!jugRes.ok) throw new Error(`jugadores HTTP ${jugRes.status}`);
+      const jugadores = await jugRes.json();
+  
+      if (!jugadores.length) {
+        playerList.innerHTML = '<div style="text-align:center;padding:16px 0;font-size:13px;color:var(--text-light);">Sin jugadores inscritos aún</div>';
+        return;
+      }
+  
+      // Step 2 — fetch personas for all id_persona values in one query
+      const personaIds = [...new Set(jugadores.map(j => j.id_persona))];
+      const personaRes = await fetch(
+        `${SUPABASE_URL}/rest/v1/personas?numero=in.(${personaIds.join(',')})&select=numero,nombre`,
+        { headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${SUPABASE_KEY}` } }
+      );
+      if (!personaRes.ok) throw new Error(`personas HTTP ${personaRes.status}`);
+      const personas = await personaRes.json();
+  
+      // Step 3 — build lookup map
+      const personaMap = {};
+      personas.forEach(p => { personaMap[p.id_profile_pub] = p.nombre; });
+  
+      // Step 4 — split titulares / suplentes using suplente boolean
+      const tit = jugadores.filter(j => !j.suplente);
+      const sup = jugadores.filter(j =>  j.suplente);
+  
+      let html = '';
+  
       if (tit.length) {
         html += '<div class="detail-player-section-label">Titulares</div>';
-        html += tit.map((j,i) => `
+        html += tit.map((j, i) => `
           <div class="detail-player-row">
             <div class="dp-num tit">${i+1}</div>
-            <div class="dp-name">${j.nombre}</div>
+            <div class="dp-name">${personaMap[j.id_persona] || j.id_persona}</div>
             <span class="dp-badge tit">Titular</span>
           </div>`).join('');
       }
-
+  
       if (sup.length) {
         html += '<div class="detail-player-section-label" style="margin-top:14px;">Suplentes</div>';
-        html += sup.map((j,i) => `
+        html += sup.map((j, i) => `
           <div class="detail-player-row">
             <div class="dp-num sup">S${i+1}</div>
-            <div class="dp-name">${j.nombre}</div>
+            <div class="dp-name">${personaMap[j.id_persona] || j.id_persona}</div>
             <span class="dp-badge sup">Suplente</span>
           </div>`).join('');
       }
-
+  
       playerList.innerHTML = html;
+  
+    } catch (err) {
+      console.error('[Partido] Jugadores fetch error:', err);
+      playerList.innerHTML = '<div style="text-align:center;padding:16px 0;font-size:13px;color:var(--error);">Error al cargar jugadores</div>';
     }
-
-    detail.dataset.matchId = m.id;
   }
 
   // ── Estado chip listeners ──
   document.querySelectorAll('.detail-estado-chip').forEach(chip => {
     chip.addEventListener('click', () => {
       const estado   = chip.dataset.estado;
-      const SUPA_URL = window.ENV?.SUPABASE_URL;
-      const SUPA_KEY = window.ENV?.SUPABASE_KEY;
+      const SUPABASE_URL = window.ENV?.SUPABASE_URL;
+      const SUPABASE_KEY = window.ENV?.SUPABASE_KEY;
       const id       = document.getElementById('match-detail-view').dataset.matchId;
 
       applyEstado(estado);
       toast('Estado: ' + (statusConfig[estado]?.name || estado));
 
-      if (!SUPA_URL || !SUPA_KEY || !id) return;
-      fetch(`${SUPA_URL}/rest/v1/pichangas?id_pichanga_pub=eq.${id}`, {
+      if (!SUPABASE_URL || !SUPABASE_KEY || !id) return;
+      fetch(`${SUPABASE_URL}/rest/v1/pichangas?id_pichanga_pub=eq.${id}`, {
         method:  'PATCH',
         headers: {
-          apikey:         SUPA_KEY,
-          Authorization:  `Bearer ${SUPA_KEY}`,
+          apikey:         SUPABASE_KEY,
+          Authorization:  `Bearer ${SUPABASE_KEY}`,
           'Content-Type': 'application/json',
           Prefer:         'return=minimal'
         },
-        body: JSON.stringify({ estado })
+        body: JSON.stringify({ status: estado })
       }).catch(err => console.warn('[Partido] Estado update failed:', err.message));
     });
   });
@@ -596,10 +630,10 @@
 
   // ── Load matches from Supabase ──
   async function loadMatches() {
-    const SUPA_URL = window.ENV?.SUPABASE_URL;
-    const SUPA_KEY = window.ENV?.SUPABASE_KEY;
+    const SUPABASE_URL = window.ENV?.SUPABASE_URL;
+    const SUPABASE_KEY = window.ENV?.SUPABASE_KEY;
 
-    if (!SUPA_URL || !SUPA_KEY || SUPA_URL.includes('your-project')) {
+    if (!SUPABASE_URL || !SUPABASE_KEY || SUPABASE_URL.includes('your-project')) {
       console.warn('[Partido] Supabase not configured — check config.js');
       document.getElementById('match-skeletons').style.display = 'none';
       document.getElementById('empty-matches').style.display   = 'block';
@@ -609,8 +643,8 @@
 
     try {
       const res = await fetch(
-        `${SUPA_URL}/rest/v1/pichangas?order=fecha_pichanga.desc&limit=50`,
-        { headers: { apikey: SUPA_KEY, Authorization: `Bearer ${SUPA_KEY}` } }
+        `${SUPABASE_URL}/rest/v1/pichangas?order=fecha_pichanga.desc&limit=50`,
+        { headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${SUPABASE_KEY}` } }
       );
 
       if (!res.ok) {
@@ -631,9 +665,9 @@
         cuota:          p.cuota,
         metodo_pago:    p.metodo_pago,
         cantidad:       p.cantidad,
-        estado:         p.estado || 'abierto',
-        inscritos:      0,
-        suplentes:      0,
+        estado:         p.status || 'abierto',
+        inscritos:      p.total_inscritos || 0,        // ← use real column
+        suplentes:      Math.max(0, (p.total_inscritos || 0) - (p.cantidad || 0)), // ← derived
         jugadores:      [],
       }));
 
