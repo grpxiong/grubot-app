@@ -135,6 +135,10 @@ button, input, select, textarea {
   margin-bottom: 8px;
 }
 
+.section-title span {
+  color: var(--primary);
+}
+
 /* ─── 5. BUTTONS ─── */
 .btn-primary {
   width: 100%;
