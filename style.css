@@ -142,7 +142,7 @@ textarea {
 }
 
 .card + .card {
-  margin-top: 1px;
+  margin-top: 14px;
 }
 
 .card-label {
@@ -471,6 +471,7 @@ input[type="number"]::-webkit-outer-spin-button {
   background: linear-gradient(135deg, var(--primary) 0%, var(--primary-hover) 60%, var(--primary-dark) 100%);
   border-radius: var(--radius-xl);
   padding: 20px;
+  margin-bottom: 14px;
   color: white;
   position: relative;
   overflow: hidden;
@@ -491,7 +492,7 @@ input[type="number"]::-webkit-outer-spin-button {
 }
 
 .match-hero::after {
-  content: 'âš½';
+  content: '⚽';
   position: absolute;
   right: -10px;
   bottom: -14px;
@@ -516,9 +517,9 @@ input[type="number"]::-webkit-outer-spin-button {
 
 .match-title {
   font-family: 'Syne', sans-serif;
-  font-size: 22px;
-  font-weight: 800;
-  margin-top: 10px;
+  font-size: 26px;
+  font-weight: 100;
+  margin-top: 8px;
   line-height: 1.15;
   letter-spacing: -0.02em;
 }
@@ -527,7 +528,7 @@ input[type="number"]::-webkit-outer-spin-button {
   display: flex;
   flex-direction: column;
   gap: 6px;
-  margin-top: 14px;
+  margin-top: 8px;
   font-size: 13px;
   font-weight: 500;
   opacity: 0.9;
