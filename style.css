@@ -363,15 +363,19 @@ input[type="number"]::-webkit-outer-spin-button {
   background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius-lg);
   padding:14px 16px; cursor:pointer;
   transition:border-color 0.15s, box-shadow 0.15s, transform 0.1s;
-  touch-action:manipulation; position:relative; overflow:hidden;
+  touch-action:manipulation; position:relative;
   box-shadow: 0 2px 8px rgba(15, 31, 23, 0.06), 0 1px 2px rgba(15, 31, 23, 0.04);
 }
 .match-card + .match-card { margin-top:8px; }
 .match-card:active { transform:scale(0.985); border-color:var(--primary); box-shadow:0 0 0 3px var(--primary-glow); }
 
-.match-card::before { content:''; position:absolute; left:0; top:12px; bottom:12px; width:3px; border-radius:0 3px 3px 0; background:var(--primary); }
+.match-card::before {
+  content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px;
+  border-radius: var(--radius-lg) 0 0 var(--radius-lg);
+  background: var(--primary);
+}
 
-.match-card.past { background: #f4f6f5; opacity: 0.6; filter: grayscale(0.3); }
+.match-card.past { background: #f4f6f5; filter: grayscale(0.3); }
 .match-card.past .mc-title { color: var(--text-muted); }
 .match-card.past::before {  background: var(--text-light); }
 .match-card.past .mc-players-fill { background: var(--text-light); }
