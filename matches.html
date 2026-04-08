@@ -340,7 +340,10 @@
   async function openDetail(m) {
     document.getElementById('match-list-view').style.display = 'none';
     const detail = document.getElementById('match-detail-view');
-    detail.style.display = 'flex';
+    detail.style.display        = 'flex';
+    detail.style.flexDirection  = 'column';
+    detail.style.gap            = '12px';
+    detail.style.width          = '100%';
     document.getElementById('partido-screen').closest('.content')?.scrollTo(0, 0);
   
     const upcoming = isUpcoming(m.fecha_pichanga);
@@ -483,8 +486,12 @@
 
   // ── Back button ──
   document.getElementById('btn-back-list').addEventListener('click', () => {
-    document.getElementById('match-detail-view').style.display = 'none';
-    document.getElementById('match-list-view').style.display   = 'block';
+    const detail = document.getElementById('match-detail-view');
+    detail.style.display       = 'none';
+    detail.style.flexDirection = '';
+    detail.style.gap           = '';
+    detail.style.width         = '';
+    document.getElementById('match-list-view').style.display = 'block';
   });
 
   // ── Share button ──
