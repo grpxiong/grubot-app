@@ -377,32 +377,20 @@
     const SUPABASE_KEY = window.ENV?.SUPABASE_KEY;
   
     try {
-      // Step 1 — fetch jugadores_pichanga for this match
+      // Step 1 — fetch jugadores_pichanga with nombre already populated by trigger
       const jugRes = await fetch(
-        `${SUPABASE_URL}/rest/v1/jugadores_pichanga?id_pichanga=eq.${m.id}&order=fecha_registro.asc`,
+        `${SUPABASE_URL}/rest/v1/jugadores_pichanga?id_pichanga=eq.${m.id}&order=fecha_registro.asc&select=id_persona,nombre,suplente,estado_pago`,
         { headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${SUPABASE_KEY}` } }
       );
       if (!jugRes.ok) throw new Error(`jugadores HTTP ${jugRes.status}`);
       const jugadores = await jugRes.json();
-  
+      
       if (!jugadores.length) {
         playerList.innerHTML = '<div style="text-align:center;padding:16px 0;font-size:13px;color:var(--text-light);">Sin jugadores inscritos aún</div>';
         return;
       }
-      // Step 2 — fetch personas by phone number
-      const personaIds = [...new Set(jugadores.map(j => j.id_persona))];
-      const personaRes = await fetch(
-        `${SUPABASE_URL}/rest/v1/personas?numero=in.(${personaIds.join(',')})&select=numero,nombre`,
-        { headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${SUPABASE_KEY}` } }
-      );
-      if (!personaRes.ok) throw new Error(`personas HTTP ${personaRes.status}`);
-      const personas = await personaRes.json();
       
-      // Step 3 — key map by numero (= id_persona in jugadores_pichanga)
-      const personaMap = {};
-      personas.forEach(p => { personaMap[p.numero] = p.nombre; });
-      
-      // Step 4 — split titulares / suplentes
+      // Step 2 — split titulares / suplentes, use j.nombre directly
       const tit = jugadores.filter(j => !j.suplente);
       const sup  = jugadores.filter(j =>  j.suplente);
       const emptySlots = Math.max(0, cantidad - tit.length);
@@ -410,7 +398,7 @@
       let html = '<div class="detail-player-section-label">Titulares</div>';
       
       html += tit.map((j, i) => {
-        const nombre = personaMap[j.id_persona] || j.id_persona;
+        const nombre = j.nombre || j.id_persona;
         const pagado = j.estado_pago === 'pagado';
         return `
           <div class="detail-player-row">
@@ -424,7 +412,6 @@
           </div>`;
       }).join('');
       
-      // Empty slots
       for (let i = 0; i < emptySlots; i++) {
         html += `
           <div class="detail-player-row" style="opacity:0.4;">
@@ -436,7 +423,7 @@
       if (sup.length) {
         html += '<div class="detail-player-section-label" style="margin-top:14px;">Suplentes</div>';
         html += sup.map((j, i) => {
-          const nombre = personaMap[j.id_persona] || j.id_persona;
+          const nombre = j.nombre || j.id_persona;
           const pagado = j.estado_pago === 'pagado';
           return `
             <div class="detail-player-row">
