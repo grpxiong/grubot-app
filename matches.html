@@ -379,7 +379,7 @@
     try {
       // Step 1 — fetch jugadores_pichanga with nombre already populated by trigger
       const jugRes = await fetch(
-        `${SUPABASE_URL}/rest/v1/jugadores_pichanga?id_pichanga=eq.${m.id}&order=fecha_registro.asc&select=id_persona,nombre,suplente,estado_pago`,
+        `${SUPABASE_URL}/rest/v1/jugadores_pichanga?id_pichanga=eq.${m.id}&estado_participacion=eq.anotado&order=fecha_registro.asc&select=id_persona,nombre,suplente,estado_pago`,
         { headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${SUPABASE_KEY}` } }
       );
       if (!jugRes.ok) throw new Error(`jugadores HTTP ${jugRes.status}`);
