@@ -375,7 +375,7 @@ input[type="number"]::-webkit-outer-spin-button {
   background: var(--primary);
 }
 
-.match-card.past { background: #f4f6f5; filter: grayscale(0.3); }
+.match-card.past { background: #f4f6f5; opacity: 0.6; filter: grayscale(0.3); }
 .match-card.past .mc-title { color: var(--text-muted); }
 .match-card.past::before {  background: var(--text-light); }
 .match-card.past .mc-players-fill { background: var(--text-light); }
