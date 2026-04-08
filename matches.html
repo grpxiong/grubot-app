@@ -20,10 +20,10 @@
     };
   </script>
   <meta charset="UTF-8" />
-  <title>Grubot — Panel de Control</title>
+  <title>Grubot — Partidos</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no" />
   <meta name="theme-color" content="#059669" />
-  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <link rel="manifest" href="manifest.json" />
   <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700&display=swap" rel="stylesheet" />
@@ -38,7 +38,6 @@
        ═══════════════════════════════════════ -->
   <div id="match-list-view">
 
-    <!-- Section header with + button -->
     <div class="section-header fade-in">
       <div>
         <h2 class="section-title">Tus partidos</h2>
@@ -51,24 +50,20 @@
       </button>
     </div>
 
-    <!-- Filter tabs -->
     <div class="filter-row fade-in stagger-1" id="filter-row">
       <button class="filter-chip active" data-filter="upcoming">Próximos</button>
       <button class="filter-chip" data-filter="past">Anteriores</button>
       <button class="filter-chip" data-filter="all">Todos</button>
     </div>
 
-    <!-- Match cards -->
     <div class="match-list" id="match-list"></div>
 
-    <!-- Empty state -->
     <div class="empty-state" id="empty-matches" style="display:none;">
       <div class="empty-icon">🏟️</div>
       <h3>Sin partidos</h3>
       <p>Crea tu primera pichanga con el botón +</p>
     </div>
 
-    <!-- Loading skeletons -->
     <div id="match-skeletons" class="match-list">
       <div class="match-card-skeleton">
         <div class="skeleton" style="height:14px;width:70%;border-radius:4px"></div>
@@ -152,36 +147,55 @@
       </div>
     </div>
 
-    <div class="card fade-in stagger-3">
-      <div class="card-label">Estado del partido</div>
-      <div class="segmented-3">
-        <div>
-          <input type="radio" name="detail-status" id="dst-open" value="abierto" checked />
-          <label class="seg-btn" for="dst-open">🟢 Abierto</label>
+    <!-- Estado & Cupos merged card -->
+    <div class="card fade-in stagger-2">
+      <div class="card-label">Estado &amp; Cupos</div>
+
+      <div style="display:flex;align-items:center;gap:14px;">
+        <!-- Traffic light -->
+        <div style="display:flex;flex-direction:column;align-items:center;gap:5px;background:var(--bg-input);border:1px solid var(--border);border-radius:20px;padding:8px 6px;flex-shrink:0;">
+          <div id="tl-green" style="width:18px;height:18px;border-radius:50%;background:#059669;opacity:1;transition:opacity 0.2s;"></div>
+          <div id="tl-amber" style="width:18px;height:18px;border-radius:50%;background:#f59e0b;opacity:0.18;transition:opacity 0.2s;"></div>
+          <div id="tl-red"   style="width:18px;height:18px;border-radius:50%;background:#ef4444;opacity:0.18;transition:opacity 0.2s;"></div>
         </div>
-        <div>
-          <input type="radio" name="detail-status" id="dst-closed" value="cerrado" />
-          <label class="seg-btn" for="dst-closed">🔒 Cerrado</label>
-        </div>
-        <div>
-          <input type="radio" name="detail-status" id="dst-cancel" value="cancelado" />
-          <label class="seg-btn" for="dst-cancel">❌ Cancelado</label>
+
+        <!-- Status label + battery -->
+        <div style="flex:1;display:flex;flex-direction:column;gap:10px;">
+          <div>
+            <div style="font-size:15px;font-weight:700;color:var(--text-main);" id="detail-status-name">Abierto</div>
+            <div style="font-size:11px;color:var(--text-light);margin-top:2px;" id="detail-status-hint">El bot acepta inscripciones automáticamente.</div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:6px;">
+            <div style="display:flex;align-items:center;justify-content:space-between;">
+              <span style="font-size:13px;font-weight:700;color:var(--text-main);" id="detail-battery-count">0 / 0 cupos</span>
+              <span style="font-size:11px;color:var(--text-muted);" id="detail-battery-sub"></span>
+            </div>
+            <div style="display:flex;align-items:center;gap:5px;">
+              <div style="flex:1;height:14px;background:var(--bg-input);border-radius:999px;overflow:hidden;border:1px solid var(--border);">
+                <div id="detail-battery-fill" style="height:100%;border-radius:999px;background:#059669;transition:width 0.4s cubic-bezier(.16,1,.3,1);width:0%;"></div>
+              </div>
+              <div style="width:5px;height:8px;border-radius:0 3px 3px 0;background:var(--border);flex-shrink:0;"></div>
+            </div>
+            <div id="detail-seat-dots" style="display:flex;gap:4px;flex-wrap:wrap;margin-top:2px;"></div>
+          </div>
         </div>
       </div>
-      <p id="detail-status-hint" style="font-size:11px;color:var(--text-light);margin-top:2px;">
-        El bot acepta inscripciones automáticamente.
-      </p>
+
+      <!-- Estado chips -->
+      <div style="display:flex;gap:6px;margin-top:16px;">
+        <button class="detail-estado-chip" data-estado="abierto">Abierto</button>
+        <button class="detail-estado-chip" data-estado="cerrado">Cerrado</button>
+        <button class="detail-estado-chip" data-estado="cancelado">Cancelado</button>
+      </div>
     </div>
 
-    <div class="card fade-in stagger-4">
+    <!-- Jugadores — full list -->
+    <div class="card fade-in stagger-3">
       <div class="card-label">Jugadores inscritos</div>
-      <div class="detail-player-list" id="detail-player-list"></div>
-      <button class="btn-secondary" id="btn-go-jugadores" style="margin-top:4px;">
-        👥&ensp;Ver todos los jugadores
-      </button>
+      <div id="detail-player-list"></div>
     </div>
 
-    <div class="fade-in stagger-4" style="margin-top:12px;display:flex;flex-direction:column;gap:8px;">
+    <div class="fade-in stagger-4" style="margin-top:4px;display:flex;flex-direction:column;gap:8px;margin-bottom:24px;">
       <button class="btn-primary" id="btn-detail-share">
         📤&ensp;Enviar lista al grupo
       </button>
@@ -195,110 +209,142 @@
 
 <!-- ── Screen Styles ── -->
 <style>
+  #match-detail-view {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .match-hero { margin-bottom: 4px; }
+
   .section-header {
-    display: flex; align-items: center; justify-content: space-between;
-    margin-bottom: 14px;
+    display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;
   }
   .section-title {
-    font-family: 'Syne', sans-serif; font-size: 22px; font-weight: 800;
-    letter-spacing: -0.02em; color: var(--text-main); line-height: 1.1;
+    font-family:'Syne',sans-serif;font-size:22px;font-weight:800;
+    letter-spacing:-0.02em;color:var(--text-main);line-height:1.1;
   }
-  .section-sub { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+  .section-sub { font-size:12px;color:var(--text-muted);margin-top:2px; }
 
   .btn-add {
-    width: 40px; height: 40px; border: none; border-radius: 25px;
-    background: var(--primary); color: white;
-    display: flex; align-items: center; justify-content: center;
-    cursor: pointer; box-shadow: 0 4px 12px rgba(5,150,105,0.3);
-    transition: background 0.15s, transform 0.1s; touch-action: manipulation; flex-shrink: 0;
+    width:40px;height:40px;border:none;border-radius:25px;
+    background:var(--primary);color:white;
+    display:flex;align-items:center;justify-content:center;
+    cursor:pointer;box-shadow:0 4px 12px rgba(5,150,105,0.3);
+    transition:background 0.15s,transform 0.1s;touch-action:manipulation;flex-shrink:0;
   }
-  .btn-add:active { background: var(--primary-hover); transform: scale(0.93); }
-  .btn-add svg { width: 20px; height: 20px; }
+  .btn-add:active { background:var(--primary-hover);transform:scale(0.93); }
+  .btn-add svg { width:20px;height:20px; }
 
   .filter-row {
-    display: flex; gap: 6px; margin-bottom: 14px;
-    overflow-x: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none;
+    display:flex;gap:6px;margin-bottom:14px;
+    overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;
   }
-  .filter-row::-webkit-scrollbar { display: none; }
+  .filter-row::-webkit-scrollbar { display:none; }
 
   .filter-chip {
-    padding: 6px 14px; border: 1.5px solid var(--border); border-radius: 999px;
-    background: var(--bg-card); color: var(--text-muted); font-family: inherit;
-    font-size: 12px; font-weight: 700; white-space: nowrap; cursor: pointer;
-    transition: all 0.15s; touch-action: manipulation;
+    padding:6px 14px;border:1.5px solid var(--border);border-radius:999px;
+    background:var(--bg-card);color:var(--text-muted);font-family:inherit;
+    font-size:12px;font-weight:700;white-space:nowrap;cursor:pointer;
+    transition:all 0.15s;touch-action:manipulation;
   }
-  .filter-chip.active { background: var(--primary); border-color: var(--primary); color: white; }
-  .filter-chip:active:not(.active) { border-color: var(--primary); color: var(--primary); }
+  .filter-chip.active { background:var(--primary);border-color:var(--primary);color:white; }
+  .filter-chip:active:not(.active) { border-color:var(--primary);color:var(--primary); }
 
   .match-card {
-    background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg);
-    padding: 14px 16px; cursor: pointer;
-    transition: border-color 0.15s, box-shadow 0.15s, transform 0.1s;
-    touch-action: manipulation; position: relative; overflow: hidden;
+    background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-lg);
+    padding:14px 16px;cursor:pointer;
+    transition:border-color 0.15s,box-shadow 0.15s,transform 0.1s;
+    touch-action:manipulation;position:relative;overflow:hidden;
   }
-  .match-card + .match-card { margin-top: 8px; }
-  .match-card:active { transform: scale(0.985); border-color: var(--primary); box-shadow: 0 0 0 3px var(--primary-glow); }
+  .match-card + .match-card { margin-top:8px; }
+  .match-card:active { transform:scale(0.985);border-color:var(--primary);box-shadow:0 0 0 3px var(--primary-glow); }
 
   .match-card::before {
-    content: ''; position: absolute; left: 0; top: 12px; bottom: 12px; width: 3px;
-    border-radius: 0 3px 3px 0; background: var(--primary);
+    content:'';position:absolute;left:0;top:12px;bottom:12px;width:3px;
+    border-radius:0 3px 3px 0;background:var(--primary);
   }
-  .match-card.past::before { background: var(--text-light); }
-  .match-card.cancelled::before { background: var(--error); }
+  .match-card.past::before      { background:var(--text-light); }
+  .match-card.cancelled::before { background:var(--error); }
 
-  .mc-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; }
+  .mc-top { display:flex;align-items:flex-start;justify-content:space-between;gap:10px; }
   .mc-title {
-    font-family: 'Syne', sans-serif; font-size: 18px; font-weight: 100;
-    letter-spacing: -0.01em; color: var(--text-main); line-height: 1.2;
+    font-family:'Syne',sans-serif;font-size:16px;font-weight:800;
+    letter-spacing:-0.01em;color:var(--text-main);line-height:1.2;
   }
   .mc-status {
-    padding: 2px 8px; border-radius: 999px; font-size: 10px; font-weight: 700;
-    letter-spacing: 0.04em; text-transform: uppercase; white-space: nowrap; flex-shrink: 0; margin-top: 2px;
+    padding:2px 8px;border-radius:999px;font-size:10px;font-weight:700;
+    letter-spacing:0.04em;text-transform:uppercase;white-space:nowrap;flex-shrink:0;margin-top:2px;
   }
-  .mc-status.open     { background: var(--primary-light); color: var(--primary); }
-  .mc-status.closed   { background: var(--warning-light); color: var(--warning); }
-  .mc-status.cancelled{ background: var(--error-bg); color: var(--error); }
+  .mc-status.open      { background:var(--primary-light);color:var(--primary); }
+  .mc-status.closed    { background:var(--warning-light);color:var(--warning); }
+  .mc-status.cancelled { background:var(--error-bg);color:var(--error); }
 
-  .mc-info { display: flex; flex-wrap: wrap; gap: 4px 14px; margin-top: 8px; font-size: 12px; color: var(--text-muted); }
-  .mc-info-item { display: flex; align-items: center; gap: 4px; }
-  .mc-info-item svg { width: 13px; height: 13px; color: var(--text-light); flex-shrink: 0; }
+  .mc-info { display:flex;flex-wrap:wrap;gap:4px 14px;margin-top:8px;font-size:12px;color:var(--text-muted); }
+  .mc-info-item { display:flex;align-items:center;gap:4px; }
+  .mc-info-item svg { width:13px;height:13px;color:var(--text-light);flex-shrink:0; }
 
   .mc-footer {
-    display: flex; align-items: center; justify-content: space-between;
-    margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--border);
+    display:flex;align-items:center;justify-content:space-between;
+    margin-top:10px;padding-top:10px;border-top:1px solid var(--border);
   }
-  .mc-players { display: flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 600; color: var(--text-muted); }
-  .mc-players-bar { width: 60px; height: 5px; background: var(--bg-input); border-radius: 5px; overflow: hidden; }
-  .mc-players-fill { height: 100%; background: var(--primary); border-radius: 5px; transition: width 0.3s ease; }
-  .mc-arrow { width: 24px; height: 24px; color: var(--text-light); display: flex; align-items: center; justify-content: center; }
-  .mc-arrow svg { width: 16px; height: 16px; }
+  .mc-players { display:flex;align-items:center;gap:6px;font-size:12px;font-weight:600;color:var(--text-muted); }
+  .mc-players-bar { width:60px;height:5px;background:var(--bg-input);border-radius:5px;overflow:hidden; }
+  .mc-players-fill { height:100%;background:var(--primary);border-radius:5px;transition:width 0.3s ease; }
+  .mc-arrow { width:24px;height:24px;color:var(--text-light);display:flex;align-items:center;justify-content:center; }
+  .mc-arrow svg { width:16px;height:16px; }
 
   .match-card-skeleton {
-    background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 14px 16px;
+    background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-lg);padding:14px 16px;
   }
-  .match-card-skeleton + .match-card-skeleton { margin-top: 8px; }
+  .match-card-skeleton + .match-card-skeleton { margin-top:8px; }
 
   .btn-back {
-    display: flex; align-items: center; gap: 6px; border: none; background: none;
-    color: var(--primary); font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 700;
-    cursor: pointer; padding: 4px 0; margin-bottom: 14px; touch-action: manipulation;
+    display:flex;align-items:center;gap:6px;border:none;background:none;
+    color:var(--primary);font-family:'DM Sans',sans-serif;font-size:14px;font-weight:700;
+    cursor:pointer;padding:4px 0;touch-action:manipulation;
   }
-  .btn-back:active { opacity: 0.7; }
-  .btn-back svg { width: 18px; height: 18px; }
+  .btn-back:active { opacity:0.7; }
+  .btn-back svg { width:18px;height:18px; }
 
-  .detail-player-list { display: flex; flex-direction: column; gap: 6px; }
+  .detail-estado-chip {
+    flex:1;padding:7px 0;border-radius:999px;
+    border:1.5px solid var(--border);background:var(--bg-input);
+    font-size:11px;font-weight:700;color:var(--text-muted);
+    cursor:pointer;transition:all 0.15s;font-family:inherit;
+    touch-action:manipulation;
+  }
+  .detail-estado-chip.chip-open      { background:#d1fae5;border-color:#059669;color:#065f46; }
+  .detail-estado-chip.chip-cerrado   { background:#fef3c7;border-color:#f59e0b;color:#92400e; }
+  .detail-estado-chip.chip-cancelado { background:#fef2f2;border-color:#fecaca;color:#b91c1c; }
+
+  .detail-player-section-label {
+    font-size:10px;font-weight:700;text-transform:uppercase;
+    letter-spacing:0.06em;color:var(--text-light);margin:12px 0 4px;
+  }
+  .detail-player-section-label:first-child { margin-top:0; }
+
   .detail-player-row {
-    display: flex; align-items: center; gap: 10px; padding: 8px 10px;
-    background: var(--bg-input); border: 1px solid var(--border); border-radius: var(--radius-sm);
+    display:flex;align-items:center;gap:10px;
+    padding:10px 0;border-bottom:1px solid var(--border);
   }
+  .detail-player-row:last-child { border-bottom:none;padding-bottom:0; }
+
   .dp-num {
-    width: 26px; height: 26px; border-radius: 6px; background: var(--primary-light);
-    display: flex; align-items: center; justify-content: center;
-    font-family: 'Syne', sans-serif; font-size: 11px; font-weight: 800; color: var(--primary); flex-shrink: 0;
+    width:28px;height:28px;border-radius:8px;
+    display:flex;align-items:center;justify-content:center;
+    font-family:'Syne',sans-serif;font-size:11px;font-weight:800;flex-shrink:0;
   }
-  .dp-num.sup { background: var(--warning-light); color: var(--warning); }
-  .dp-name { font-size: 13px; font-weight: 600; color: var(--text-main); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex: 1; min-width: 0; }
-  .dp-badge { font-size: 10px; font-weight: 700; color: var(--text-light); }
+  .dp-num.tit { background:var(--primary-light);color:var(--primary); }
+  .dp-num.sup { background:var(--warning-light);color:var(--warning); }
+
+  .dp-name {
+    font-size:13px;font-weight:600;color:var(--text-main);
+    flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+  }
+  .dp-badge { font-size:10px;font-weight:700;padding:2px 7px;border-radius:999px; }
+  .dp-badge.tit { background:var(--primary-light);color:var(--primary); }
+  .dp-badge.sup { background:var(--warning-light);color:var(--warning); }
 </style>
 
 <!-- ── Screen Logic ── -->
@@ -306,36 +352,67 @@
 (function() {
   const toast = window.grubot?.toast ?? ((msg) => console.log('[toast]', msg));
 
-  let allMatches = [];
+  let allMatches    = [];
   let currentFilter = 'upcoming';
 
-  const dias     = ['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'];
-  const diasFull = ['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'];
-  const meses    = ['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
-  const mesesFull= ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+  const dias      = ['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'];
+  const diasFull  = ['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'];
+  const meses     = ['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
+  const mesesFull = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
 
-  function fmtDateShort(iso) { const d = new Date(iso + 'T12:00:00'); return dias[d.getDay()] + ' ' + d.getDate() + ' ' + meses[d.getMonth()]; }
-  function fmtDateFull(iso)  { const d = new Date(iso + 'T12:00:00'); return diasFull[d.getDay()] + ' ' + d.getDate() + ' de ' + mesesFull[d.getMonth()] + ', ' + d.getFullYear(); }
-  function fmtTime(t)        { if (!t) return ''; const [h, m] = t.split(':').map(Number); return ((h % 12) || 12) + ':' + String(m).padStart(2, '0') + ' ' + (h >= 12 ? 'PM' : 'AM'); }
-  function fmtTimeRange(s,e) { return e ? fmtTime(s) + ' — ' + fmtTime(e) : fmtTime(s); }
-  function isUpcoming(iso)   { const t = new Date(); t.setHours(0,0,0,0); return new Date(iso + 'T23:59:59') >= t; }
-  function statusClass(e)    { return e === 'abierto' ? 'open' : e === 'cancelado' ? 'cancelled' : 'closed'; }
-  function statusLabel(e)    { return { abierto:'Abierto', cerrado:'Cerrado', cancelado:'Cancelado' }[e] || e; }
+  function fmtDateShort(iso) { const d=new Date(iso+'T12:00:00'); return dias[d.getDay()]+' '+d.getDate()+' '+meses[d.getMonth()]; }
+  function fmtDateFull(iso)  { const d=new Date(iso+'T12:00:00'); return diasFull[d.getDay()]+' '+d.getDate()+' de '+mesesFull[d.getMonth()]+', '+d.getFullYear(); }
+  function fmtTime(t)        { if(!t)return''; const[h,m]=t.split(':').map(Number); return((h%12)||12)+':'+String(m).padStart(2,'0')+' '+(h>=12?'PM':'AM'); }
+  function fmtTimeRange(s,e) { return e?fmtTime(s)+' — '+fmtTime(e):fmtTime(s); }
+  function isUpcoming(iso)   { const t=new Date();t.setHours(0,0,0,0);return new Date(iso+'T23:59:59')>=t; }
+  function statusClass(e)    { return e==='abierto'?'open':e==='cancelado'?'cancelled':'closed'; }
+  function statusLabel(e)    { return {abierto:'Abierto',cerrado:'Cerrado',cancelado:'Cancelado'}[e]||e; }
 
-  const hints = {
-    abierto:   'El bot acepta inscripciones automáticamente.',
-    cerrado:   'Solo el admin puede agregar jugadores.',
-    cancelado: 'Se notificará a los jugadores inscritos.'
+  const statusConfig = {
+    abierto:   { name:'Abierto',   hint:'El bot acepta inscripciones automáticamente.', fill:'#059669', tl:'green', chipClass:'chip-open'      },
+    cerrado:   { name:'Cerrado',   hint:'Solo el admin puede agregar jugadores.',        fill:'#f59e0b', tl:'amber', chipClass:'chip-cerrado'    },
+    cancelado: { name:'Cancelado', hint:'Se notificará a los jugadores inscritos.',      fill:'#ef4444', tl:'red',   chipClass:'chip-cancelado'  },
   };
 
+  function applyEstado(estado) {
+    const cfg = statusConfig[estado] || statusConfig.abierto;
+    document.getElementById('tl-green').style.opacity = cfg.tl==='green' ? '1' : '0.18';
+    document.getElementById('tl-amber').style.opacity = cfg.tl==='amber' ? '1' : '0.18';
+    document.getElementById('tl-red').style.opacity   = cfg.tl==='red'   ? '1' : '0.18';
+    document.getElementById('detail-status-name').textContent       = cfg.name;
+    document.getElementById('detail-status-hint').textContent       = cfg.hint;
+    document.getElementById('detail-battery-fill').style.background = cfg.fill;
+    document.querySelectorAll('.detail-estado-chip').forEach(c =>
+      c.classList.remove('chip-open','chip-cerrado','chip-cancelado')
+    );
+    const active = document.querySelector(`.detail-estado-chip[data-estado="${estado}"]`);
+    if (active) active.classList.add(cfg.chipClass);
+  }
+
+  function renderSeatDots(inscritos, cantidad, suplentes) {
+    const wrap = document.getElementById('detail-seat-dots');
+    let html = '';
+    for (let i=0; i<cantidad; i++) {
+      const s = i<inscritos
+        ? 'background:#059669'
+        : 'background:var(--bg-input);border:1px solid var(--border)';
+      html += `<div style="width:10px;height:10px;border-radius:3px;${s};"></div>`;
+    }
+    for (let i=0; i<suplentes; i++) {
+      html += `<div style="width:10px;height:10px;border-radius:3px;background:#f59e0b;"></div>`;
+    }
+    wrap.innerHTML = html;
+  }
+
+  // ── Render match list ──
   function renderList(matches) {
     const list  = document.getElementById('match-list');
     const empty = document.getElementById('empty-matches');
     document.getElementById('match-skeletons').style.display = 'none';
 
     let filtered = matches;
-    if (currentFilter === 'upcoming') filtered = matches.filter(m => isUpcoming(m.fecha_pichanga));
-    if (currentFilter === 'past')     filtered = matches.filter(m => !isUpcoming(m.fecha_pichanga));
+    if (currentFilter==='upcoming') filtered = matches.filter(m => isUpcoming(m.fecha_pichanga));
+    if (currentFilter==='past')     filtered = matches.filter(m => !isUpcoming(m.fecha_pichanga));
 
     if (!filtered.length) {
       list.innerHTML = '';
@@ -345,14 +422,14 @@
     }
 
     empty.style.display = 'none';
-    document.getElementById('match-count-label').textContent = filtered.length + ' partido' + (filtered.length !== 1 ? 's' : '');
+    document.getElementById('match-count-label').textContent = filtered.length+' partido'+(filtered.length!==1?'s':'');
 
-    list.innerHTML = filtered.map((m, i) => {
-      const pct    = m.cantidad ? Math.round((m.inscritos / m.cantidad) * 100) : 0;
+    list.innerHTML = filtered.map((m,i) => {
+      const pct    = m.cantidad ? Math.round((m.inscritos/m.cantidad)*100) : 0;
       const isPast = !isUpcoming(m.fecha_pichanga);
       return `
-        <div class="match-card ${isPast ? 'past' : ''} ${m.estado === 'cancelado' ? 'cancelled' : ''} fade-in"
-             style="animation-delay:${Math.min(i * 0.04, 0.2)}s" data-id="${m.id}">
+        <div class="match-card ${isPast?'past':''} ${m.estado==='cancelado'?'cancelled':''} fade-in"
+             style="animation-delay:${Math.min(i*0.04,0.2)}s" data-id="${m.id}">
           <div class="mc-top">
             <div class="mc-title">${m.titulo}</div>
             <span class="mc-status ${statusClass(m.estado)}">${statusLabel(m.estado)}</span>
@@ -400,10 +477,11 @@
     });
   });
 
+  // ── Open detail ──
   function openDetail(m) {
     document.getElementById('match-list-view').style.display = 'none';
     const detail = document.getElementById('match-detail-view');
-    detail.style.display = 'block';
+    detail.style.display = 'flex';
     document.getElementById('partido-screen').closest('.content')?.scrollTo(0, 0);
 
     const upcoming = isUpcoming(m.fecha_pichanga);
@@ -412,88 +490,126 @@
     document.getElementById('detail-date').textContent     = fmtDateFull(m.fecha_pichanga);
     document.getElementById('detail-time').textContent     = fmtTimeRange(m.hora_inicio, m.hora_fin);
     document.getElementById('detail-location').textContent = m.lugar;
-    document.getElementById('detail-price').textContent    = 'S/ ' + (m.cuota || 0).toFixed(2) + ' por persona · ' + (m.metodo_pago || 'Libre');
+    document.getElementById('detail-price').textContent    = 'S/ '+(m.cuota||0).toFixed(2)+' por persona ('+(m.metodo_pago||'Yape')+')';
 
-    const total = m.cantidad || 10;
-    document.getElementById('detail-inscritos').textContent  = m.inscritos || 0;
-    document.getElementById('detail-faltan').textContent     = Math.max(0, total - (m.inscritos || 0));
-    document.getElementById('detail-suplentes').textContent  = m.suplentes || 0;
+    const inscritos = m.inscritos  || 0;
+    const cantidad  = m.cantidad   || 10;
+    const suplentes = m.suplentes  || 0;
+    const pct       = Math.round((inscritos / cantidad) * 100);
 
-    const radioMap = { abierto: 'dst-open', cerrado: 'dst-closed', cancelado: 'dst-cancel' };
-    const r = document.getElementById(radioMap[m.estado] || 'dst-open');
-    if (r) r.checked = true;
-    document.getElementById('detail-status-hint').textContent = hints[m.estado || 'abierto'];
+    document.getElementById('detail-battery-count').textContent = inscritos+' / '+cantidad+' cupos';
+    document.getElementById('detail-battery-sub').textContent   = suplentes > 0 ? '+'+suplentes+' suplente'+(suplentes>1?'s':'') : '';
+    document.getElementById('detail-battery-fill').style.width  = pct+'%';
 
+    renderSeatDots(inscritos, cantidad, suplentes);
+    applyEstado(m.estado || 'abierto');
+
+    // Player list — full, split titulares / suplentes
     const playerList = document.getElementById('detail-player-list');
     const jugadores  = m.jugadores || [];
-    if (jugadores.length) {
-      const tit       = jugadores.filter(j => j.tipo === 'titular');
-      const sup       = jugadores.filter(j => j.tipo === 'suplente');
-      const preview   = [...tit.slice(0, 4), ...sup.slice(0, 1)];
-      const remaining = jugadores.length - preview.length;
-      playerList.innerHTML = preview.map(j => {
-        const isSup = j.tipo === 'suplente';
-        const label = isSup ? 'S' + (sup.indexOf(j) + 1) : String(tit.indexOf(j) + 1);
-        return `<div class="detail-player-row">
-          <div class="dp-num ${isSup ? 'sup' : ''}">${label}</div>
-          <div class="dp-name">${j.nombre}</div>
-          <div class="dp-badge">${isSup ? 'Suplente' : 'Titular'}</div>
-        </div>`;
-      }).join('') + (remaining > 0 ? `<div style="text-align:center;padding:4px 0;font-size:12px;color:var(--text-light);font-weight:600;">+${remaining} más</div>` : '');
-    } else {
+
+    if (!jugadores.length) {
       playerList.innerHTML = '<div style="text-align:center;padding:16px 0;font-size:13px;color:var(--text-light);">Sin jugadores inscritos aún</div>';
+    } else {
+      const tit = jugadores.filter(j => j.tipo === 'titular');
+      const sup = jugadores.filter(j => j.tipo === 'suplente');
+      let html  = '';
+
+      if (tit.length) {
+        html += '<div class="detail-player-section-label">Titulares</div>';
+        html += tit.map((j,i) => `
+          <div class="detail-player-row">
+            <div class="dp-num tit">${i+1}</div>
+            <div class="dp-name">${j.nombre}</div>
+            <span class="dp-badge tit">Titular</span>
+          </div>`).join('');
+      }
+
+      if (sup.length) {
+        html += '<div class="detail-player-section-label" style="margin-top:14px;">Suplentes</div>';
+        html += sup.map((j,i) => `
+          <div class="detail-player-row">
+            <div class="dp-num sup">S${i+1}</div>
+            <div class="dp-name">${j.nombre}</div>
+            <span class="dp-badge sup">Suplente</span>
+          </div>`).join('');
+      }
+
+      playerList.innerHTML = html;
     }
+
     detail.dataset.matchId = m.id;
   }
 
-  document.querySelectorAll('[name="detail-status"]').forEach(radio => {
-    radio.addEventListener('change', () => {
-      document.getElementById('detail-status-hint').textContent = hints[radio.value] || '';
-      toast('Estado: ' + statusLabel(radio.value));
+  // ── Estado chip listeners ──
+  document.querySelectorAll('.detail-estado-chip').forEach(chip => {
+    chip.addEventListener('click', () => {
+      const estado   = chip.dataset.estado;
+      const SUPA_URL = window.ENV?.SUPABASE_URL;
+      const SUPA_KEY = window.ENV?.SUPABASE_KEY;
+      const id       = document.getElementById('match-detail-view').dataset.matchId;
+
+      applyEstado(estado);
+      toast('Estado: ' + (statusConfig[estado]?.name || estado));
+
+      if (!SUPA_URL || !SUPA_KEY || !id) return;
+      fetch(`${SUPA_URL}/rest/v1/pichangas?id_pichanga_pub=eq.${id}`, {
+        method:  'PATCH',
+        headers: {
+          apikey:         SUPA_KEY,
+          Authorization:  `Bearer ${SUPA_KEY}`,
+          'Content-Type': 'application/json',
+          Prefer:         'return=minimal'
+        },
+        body: JSON.stringify({ estado })
+      }).catch(err => console.warn('[Partido] Estado update failed:', err.message));
     });
   });
 
+  // ── Back button ──
   document.getElementById('btn-back-list').addEventListener('click', () => {
     document.getElementById('match-detail-view').style.display = 'none';
-    document.getElementById('match-list-view').style.display  = 'block';
+    document.getElementById('match-list-view').style.display   = 'block';
   });
 
+  // ── Share button ──
   document.getElementById('btn-detail-share').addEventListener('click', function() {
-    this.disabled = true;
+    this.disabled    = true;
     this.textContent = 'Enviando...';
     setTimeout(() => {
       toast('Lista enviada al grupo ✓');
-      this.disabled = false;
+      this.disabled    = false;
       this.textContent = '📤  Enviar lista al grupo';
     }, 800);
   });
 
+  // ── Edit button ──
   document.getElementById('btn-detail-edit').addEventListener('click', () => {
-    const id = document.getElementById('match-detail-view').dataset.pichanga_id_pub;
-    window.location.href = 'edit.html?id=' + id;
+    const id = document.getElementById('match-detail-view').dataset.matchId;
+    window.open('edit.html?id=' + id, '_blank');
   });
 
-  document.getElementById('btn-go-jugadores').addEventListener('click', () => {
-    document.querySelector('[data-screen="jugadores"]')?.click();
-  });
-
+  // ── New match button ──
   document.getElementById('btn-new-match').addEventListener('click', () => {
     window.open('create.html', '_blank');
   });
 
+  // ── Load matches from Supabase ──
   async function loadMatches() {
     const SUPA_URL = window.ENV?.SUPABASE_URL;
     const SUPA_KEY = window.ENV?.SUPABASE_KEY;
 
     if (!SUPA_URL || !SUPA_KEY || SUPA_URL.includes('your-project')) {
-      console.log('[Partido] No Supabase config — using demo data');
-      setTimeout(() => { allMatches = DEMO_MATCHES; renderList(allMatches); }, 400);
+      console.warn('[Partido] Supabase not configured — check config.js');
+      document.getElementById('match-skeletons').style.display = 'none';
+      document.getElementById('empty-matches').style.display   = 'block';
+      document.getElementById('match-count-label').textContent = 'Sin configuración';
       return;
     }
 
     try {
       const res = await fetch(
-        `${SUPA_URL}/rest/v1/pichangas?order=fecha_pichanga.desc&limit=20`,
+        `${SUPA_URL}/rest/v1/pichangas?order=fecha_pichanga.desc&limit=50`,
         { headers: { apikey: SUPA_KEY, Authorization: `Bearer ${SUPA_KEY}` } }
       );
 
@@ -506,35 +622,33 @@
       console.log('[Partido] Loaded', rows.length, 'matches from Supabase');
 
       allMatches = rows.map(p => ({
-        id:            p.id_pichanga_pub || p.id,
-        titulo:        p.titulo,
-        fecha_pichanga:p.fecha_pichanga,
-        hora_inicio:   p.hora_inicio,
-        hora_fin:      p.hora_fin,
-        lugar:         p.lugar,
-        cuota:         p.cuota,
-        metodo_pago:   p.metodo_pago,
-        cantidad:      p.cantidad,
-        estado:        p.estado || 'abierto',
-        inscritos:     0,
-        suplentes:     0,
-        jugadores:     [],
+        id:             p.id_pichanga_pub || p.id,
+        titulo:         p.titulo,
+        fecha_pichanga: p.fecha_pichanga,
+        hora_inicio:    p.hora_inicio,
+        hora_fin:       p.hora_fin,
+        lugar:          p.lugar,
+        cuota:          p.cuota,
+        metodo_pago:    p.metodo_pago,
+        cantidad:       p.cantidad,
+        estado:         p.estado || 'abierto',
+        inscritos:      0,
+        suplentes:      0,
+        jugadores:      [],
       }));
 
       renderList(allMatches);
 
     } catch (err) {
-      console.warn('[Partido] Load error:', err.message);
-      console.error(err);
-      allMatches = DEMO_MATCHES;
-      renderList(allMatches);
+      console.error('[Partido] Load error:', err);
+      document.getElementById('match-skeletons').style.display = 'none';
+      document.getElementById('match-count-label').textContent = 'Error al cargar';
+      document.getElementById('empty-matches').style.display   = 'block';
+      document.getElementById('empty-matches').querySelector('p').textContent = err.message;
     }
   }
 
   loadMatches();
-  console.log('ENV check:', window.ENV);
-  console.log('SUPABASE_URL:', window.ENV?.SUPABASE_URL);
-  console.log('SUPABASE_KEY:', window.ENV?.SUPABASE_KEY);
 })();
 </script>
 </body>
