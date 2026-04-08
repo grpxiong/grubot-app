@@ -204,149 +204,8 @@
       </button>
     </div>
   </div>
-
 </div>
-
-<!-- ── Screen Styles ── -->
-<style>
-  #match-detail-view {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-  }
-
-  .match-hero { margin-bottom: 4px; }
-
-  .section-header {
-    display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;
-  }
-  .section-title {
-    font-family:'Syne',sans-serif;font-size:22px;font-weight:800;
-    letter-spacing:-0.02em;color:var(--text-main);line-height:1.1;
-  }
-  .section-sub { font-size:12px;color:var(--text-muted);margin-top:2px; }
-
-  .btn-add {
-    width:40px;height:40px;border:none;border-radius:25px;
-    background:var(--primary);color:white;
-    display:flex;align-items:center;justify-content:center;
-    cursor:pointer;box-shadow:0 4px 12px rgba(5,150,105,0.3);
-    transition:background 0.15s,transform 0.1s;touch-action:manipulation;flex-shrink:0;
-  }
-  .btn-add:active { background:var(--primary-hover);transform:scale(0.93); }
-  .btn-add svg { width:20px;height:20px; }
-
-  .filter-row {
-    display:flex;gap:6px;margin-bottom:14px;
-    overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;
-  }
-  .filter-row::-webkit-scrollbar { display:none; }
-
-  .filter-chip {
-    padding:6px 14px;border:1.5px solid var(--border);border-radius:999px;
-    background:var(--bg-card);color:var(--text-muted);font-family:inherit;
-    font-size:12px;font-weight:700;white-space:nowrap;cursor:pointer;
-    transition:all 0.15s;touch-action:manipulation;
-  }
-  .filter-chip.active { background:var(--primary);border-color:var(--primary);color:white; }
-  .filter-chip:active:not(.active) { border-color:var(--primary);color:var(--primary); }
-
-  .match-card {
-    background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-lg);
-    padding:14px 16px;cursor:pointer;
-    transition:border-color 0.15s,box-shadow 0.15s,transform 0.1s;
-    touch-action:manipulation;position:relative;overflow:hidden;
-  }
-  .match-card + .match-card { margin-top:8px; }
-  .match-card:active { transform:scale(0.985);border-color:var(--primary);box-shadow:0 0 0 3px var(--primary-glow); }
-
-  .match-card::before {
-    content:'';position:absolute;left:0;top:12px;bottom:12px;width:3px;
-    border-radius:0 3px 3px 0;background:var(--primary);
-  }
-  .match-card.past::before      { background:var(--text-light); }
-  .match-card.cancelled::before { background:var(--error); }
-
-  .mc-top { display:flex;align-items:flex-start;justify-content:space-between;gap:10px; }
-  .mc-title {
-    font-family:'Syne',sans-serif;font-size:16px;font-weight:800;
-    letter-spacing:-0.01em;color:var(--text-main);line-height:1.2;
-  }
-  .mc-status {
-    padding:2px 8px;border-radius:999px;font-size:10px;font-weight:700;
-    letter-spacing:0.04em;text-transform:uppercase;white-space:nowrap;flex-shrink:0;margin-top:2px;
-  }
-  .mc-status.open      { background:var(--primary-light);color:var(--primary); }
-  .mc-status.closed    { background:var(--warning-light);color:var(--warning); }
-  .mc-status.cancelled { background:var(--error-bg);color:var(--error); }
-
-  .mc-info { display:flex;flex-wrap:wrap;gap:4px 14px;margin-top:8px;font-size:12px;color:var(--text-muted); }
-  .mc-info-item { display:flex;align-items:center;gap:4px; }
-  .mc-info-item svg { width:13px;height:13px;color:var(--text-light);flex-shrink:0; }
-
-  .mc-footer {
-    display:flex;align-items:center;justify-content:space-between;
-    margin-top:10px;padding-top:10px;border-top:1px solid var(--border);
-  }
-  .mc-players { display:flex;align-items:center;gap:6px;font-size:12px;font-weight:600;color:var(--text-muted); }
-  .mc-players-bar { width:60px;height:5px;background:var(--bg-input);border-radius:5px;overflow:hidden; }
-  .mc-players-fill { height:100%;background:var(--primary);border-radius:5px;transition:width 0.3s ease; }
-  .mc-arrow { width:24px;height:24px;color:var(--text-light);display:flex;align-items:center;justify-content:center; }
-  .mc-arrow svg { width:16px;height:16px; }
-
-  .match-card-skeleton {
-    background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-lg);padding:14px 16px;
-  }
-  .match-card-skeleton + .match-card-skeleton { margin-top:8px; }
-
-  .btn-back {
-    display:flex;align-items:center;gap:6px;border:none;background:none;
-    color:var(--primary);font-family:'DM Sans',sans-serif;font-size:14px;font-weight:700;
-    cursor:pointer;padding:4px 0;touch-action:manipulation;
-  }
-  .btn-back:active { opacity:0.7; }
-  .btn-back svg { width:18px;height:18px; }
-
-  .detail-estado-chip {
-    flex:1;padding:7px 0;border-radius:999px;
-    border:1.5px solid var(--border);background:var(--bg-input);
-    font-size:11px;font-weight:700;color:var(--text-muted);
-    cursor:pointer;transition:all 0.15s;font-family:inherit;
-    touch-action:manipulation;
-  }
-  .detail-estado-chip.chip-open      { background:#d1fae5;border-color:#059669;color:#065f46; }
-  .detail-estado-chip.chip-cerrado   { background:#fef3c7;border-color:#f59e0b;color:#92400e; }
-  .detail-estado-chip.chip-cancelado { background:#fef2f2;border-color:#fecaca;color:#b91c1c; }
-
-  .detail-player-section-label {
-    font-size:10px;font-weight:700;text-transform:uppercase;
-    letter-spacing:0.06em;color:var(--text-light);margin:12px 0 4px;
-  }
-  .detail-player-section-label:first-child { margin-top:0; }
-
-  .detail-player-row {
-    display:flex;align-items:center;gap:10px;
-    padding:10px 0;border-bottom:1px solid var(--border);
-  }
-  .detail-player-row:last-child { border-bottom:none;padding-bottom:0; }
-
-  .dp-num {
-    width:28px;height:28px;border-radius:8px;
-    display:flex;align-items:center;justify-content:center;
-    font-family:'Syne',sans-serif;font-size:11px;font-weight:800;flex-shrink:0;
-  }
-  .dp-num.tit { background:var(--primary-light);color:var(--primary); }
-  .dp-num.sup { background:var(--warning-light);color:var(--warning); }
-
-  .dp-name {
-    font-size:13px;font-weight:600;color:var(--text-main);
-    flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
-  }
-  .dp-badge { font-size:10px;font-weight:700;padding:2px 7px;border-radius:999px; }
-  .dp-badge.tit { background:var(--primary-light);color:var(--primary); }
-  .dp-badge.sup { background:var(--warning-light);color:var(--warning); }
-</style>
-
+  
 <!-- ── Screen Logic ── -->
 <script>
 (function() {
@@ -527,8 +386,7 @@
         playerList.innerHTML = '<div style="text-align:center;padding:16px 0;font-size:13px;color:var(--text-light);">Sin jugadores inscritos aún</div>';
         return;
       }
-  
-      // Step 2 — fetch personas for all id_persona values in one query
+      // Step 2 — fetch personas by phone number
       const personaIds = [...new Set(jugadores.map(j => j.id_persona))];
       const personaRes = await fetch(
         `${SUPABASE_URL}/rest/v1/personas?numero=in.(${personaIds.join(',')})&select=numero,nombre`,
@@ -536,37 +394,60 @@
       );
       if (!personaRes.ok) throw new Error(`personas HTTP ${personaRes.status}`);
       const personas = await personaRes.json();
-  
-      // Step 3 — build lookup map
+      
+      // Step 3 — key map by numero (= id_persona in jugadores_pichanga)
       const personaMap = {};
-      personas.forEach(p => { personaMap[p.id_profile_pub] = p.nombre; });
-  
-      // Step 4 — split titulares / suplentes using suplente boolean
+      personas.forEach(p => { personaMap[p.numero] = p.nombre; });
+      
+      // Step 4 — split titulares / suplentes
       const tit = jugadores.filter(j => !j.suplente);
-      const sup = jugadores.filter(j =>  j.suplente);
-  
-      let html = '';
-  
-      if (tit.length) {
-        html += '<div class="detail-player-section-label">Titulares</div>';
-        html += tit.map((j, i) => `
+      const sup  = jugadores.filter(j =>  j.suplente);
+      const emptySlots = Math.max(0, cantidad - tit.length);
+      
+      let html = '<div class="detail-player-section-label">Titulares</div>';
+      
+      html += tit.map((j, i) => {
+        const nombre = personaMap[j.id_persona] || j.id_persona;
+        const pagado = j.estado_pago === 'pagado';
+        return `
           <div class="detail-player-row">
             <div class="dp-num tit">${i+1}</div>
-            <div class="dp-name">${personaMap[j.id_persona] || j.id_persona}</div>
-            <span class="dp-badge tit">Titular</span>
-          </div>`).join('');
+            <div class="dp-name">${nombre}</div>
+            <span class="dp-badge tit" style="${pagado
+              ? 'background:#d1fae5;color:#065f46;'
+              : 'background:#fef3c7;color:#92400e;'}">
+              ${pagado ? 'Pagado' : 'Pendiente'}
+            </span>
+          </div>`;
+      }).join('');
+      
+      // Empty slots
+      for (let i = 0; i < emptySlots; i++) {
+        html += `
+          <div class="detail-player-row" style="opacity:0.4;">
+            <div class="dp-num tit" style="background:var(--bg-input);color:var(--text-light);border:1px dashed var(--border);">${tit.length + i + 1}</div>
+            <div class="dp-name" style="color:var(--text-light);font-style:italic;">Cupo disponible</div>
+          </div>`;
       }
-  
+      
       if (sup.length) {
         html += '<div class="detail-player-section-label" style="margin-top:14px;">Suplentes</div>';
-        html += sup.map((j, i) => `
-          <div class="detail-player-row">
-            <div class="dp-num sup">S${i+1}</div>
-            <div class="dp-name">${personaMap[j.id_persona] || j.id_persona}</div>
-            <span class="dp-badge sup">Suplente</span>
-          </div>`).join('');
+        html += sup.map((j, i) => {
+          const nombre = personaMap[j.id_persona] || j.id_persona;
+          const pagado = j.estado_pago === 'pagado';
+          return `
+            <div class="detail-player-row">
+              <div class="dp-num sup">S${i+1}</div>
+              <div class="dp-name">${nombre}</div>
+              <span class="dp-badge sup" style="${pagado
+                ? 'background:#d1fae5;color:#065f46;'
+                : 'background:var(--warning-light);color:var(--warning);'}">
+                ${pagado ? 'Pagado' : 'Pendiente'}
+              </span>
+            </div>`;
+        }).join('');
       }
-  
+      
       playerList.innerHTML = html;
   
     } catch (err) {
