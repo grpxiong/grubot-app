@@ -4,25 +4,43 @@
   <meta charset="UTF-8">
   <title>Registro de Jugador | Grubot</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css">
   <style>
-    :root {
-      --primary: #059669;
-      --primary-hover: #047857;
-      --primary-light: rgba(5, 150, 105, 0.08);
-      --primary-glow: rgba(5, 150, 105, 0.2);
-      --bg: #f0fdf4;
-      --bg-card: #ffffff;
-      --bg-muted: #f8fafc;
-      --border: #d1fae5;
-      --border-focus: #059669;
-      --text-main: #1e293b;
-      --text-muted: #64748b;
-      --shadow: 0 20px 60px -10px rgba(5, 150, 105, 0.15), 0 4px 16px rgba(0,0,0,0.06);
-      --error: #ef4444;
-      --error-bg: #fef2f2;
-      --error-border: #fecaca;
-    }
+:root {
+  --primary: #059669;
+  --primary-hover: #047857;
+  --primary-dark: #065f46;
+  --primary-light: rgba(5, 150, 105, 0.09);
+  --primary-glow: rgba(5, 150, 105, 0.18);
+
+  --bg: #e8f5e9;
+  --bg-card: #ffffff;
+  --bg-input: #f4f9f6;
+
+  --border: #d1fae5;
+  --border-focus: #059669;
+
+  --text-main: #0f1f17;
+  --text-muted: #64748b;
+  --text-light: #a1b5ab;
+
+  --error: #ef4444;
+  --error-bg: #fef2f2;
+  --error-border: #fecaca;
+
+  --warning: #f59e0b;
+  --warning-light: rgba(245, 158, 11, 0.1);
+
+  --radius-sm: 8px;
+  --radius: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 20px;
+
+  --sab: env(safe-area-inset-bottom, 0px);
+
+  --shadow-primary: 0 6px 16px -4px rgba(5, 150, 105, 0.35);
+}
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -64,9 +82,12 @@
       letter-spacing: 0.04em; text-transform: uppercase;
     }
     .header h1 {
-      font-family: 'DM Serif Display', serif;
-      font-size: 28px; color: var(--text-main);
-      line-height: 1.15; margin-bottom: 8px;
+      font-family: 'Syne', sans-serif;
+      font-size: 25px;
+      font-weight: 800;
+      line-height: 1.2;
+      letter-spacing: -0.02em;
+      margin-bottom: 15px;
     }
     .header h1 span { color: var(--primary); }
     .header p { font-size: 14px; color: var(--text-muted); line-height: 1.5; }
@@ -92,11 +113,12 @@
       border-color: var(--error);
       box-shadow: 0 0 0 4px rgba(239,68,68,0.1);
     }
+    .field input::placeholder { color: #cbd5e1; font-weight: 400; font-size: 15px; }
 
-    /* ── DATE INPUTS ── */
     .divider {
       display: flex; align-items: center; gap: 10px;
-      color: var(--text-muted); font-size: 12px; margin: 2px 0;
+      color: var(--text-muted); font-size: 11px; font-weight: 600; margin: 2px 0;
+      text-transform: uppercase; letter-spacing: 0.07em;
     }
     .divider::before, .divider::after {
       content: ''; flex: 1; height: 1px; background: var(--border);
@@ -115,7 +137,6 @@
       font-size: 17px; font-weight: 600; font-family: 'DM Sans', sans-serif;
       color: var(--text-main); background: var(--bg-muted);
       outline: none; transition: all 0.2s ease;
-      /* hide native number spinners */
       -moz-appearance: textfield;
     }
     .date-part input::-webkit-outer-spin-button,
@@ -153,18 +174,64 @@
     .error-box strong { display: block; font-size: 13px; font-weight: 700; color: var(--error); margin-bottom: 4px; }
     .error-box code { display: block; font-size: 12px; color: #b91c1c; word-break: break-all; white-space: pre-wrap; font-family: monospace; line-height: 1.5; }
 
+    /* ── SUCCESS SCREEN ── */
     .success {
       display: none; flex-direction: column; align-items: center;
-      gap: 16px; text-align: center; padding: 12px 0;
+      gap: 20px; text-align: center; padding: 12px 0;
       animation: cardIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) both;
     }
     .success.active { display: flex; }
+
+    /* Animated check circle */
     .success-icon {
-      width: 72px; height: 72px; background: var(--primary-light);
-      border-radius: 50%; display: flex; align-items: center;
-      justify-content: center; font-size: 32px;
+      width: 80px;
+      height: 80px;
+      position: relative;
     }
-    .success h2 { font-family: 'DM Serif Display', serif; font-size: 26px; color: var(--text-main); }
+
+    .check-circle {
+      width: 80px;
+      height: 80px;
+    }
+
+    .check-circle .circle {
+      stroke: #059669;
+      stroke-width: 3;
+      fill: #059669;
+      stroke-dasharray: 226;
+      stroke-dashoffset: 226;
+      animation: drawCircle 0.5s cubic-bezier(0.16, 1, 0.3, 1) 0.1s forwards;
+    }
+
+    .check-circle .check {
+      stroke: white;
+      stroke-width: 3.5;
+      fill: none;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      stroke-dasharray: 50;
+      stroke-dashoffset: 50;
+      animation: drawCheck 0.35s cubic-bezier(0.16, 1, 0.3, 1) 0.55s forwards;
+    }
+
+    @keyframes drawCircle {
+      to { stroke-dashoffset: 0; }
+    }
+
+    @keyframes drawCheck {
+      to { stroke-dashoffset: 0; }
+    }
+
+    /* Success typography */
+    .success h2 {
+      font-family: 'Syne', sans-serif;
+      font-size: 28px;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      color: var(--text-main);
+      line-height: 1.1;
+    }
+
     .player-name { color: var(--primary); font-weight: 700; }
 
     @media (max-width: 480px) {
@@ -177,8 +244,7 @@
   <div class="card">
 
     <div class="header" id="form-header">
-      <div class="header-badge">⚽ Pichangas</div>
-      <h1>Únete al<br><span>equipo</span></h1>
+      <h1>Registrate <span>pichangero</span></h1>
       <p>Regístrate una unica vez, asi para las proximas listas te anotamos automaticamente.</p>
     </div>
 
@@ -186,11 +252,19 @@
 
       <div class="field">
         <label for="input-nombre">Nombre completo</label>
-        <input type="text" id="input-nombre" placeholder="Ej: Carlos Ramírez" autocomplete="name">
+        <input
+          type="text"
+          id="input-nombre"
+          placeholder="Ej: Carlos Ramírez"
+          autocomplete="off"
+          autocapitalize="words"
+          autocorrect="off"
+          spellcheck="false"
+        >
         <span class="field-error" id="err-nombre">Ingresa tu nombre completo.</span>
       </div>
 
-      <div class="divider">FECHA DE NACIMIENTO</div>
+      <div class="divider">Fecha de nacimiento</div>
 
       <div class="field">
         <div class="date-row">
@@ -215,11 +289,16 @@
         <code id="error-detail"></code>
       </div>
 
-      <button class="btn-primary" id="btn-submit">Registrarme ✓</button>
+      <button class="btn-primary" id="btn-submit">Registrarme</button>
     </div>
 
     <div class="success" id="success-screen">
-      <div class="success-icon">✅</div>
+      <div class="success-icon">
+        <svg class="check-circle" viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg">
+          <circle class="circle" cx="40" cy="40" r="36"/>
+          <polyline class="check" points="24,41 35,52 57,30"/>
+        </svg>
+      </div>
       <h2>¡Bienvenido!</h2>
       <p>Quedaste registrado como<br><span class="player-name" id="success-name"></span></p>
       <p style="font-size: 13px; color: var(--text-muted); margin-top: 4px;">Te hemos anotado automáticamente en la pichanga. Ya puedes volver al chat.</p>
@@ -229,23 +308,44 @@
 
   <script src="config.js"></script>
   <script>
-    const SUPABASE_URL = window.ENV.SUPABASE_URL;
-    const SUPABASE_KEY = window.ENV.SUPABASE_KEY;
+    const SUPABASE_URL     = window.ENV.SUPABASE_URL;
+    const SUPABASE_KEY     = window.ENV.SUPABASE_KEY;
     const EDGE_FUNCTION_URL = window.ENV.EDGE_FUNCTION_URL;
 
-    const urlParams = new URLSearchParams(window.location.search);
-    const numRaw = urlParams.get('num') || urlParams.get('numero') || '';
+    const urlParams   = new URLSearchParams(window.location.search);
+    const numRaw      = urlParams.get('num') || urlParams.get('numero') || '';
     const cleanNumber = numRaw.replace(/\D/g, '');
-    const numero = cleanNumber ? `+${cleanNumber}` : null;
-    const matchId = urlParams.get('match') || urlParams.get('match_id') || null;
+    const numero      = cleanNumber ? `+${cleanNumber}` : null;
+    const matchId     = urlParams.get('match') || urlParams.get('match_id') || null;
 
     if (!numero) {
       document.querySelector('#form-header p').innerHTML +=
         '<br><strong style="color:var(--error);font-size:12px;">⚠ Error: Falta el teléfono en la URL.</strong>';
     }
 
+    // ── AUTOCAPITALIZE — JS fallback for devices that ignore the attribute ──
+    const nombreInput = document.getElementById('input-nombre');
+
+    function capitalizeWords(str) {
+      return str.replace(/\b\w/g, c => c.toUpperCase());
+    }
+
+    nombreInput.addEventListener('input', () => {
+      const pos   = nombreInput.selectionStart;
+      const upper = capitalizeWords(nombreInput.value);
+      if (upper !== nombreInput.value) {
+        nombreInput.value = upper;
+        // Restore cursor position after value change
+        nombreInput.setSelectionRange(pos, pos);
+      }
+    });
+
+    // Also capitalize on blur to catch paste events
+    nombreInput.addEventListener('blur', () => {
+      nombreInput.value = capitalizeWords(nombreInput.value);
+    });
+
     // ── DATE INPUT LOGIC ──
-    // type="tel" with maxlength enforces the digit cap and auto-advances focus
     const inpDay   = document.getElementById('inp-day');
     const inpMonth = document.getElementById('inp-month');
     const inpYear  = document.getElementById('inp-year');
@@ -280,15 +380,15 @@
 
     // ── SUBMIT ──
     document.getElementById('btn-submit').onclick = async () => {
-      const nomEl      = document.getElementById('input-nombre');
-      const errNom     = document.getElementById('err-nombre');
-      const errFecha   = document.getElementById('err-fecha');
-      const errorBox   = document.getElementById('error-box');
+      const nomEl       = document.getElementById('input-nombre');
+      const errNom      = document.getElementById('err-nombre');
+      const errFecha    = document.getElementById('err-fecha');
+      const errorBox    = document.getElementById('error-box');
       const errorDetail = document.getElementById('error-detail');
 
       let valid = true;
 
-      // Name
+      // Name validation
       if (!nomEl.value.trim() || nomEl.value.trim().split(/\s+/).length < 2) {
         nomEl.classList.add('error');
         errNom.classList.add('visible');
@@ -297,18 +397,19 @@
           : 'Ingresa también tu apellido.';
         valid = false;
       } else {
-        nomEl.classList.remove('error'); errNom.classList.remove('visible');
+        nomEl.classList.remove('error');
+        errNom.classList.remove('visible');
       }
 
-      // Date
+      // Date validation
       const d  = parseInt(inpDay.value);
       const mo = parseInt(inpMonth.value);
       const y  = parseInt(inpYear.value);
       const dateValid = d >= 1 && d <= 31 && mo >= 1 && mo <= 12 && y >= 1920 && y <= 2020;
 
       if (!dateValid) {
-        inpDay.classList.toggle('error',   !(d  >= 1  && d  <= 31));
-        inpMonth.classList.toggle('error', !(mo >= 1  && mo <= 12));
+        inpDay.classList.toggle('error',   !(d  >= 1   && d  <= 31));
+        inpMonth.classList.toggle('error', !(mo >= 1   && mo <= 12));
         inpYear.classList.toggle('error',  !(y  >= 1920 && y <= 2020));
         errFecha.classList.add('visible');
         valid = false;
@@ -322,12 +423,12 @@
       if (!valid) return;
       errorBox.classList.remove('visible');
 
-      const dd = String(d).padStart(2, '0');
-      const mm = String(mo).padStart(2, '0');
+      const dd         = String(d).padStart(2, '0');
+      const mm         = String(mo).padStart(2, '0');
       const nombreFull = nomEl.value.trim();
 
       const btn = document.getElementById('btn-submit');
-      btn.disabled = true;
+      btn.disabled    = true;
       btn.textContent = 'Procesando...';
 
       try {
@@ -335,10 +436,10 @@
         const resPersona = await fetch(`${SUPABASE_URL}/rest/v1/personas`, {
           method: 'POST',
           headers: {
-            'apikey': SUPABASE_KEY,
+            'apikey':        SUPABASE_KEY,
             'Authorization': `Bearer ${SUPABASE_KEY}`,
-            'Content-Type': 'application/json',
-            'Prefer': 'return=representation'
+            'Content-Type':  'application/json',
+            'Prefer':        'return=representation'
           },
           body: JSON.stringify({
             nombre:    nombreFull,
@@ -361,12 +462,12 @@
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
-              'apikey': SUPABASE_KEY
+              'apikey':        SUPABASE_KEY
             },
             body: JSON.stringify({
               data: {
                 fromNumber: numero,
-                body: `/anotarme ${matchId}`
+                body:       `/anotarme ${matchId}`
               }
             })
           });
@@ -389,16 +490,16 @@
 
         // 3. Mostrar éxito
         document.getElementById('form-header').style.display = 'none';
-        document.getElementById('main-form').style.display = 'none';
-        document.getElementById('success-name').textContent = nombreFull;
+        document.getElementById('main-form').style.display   = 'none';
+        document.getElementById('success-name').textContent  = nombreFull;
         document.getElementById('success-screen').classList.add('active');
 
       } catch (e) {
         console.error('Error:', e);
         errorDetail.textContent = e.message;
         errorBox.classList.add('visible');
-        btn.disabled = false;
-        btn.textContent = 'Registrarme ✓';
+        btn.disabled    = false;
+        btn.textContent = 'Registrarme';
       }
     };
   </script>
