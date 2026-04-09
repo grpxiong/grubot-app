@@ -1,399 +1,465 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
-  <meta charset="UTF-8" />
-  <title>Editar Pichanga</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
-  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="style.css">
-  
+    <meta charset="UTF-8" />
+    <title>Editar Pichanga | Grubot</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500;600&display=swap"
+        rel="stylesheet" />
+    <link rel="stylesheet" href="style.css">
+    <style>
+        /* Estilos para botones de limpiar y UI */
+        .ui-input-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .btn-clear {
+            position: absolute;
+            right: 10px;
+            background: #eee;
+            border: none;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            font-size: 10px;
+            cursor: pointer;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            color: #666;
+        }
+
+        .btn-clear.visible {
+            display: flex;
+        }
+
+        #payment-details {
+            display: none;
+            flex-direction: column;
+            gap: 12px;
+            margin-top: 15px;
+        }
+
+        #payment-details.visible {
+            display: flex;
+        }
+    </style>
 </head>
+
 <body>
-  <main class="page" id="page">
-    <!-- Header -->
-    <header class="header" id="header-view">
-      <h1 class="h1-brand">Edita la <span>pichanga</span></h1>
-      <p class="subtitle">Actualiza los datos y guarda los cambios.</p>
-    </header>
+    <main class="page">
+        <header class="header" id="header-view">
+            <h1 class="h1-brand">Editar <span>pichanga</span></h1>
+            <p class="subtitle">Actualiza los datos y guarda los cambios.</p>
+        </header>
 
-    <!-- Skeleton -->
-    <div id="skeleton" class="form">
-      <div class="card">
-        <div class="skeleton" style="height:12px;width:60px;border-radius:4px"></div>
-        <div class="skeleton"></div>
-        <div class="skeleton"></div>
-      </div>
-      <div class="card">
-        <div class="skeleton" style="height:12px;width:80px;border-radius:4px"></div>
-        <div class="grid-2"><div class="skeleton"></div><div class="skeleton"></div></div>
-        <div class="grid-2"><div class="skeleton"></div><div class="skeleton"></div></div>
-        <div class="skeleton"></div>
-      </div>
-      <div class="card">
-        <div class="skeleton" style="height:12px;width:40px;border-radius:4px"></div>
-        <div class="skeleton"></div>
-        <div class="grid-2"><div class="skeleton"></div><div class="skeleton"></div></div>
-        <div class="grid-2"><div class="skeleton"></div><div class="skeleton"></div></div>
-      </div>
-      <div class="skeleton" style="height:48px;border-radius:12px"></div>
-    </div>
-
-    <!-- Real form, hidden until data loads -->
-    <form class="form" id="edit-form" style="display:none;">
-      <!-- Evento -->
-      <div class="card">
-        <div class="card-label">Evento</div>
-        <div class="field">
-          <label class="label" for="p-title">Nombre</label>
-          <input type="text" id="p-title" class="ui-input" placeholder="Ej: Los Galácticos" />
+        <div id="skeleton" class="form">
+            <div class="card">
+                <div class="skeleton" style="height:12px;width:60px;border-radius:4px"></div>
+                <div class="skeleton"></div>
+                <div class="skeleton"></div>
+            </div>
+            <div class="card">
+                <div class="skeleton" style="height:48px;border-radius:12px"></div>
+            </div>
         </div>
-        <div class="field">
-          <label class="label" for="p-lugar">Lugar</label>
-          <input type="text" id="p-lugar" class="ui-input" placeholder="Cancha o dirección" autocomplete="off" />
+
+        <form class="form" id="edit-form" style="display:none;">
+
+            <div class="card">
+                <div class="field">
+                    <label class="label">Nombre del partido</label>
+                    <div class="ui-input-wrapper">
+                        <input type="text" id="p-title" class="ui-input" autocapitalize="characters" />
+                        <button type="button" class="btn-clear visible" data-target="p-title">✕</button>
+                    </div>
+                </div>
+                <div class="field">
+                    <label class="label">Lugar</label>
+                    <div class="ui-input-wrapper">
+                        <input type="text" id="p-lugar" class="ui-input" />
+                        <button type="button" class="btn-clear visible" data-target="p-lugar">✕</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-label">Horario y capacidad</div>
+                <div class="selector-row">
+                    <div class="selector-wrap">
+                        <span class="label">Fecha</span>
+                        <input type="date" id="p-date" class="sel" />
+                    </div>
+                    <div class="selector-wrap">
+                        <span class="label">Inicio</span>
+                        <input type="time" id="p-start" class="sel" />
+                    </div>
+                    <div class="selector-wrap">
+                        <span class="label">Fin</span>
+                        <input type="time" id="p-end" class="sel" />
+                    </div>
+                </div>
+
+                <div class="grid-2" style="align-items:center;margin-top:2px;">
+                    <div class="field">
+                        <label class="label">Cupos</label>
+                        <div class="stepper">
+                            <button type="button" class="btn-step" id="step-minus">−</button>
+                            <span class="stepper-val" id="player-val">15</span>
+                            <button type="button" class="btn-step" id="step-plus">+</button>
+                            <input type="hidden" id="p-count" value="15">
+                        </div>
+                    </div>
+                    <div class="field">
+                        <div class="toggle-row" style="margin-top:22px;">
+                            <span class="label">Permitir suplentes</span>
+                            <label class="switch">
+                                <input type="checkbox" id="p-backups">
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-label">Cuota</div>
+                <div class="segmented">
+                    <div>
+                        <input type="radio" name="pay-toggle" id="pay-free" />
+                        <label class="btn-seg" for="pay-free">Libre</label>
+                    </div>
+                    <div>
+                        <input type="radio" name="pay-toggle" id="pay-paid" />
+                        <label class="btn-seg" for="pay-paid">Con cuota</label>
+                    </div>
+                </div>
+
+                <div id="payment-details">
+                    <div class="field">
+                        <label class="label">Monto (S/)</label>
+                        <input type="text" id="p-quota" class="ui-input" inputmode="decimal"
+                            style="text-align:right;font-weight:600;" />
+                    </div>
+                    <div class="segmented">
+                        <div>
+                            <input type="radio" name="pay-method" id="cb-yape" checked />
+                            <label class="btn-seg" for="cb-yape">Yape</label>
+                        </div>
+                        <div>
+                            <input type="radio" name="pay-method" id="cb-plin" />
+                            <label class="btn-seg" for="cb-plin">Plin</label>
+                        </div>
+                    </div>
+                    <div class="field">
+                        <label class="label">Titular</label>
+                        <input type="text" id="p-nom" class="ui-input" />
+                    </div>
+                    <div class="field">
+                        <label class="label">Número de pago</label>
+                        <input type="text" id="p-num" class="ui-input" inputmode="numeric" maxlength="9" />
+                    </div>
+                </div>
+            </div>
+
+            <div class="error-box" id="error-box">
+                <strong>Error al guardar</strong>
+                <code id="error-detail"></code>
+            </div>
+
+            <div class="actions">
+                <button type="submit" class="btn-primary" id="btn-save">Guardar cambios</button>
+                <button type="button" class="btn-ghost" id="btn-cancel">Cancelar</button>
+            </div>
+        </form>
+
+        <div class="success-view" id="success-view">
+            <div class="success-icon">✓</div>
+            <h2 style="font-family:'Syne',sans-serif;font-weight:800;">Cambios guardados</h2>
+            <p style="color:var(--text-muted);font-size:14px;">La pichanga fue actualizada correctamente.</p>
+            <button class="btn-primary" style="margin-top:20px;" onclick="window.history.back()">Volver</button>
         </div>
-      </div>
+    </main>
 
-      <!-- Horario -->
-      <div class="card">
-        <div class="card-label">Horario &amp; Jugadores</div>
-        <div class="grid-2">
-          <div class="field">
-            <label class="label" for="p-date">Fecha</label>
-            <input type="date" id="p-date" class="ui-input" />
-          </div>
-          <div class="field">
-            <label class="label" for="p-count">Jugadores</label>
-            <input type="number" id="p-count" class="ui-input" min="2" />
-          </div>
-        </div>
-        <div class="grid-2">
-          <div class="field">
-            <label class="label" for="p-start">Inicio</label>
-            <input type="time" id="p-start" class="ui-input" />
-          </div>
-          <div class="field">
-            <label class="label" for="p-end">Fin</label>
-            <input type="time" id="p-end" class="ui-input" />
-          </div>
-        </div>
-        <div class="toggle-row">
-          <span class="label">Permitir suplentes</span>
-          <label class="switch">
-            <input type="checkbox" id="p-backups">
-            <span class="slider"></span>
-          </label>
-        </div>
-      </div>
+    <script src="config.js"></script>
+    <script>
+        // ─── CONFIGURACIÓN Y VARIABLES ───
+        const SUPABASE_URL = window.ENV.SUPABASE_URL;
+        const SUPABASE_KEY = window.ENV.SUPABASE_KEY;
+        const params = new URLSearchParams(window.location.search);
+        const recordId = params.get('id');
 
-      <!-- Pago -->
-      <div class="card">
-        <div class="card-label">Pago</div>
-        <div class="field">
-          <label class="label" for="p-quota">Cuota por persona (S/)</label>
-          <input type="text" id="p-quota" class="ui-input" inputmode="decimal" />
-        </div>
-        <div class="segmented">
-          <div>
-            <input type="radio" name="pay-method" id="cb-yape" checked />
-            <label class="btn-seg" for="cb-yape">Yape</label>
-          </div>
-          <div>
-            <input type="radio" name="pay-method" id="cb-plin" />
-            <label class="btn-seg" for="cb-plin">Plin</label>
-          </div>
-        </div>
-        <div class="grid-2">
-          <div class="field">
-            <label class="label" for="p-num">Número</label>
-            <input type="text" id="p-num" class="ui-input" placeholder="999888777" inputmode="numeric" maxlength="9" pattern="[0-9]*" />
-          </div>
-          <div class="field">
-            <label class="label" for="p-nom">Titular</label>
-            <input type="text" id="p-nom" class="ui-input" placeholder="Nombre" />
-          </div>
-        </div>
-      </div>
+        let quotaCents = 0;
 
-      <div class="error-box" id="error-box">
-        <strong>Error al guardar</strong>
-        <code id="error-detail"></code>
-      </div>
+        // ─── REFERENCIAS DE UI ───
+        const skeleton = document.getElementById('skeleton');
+        const editForm = document.getElementById('edit-form');
+        const btnSave = document.getElementById('btn-save');
+        const errorBox = document.getElementById('error-box');
+        const errorDetail = document.getElementById('error-detail');
 
-      <div class="actions">
-        <button type="submit" class="btn-primary" id="btn-save">Guardar cambios</button>
-        <button type="button" class="btn-ghost" id="btn-cancel">Cancelar</button>
-      </div>
-    </form>
+        // Campos de validación
+        const titleInput = document.getElementById('p-title');
+        const lugarInput = document.getElementById('p-lugar');
+        const quotaInput = document.getElementById('p-quota');
+        const nomInput = document.getElementById('p-nom');
+        const phoneInput = document.getElementById('p-num');
+        const payPaid = document.getElementById('pay-paid'); // Radio "Con cuota"
+        const pCount = document.getElementById('p-count');
+        const playerVal = document.getElementById('player-val');
 
-    <!-- Success (pre-built in DOM, hidden until needed) -->
-    <div class="success-view" id="success-view">
-      <div class="success-icon">✓</div>
-      <h2>Cambios guardados</h2>
-      <p>La pichanga fue actualizada correctamente.</p>
-      <button class="btn-primary" style="margin-top:20px;max-width:200px" onclick="window.close()">Cerrar</button>
-    </div>
-  </main>
+    // ─── 2. Clear buttons for Nombre and Lugar ───
+    function setupClearButton(btnEl) {
+      const targetId = btnEl.dataset.target;
+      const input = document.getElementById(targetId);
 
-  <script src="config.js"></script>
-  <script>
-    const SUPABASE_URL = window.ENV.SUPABASE_URL;
-    const SUPABASE_KEY = window.ENV.SUPABASE_KEY;
-
-    const params = new URLSearchParams(window.location.search);
-    const recordId = params.get('id');
-
-    const skeleton = document.getElementById('skeleton');
-    const editForm = document.getElementById('edit-form');
-    const errorBox = document.getElementById('error-box');
-    const errorDetail = document.getElementById('error-detail');
-    const btnSave = document.getElementById('btn-save');
-    const quotaInput = document.getElementById('p-quota');
-    const phoneInput = document.getElementById('p-num');
-
-    // ─── ATM-style quota input (right-to-left) ───
-    let quotaCents = 0;
-
-    quotaInput.addEventListener('keydown', (e) => {
-      const allowed = ['Backspace', 'Delete', 'Tab', 'Escape', 'Enter',
-                        'ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'];
-      if (allowed.includes(e.key)) {
-        if (e.key === 'Backspace') {
-          e.preventDefault();
-          quotaCents = Math.floor(quotaCents / 10);
-          quotaInput.value = (quotaCents / 100).toFixed(2);
-        }
-        return;
-      }
-      if (!/^[0-9]$/.test(e.key)) { e.preventDefault(); return; }
-      e.preventDefault();
-      if (quotaCents >= 999999) return;
-      quotaCents = quotaCents * 10 + parseInt(e.key, 10);
-      quotaInput.value = (quotaCents / 100).toFixed(2);
-    });
-
-    quotaInput.addEventListener('focus', () => { quotaInput.select(); });
-
-    quotaInput.addEventListener('paste', (e) => {
-      e.preventDefault();
-      const pasted = (e.clipboardData || window.clipboardData).getData('text');
-      const digits = pasted.replace(/\D/g, '');
-      if (digits) {
-        quotaCents = parseInt(digits, 10);
-        if (quotaCents > 999999) quotaCents = 999999;
-        quotaInput.value = (quotaCents / 100).toFixed(2);
-      }
-    });
-
-    // ─── Número input — only allow digits ───
-    phoneInput.addEventListener('keydown', (e) => {
-      const allowed = ['Backspace', 'Delete', 'Tab', 'Escape', 'Enter',
-                        'ArrowLeft', 'ArrowRight', 'Home', 'End'];
-      if (allowed.includes(e.key) || e.ctrlKey || e.metaKey) return;
-      if (!/^[0-9]$/.test(e.key)) { e.preventDefault(); }
-    });
-
-    phoneInput.addEventListener('paste', (e) => {
-      e.preventDefault();
-      const pasted = (e.clipboardData || window.clipboardData).getData('text');
-      phoneInput.value = pasted.replace(/\D/g, '').slice(0, 9);
-    });
-
-    // ─── Google Places Autocomplete ───
-    function initAutocomplete() {
-      const input = document.getElementById('p-lugar');
-      if (!input) return;
-
-      const autocomplete = new google.maps.places.Autocomplete(input, {
-        componentRestrictions: { country: 'pe' },
-        fields: ['formatted_address', 'geometry', 'name'],
-        types: ['establishment', 'geocode'],
-      });
-
-      const observer = new MutationObserver(() => {
-        const pac = document.querySelector('.pac-container');
-        if (pac && pac.parentElement !== document.body) {
-          document.body.appendChild(pac);
-        }
-      });
-      observer.observe(document.body, { childList: true, subtree: true });
-
-      input.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter') e.preventDefault();
-      });
-
-      autocomplete.addListener('place_changed', () => {
-        const place = autocomplete.getPlace();
-        if (!place.geometry) return;
-        const name = place.name || '';
-        const addr = place.formatted_address || '';
-        if (name && addr && !addr.startsWith(name)) {
-          input.value = `${name} - ${addr}`;
-        } else {
-          input.value = addr || name;
-        }
-        const clearBtn = input.parentElement.querySelector('.btn-clear');
-        if (clearBtn) clearBtn.classList.toggle('visible', input.value.length > 0);
-      });
-    }
-
-    // Load Google Maps API dynamically
-    (function loadGoogle() {
-      if (!window.ENV?.GOOGLE_MAPS_KEY) {
-        console.warn('Falta GOOGLE_MAPS_KEY en config.js — Places autocomplete desactivado.');
-        return;
-      }
-      const script = document.createElement('script');
-      script.src = `https://maps.googleapis.com/maps/api/js?key=${window.ENV.GOOGLE_MAPS_KEY}&libraries=places&callback=initAutocomplete`;
-      script.async = true;
-      script.defer = true;
-      document.head.appendChild(script);
-    })();
-
-    // ─── Helpers ───
-    function showError(msg) {
-      errorDetail.textContent = msg;
-      errorBox.classList.add('visible');
-      errorBox.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-    }
-
-    function hideError() {
-      errorBox.classList.remove('visible');
-    }
-
-    // ─── Show success (toggle visibility, no DOM destruction) ───
-    function showSuccess() {
-      document.getElementById('header-view').style.display = 'none';
-      document.getElementById('skeleton').style.display = 'none';
-      document.getElementById('edit-form').style.display = 'none';
-      document.getElementById('success-view').classList.add('active');
-    }
-
-    // ─── Load existing pichanga data ───
-    if (!recordId) {
-      skeleton.innerHTML = `<p style="color:var(--error);font-weight:600;font-size:14px;">⚠ No se encontró ID de pichanga en la URL.</p>`;
-    } else {
-      (async () => {
-        try {
-          const res = await fetch(`${SUPABASE_URL}/rest/v1/pichangas?id_pichanga_pub=eq.${recordId}`, {
-            headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${SUPABASE_KEY}` }
-          });
-          const data = await res.json();
-          const p = data[0];
-          if (!p) throw new Error('Pichanga no encontrada.');
-
-          document.getElementById('p-title').value  = p.titulo || '';
-          document.getElementById('p-lugar').value  = p.lugar || '';
-          document.getElementById('p-date').value   = p.fecha_pichanga || '';
-          document.getElementById('p-start').value  = p.hora_inicio || '';
-          document.getElementById('p-end').value    = p.hora_fin || '';
-          document.getElementById('p-count').value  = p.cantidad || '';
-          document.getElementById('p-backups').checked = p.permite_backups ?? true;
-          document.getElementById('p-num').value    = p.numero_pago || '';
-          document.getElementById('p-nom').value    = p.titular_pago || '';
-
-          const cuota = p.cuota || 0;
-          quotaCents = Math.round(cuota * 100);
-          document.getElementById('p-quota').value = cuota.toFixed(2);
-
-          if (p.metodo_pago === 'PLIN') {
-            document.getElementById('cb-plin').checked = true;
-          } else {
-            document.getElementById('cb-yape').checked = true;
-          }
-
-          skeleton.style.display = 'none';
-          editForm.style.display = 'flex';
-
-        } catch (err) {
-          skeleton.innerHTML = `<p style="color:var(--error);font-weight:600;font-size:14px;">⚠ ${err.message}</p>`;
-        }
-      })();
-    }
-
-    document.getElementById('btn-cancel').addEventListener('click', () => window.history.back());
-
-    // ─── Submit ───
-    document.getElementById('edit-form').addEventListener('submit', async (e) => {
-      e.preventDefault();
-      hideError();
-
-      const updateData = {
-        titulo:          document.getElementById('p-title').value.trim(),
-        lugar:           document.getElementById('p-lugar').value.trim(),
-        fecha_pichanga:  document.getElementById('p-date').value,
-        hora_inicio:     document.getElementById('p-start').value,
-        hora_fin:        document.getElementById('p-end').value,
-        cuota:           parseFloat(document.getElementById('p-quota').value),
-        cantidad:        parseInt(document.getElementById('p-count').value, 10),
-        permite_backups: document.getElementById('p-backups').checked,
-        metodo_pago:     document.getElementById('cb-yape').checked ? 'YAPE' : 'PLIN',
-        numero_pago:     document.getElementById('p-num').value.trim(),
-        titular_pago:    document.getElementById('p-nom').value.trim(),
-      };
-
-      if (!updateData.lugar) {
-        showError('El lugar no puede estar vacío.');
-        return;
+      function toggleVisibility() {
+        btnEl.classList.toggle('visible', input.value.length > 0);
       }
 
-      btnSave.disabled = true;
-      btnSave.textContent = 'Guardando...';
+      btnEl.addEventListener('click', () => {
+        input.value = '';
+        btnEl.classList.remove('visible');
+        input.focus();
+        // Dispatch input event so other listeners react
+        input.dispatchEvent(new Event('input', { bubbles: true }));
+      });
 
-      try {
-        // 1. Update in Supabase
-        const res = await fetch(`${SUPABASE_URL}/rest/v1/pichangas?id_pichanga_pub=eq.${recordId}`, {
-          method: 'PATCH',
-          headers: {
-            apikey: SUPABASE_KEY,
-            Authorization: `Bearer ${SUPABASE_KEY}`,
-            'Content-Type': 'application/json',
-            Prefer: 'return=representation'
-          },
-          body: JSON.stringify(updateData)
+      input.addEventListener('input', toggleVisibility);
+      // Initialize on load
+      toggleVisibility();
+    }
+
+    document.querySelectorAll('.btn-clear').forEach(setupClearButton);
+        
+        // ─── LOGICA DE VALIDACIÓN (Habilitar/Deshabilitar botón) ───
+        function validateForm() {
+            const isPaid = payPaid ? payPaid.checked : false;
+
+            // Obligatorios base
+            const hasTitle = titleInput.value.trim().length > 0;
+            const hasLugar = lugarInput.value.trim().length > 0;
+
+            let isValid = hasTitle && hasLugar;
+
+            // Obligatorios condicionales (si es con cuota)
+            if (isPaid) {
+                const hasQuota = parseFloat(quotaInput.value) > 0;
+                const hasNom = nomInput.value.trim().length > 0;
+                const hasNum = phoneInput.value.trim().length === 9; // Celular Peruano
+
+                isValid = isValid && hasQuota && hasNom && hasNum;
+            }
+
+            btnSave.disabled = !isValid;
+        }
+
+        // ─── FORMATO Y EVENTOS DE INPUT ───
+
+        // Título: Solo letras/números y siempre Mayúsculas
+        titleInput.addEventListener('input', () => {
+            titleInput.value = titleInput.value.replace(/[^A-Za-z0-9\s#\-_.]/g, '').toUpperCase();
+            validateForm();
         });
 
-        if (!res.ok) {
-          const body = await res.json().catch(() => null);
-          const msg = body?.message || body?.error || JSON.stringify(body) || `HTTP ${res.status}`;
-          throw new Error(`[${res.status}] ${msg}`);
-        }
+        // Lugar: Validar al escribir
+        lugarInput.addEventListener('input', validateForm);
 
-        const data = await res.json();
-        const updatedPichanga = data[0];
+        // Cuota: Estilo ATM (derecha a izquierda)
+        quotaInput.addEventListener('keydown', (e) => {
+            const allowed = ['Backspace', 'Delete', 'Tab', 'Escape', 'Enter', 'ArrowLeft', 'ArrowRight'];
+            if (allowed.includes(e.key)) {
+                if (e.key === 'Backspace') {
+                    e.preventDefault();
+                    quotaCents = Math.floor(quotaCents / 10);
+                    quotaInput.value = (quotaCents / 100).toFixed(2);
+                    validateForm();
+                }
+                return;
+            }
+            if (!/^[0-9]$/.test(e.key)) { e.preventDefault(); return; }
+            e.preventDefault();
+            if (quotaCents >= 999999) return;
+            quotaCents = quotaCents * 10 + parseInt(e.key, 10);
+            quotaInput.value = (quotaCents / 100).toFixed(2);
+            validateForm();
+        });
 
-        // 2. Notify n8n — same pattern as working create form
-        const n8nData = {
-          event: 'pichanga_created',
-          match_id: updatedPichanga.id_pichanga_pub,
-          pichanga: updatedPichanga
+        // Número de pago: Solo 9 dígitos
+        phoneInput.addEventListener('input', () => {
+            phoneInput.value = phoneInput.value.replace(/\D/g, '').slice(0, 9);
+            validateForm();
+        });
+
+        // Titular: Validar al escribir
+        nomInput.addEventListener('input', validateForm);
+
+        // Radios de Pago: Validar al cambiar
+        document.querySelectorAll('input[name="pay-toggle"]').forEach(radio => {
+            radio.addEventListener('change', () => {
+                const isPaid = payPaid.checked;
+                document.getElementById('payment-details').classList.toggle('visible', isPaid);
+                validateForm();
+            });
+        });
+
+        // Stepper de Jugadores
+        document.getElementById('step-minus').onclick = () => {
+            let v = parseInt(pCount.value);
+            if (v > 2) { v--; pCount.value = v; playerVal.textContent = v; }
+        };
+        document.getElementById('step-plus').onclick = () => {
+            let v = parseInt(pCount.value);
+            if (v < 40) { v++; pCount.value = v; playerVal.textContent = v; }
         };
 
-        try {
-          await fetch(`${SUPABASE_URL}/functions/v1/trigger-webhook`, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              apikey: SUPABASE_KEY,
-              Authorization: `Bearer ${SUPABASE_KEY}`
-            },
-            body: JSON.stringify(n8nData),
-            keepalive: true
-          });
-          console.log('[Grubot] webhook sent via edge function');
-        } catch (n8nErr) {
-          console.warn('[Grubot] webhook failed, record saved:', n8nErr);
+        // ─── GOOGLE PLACES ───
+        function initAutocomplete() {
+            if (!lugarInput) return;
+            const autocomplete = new google.maps.places.Autocomplete(lugarInput, {
+                componentRestrictions: { country: 'pe' },
+                fields: ['formatted_address', 'name', 'geometry'],
+            });
+
+            autocomplete.addListener('place_changed', () => {
+                const place = autocomplete.getPlace();
+                if (!place.geometry) return;
+                const name = place.name || '';
+                const addr = place.formatted_address || '';
+                lugarInput.value = (name && addr && !addr.startsWith(name)) ? `${name} - ${addr}` : (addr || name);
+
+                // Trigger validación y botón de limpiar
+                validateForm();
+                const clearBtn = lugarInput.parentElement.querySelector('.btn-clear');
+                if (clearBtn) clearBtn.classList.toggle('visible', lugarInput.value.length > 0);
+            });
         }
 
-        // 3. Show success — only AFTER n8n fetch resolves
-        showSuccess();
+        // ─── CARGA DE DATOS ───
+        async function loadPichanga() {
+            if (!recordId) {
+                skeleton.innerHTML = `<p style="color:var(--error);">⚠ ID no válido en la URL.</p>`;
+                return;
+            }
 
-      } catch (err) {
-        console.error('Error:', err);
-        showError(err.message);
-        btnSave.disabled = false;
-        btnSave.textContent = 'Guardar cambios';
-      }
-    });
-  </script>
+            try {
+                const res = await fetch(`${SUPABASE_URL}/rest/v1/pichangas?id_pichanga_pub=eq.${recordId}`, {
+                    headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${SUPABASE_KEY}` }
+                });
+                const data = await res.json();
+                const p = data[0];
+                if (!p) throw new Error('Pichanga no encontrada.');
+
+                // Inyectar valores
+                titleInput.value = p.titulo || '';
+                lugarInput.value = p.lugar || '';
+                document.getElementById('p-date').value = p.fecha_pichanga || '';
+                document.getElementById('p-start').value = p.hora_inicio || '';
+                document.getElementById('p-end').value = p.hora_fin || '';
+                document.getElementById('p-backups').checked = p.permite_backups ?? true;
+                pCount.value = p.cantidad || 15;
+                playerVal.textContent = p.cantidad || 15;
+
+                // Lógica de cuota inicial
+                if (p.cuota > 0) {
+                    payPaid.checked = true;
+                    document.getElementById('payment-details').classList.add('visible');
+                    quotaCents = Math.round(p.cuota * 100);
+                    quotaInput.value = p.cuota.toFixed(2);
+                    nomInput.value = p.titular_pago || '';
+                    phoneInput.value = p.numero_pago || '';
+                    if (p.metodo_pago === 'PLIN') document.getElementById('cb-plin').checked = true;
+                } else {
+                    document.getElementById('pay-free').checked = true;
+                    quotaInput.value = "0.00";
+                }
+
+                skeleton.style.display = 'none';
+                editForm.style.display = 'flex';
+
+                validateForm(); // Habilitar botón si todo está OK
+
+            } catch (err) {
+                skeleton.innerHTML = `<p style="color:var(--error);">⚠ Error: ${err.message}</p>`;
+            }
+        }
+
+        // ─── SUBMIT (Guardar cambios) ───
+        editForm.onsubmit = async (e) => {
+            e.preventDefault();
+            errorBox.classList.remove('visible');
+
+            const isPaid = payPaid.checked;
+            btnSave.disabled = true;
+            btnSave.textContent = 'Guardando...';
+
+            const updateData = {
+                titulo: titleInput.value.trim(),
+                lugar: lugarInput.value.trim(),
+                fecha_pichanga: document.getElementById('p-date').value,
+                hora_inicio: document.getElementById('p-start').value,
+                hora_fin: document.getElementById('p-end').value,
+                cantidad: parseInt(pCount.value),
+                permite_backups: document.getElementById('p-backups').checked,
+                cuota: isPaid ? parseFloat(quotaInput.value) : 0,
+                metodo_pago: isPaid ? (document.getElementById('cb-yape').checked ? 'YAPE' : 'PLIN') : 'N/A',
+                numero_pago: isPaid ? phoneInput.value : '',
+                titular_pago: isPaid ? nomInput.value : ''
+            };
+
+            try {
+                const res = await fetch(`${SUPABASE_URL}/rest/v1/pichangas?id_pichanga_pub=eq.${recordId}`, {
+                    method: 'PATCH',
+                    headers: {
+                        apikey: SUPABASE_KEY,
+                        Authorization: `Bearer ${SUPABASE_KEY}`,
+                        'Content-Type': 'application/json',
+                        'Prefer': 'return=representation'
+                    },
+                    body: JSON.stringify(updateData)
+                });
+
+                if (!res.ok) throw new Error('Error al actualizar en base de datos');
+
+                // Notificar a n8n vía Edge Function
+                const updated = (await res.json())[0];
+                await fetch(`${SUPABASE_URL}/functions/v1/trigger-webhook`, {
+                    method: 'POST',
+                    headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${SUPABASE_KEY}`, 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ event: 'pichanga_updated', match_id: recordId, pichanga: updated })
+                }).catch(err => console.warn('Webhook notification failed', err));
+
+                // Éxito
+                document.getElementById('header-view').style.display = 'none';
+                editForm.style.display = 'none';
+                document.getElementById('success-view').classList.add('active');
+
+            } catch (err) {
+                errorDetail.textContent = err.message;
+                errorBox.classList.add('visible');
+                btnSave.disabled = false;
+                btnSave.textContent = 'Guardar cambios';
+            }
+        };
+
+        // ─── INICIALIZACIÓN ───
+        document.addEventListener('DOMContentLoaded', () => {
+            loadPichanga();
+
+            // Carga dinámica de Google Maps
+            if (window.ENV?.GOOGLE_MAPS_KEY) {
+                const script = document.createElement('script');
+                script.src = `https://maps.googleapis.com/maps/api/js?key=${window.ENV.GOOGLE_MAPS_KEY}&libraries=places&callback=initAutocomplete`;
+                script.async = true;
+                document.head.appendChild(script);
+            }
+        });
+
+        document.getElementById('btn-cancel').onclick = () => window.history.back();
+    </script>
 </body>
+
 </html>
