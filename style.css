@@ -218,6 +218,29 @@ button, input, select, textarea {
 .btn-add:active { background: var(--primary-hover); transform: scale(0.93); }
 .btn-add svg { width: 20px; height: 20px; }
 
+.btn-edit-float {
+  position: absolute;
+  top: 50%;
+  right: 0;
+  transform: translateY(-50%);
+  width: 40px;
+  height: 40px;
+  border: none;
+  border-radius: 25px;
+  background: var(--primary);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(5, 150, 105, 0.3);
+  transition: background 0.15s, transform 0.1s;
+  touch-action: manipulation;
+  flex-shrink: 0;
+}
+.btn-edit-float:active { background: var(--primary-hover); transform: translateY(-50%) scale(0.93); }
+.btn-edit-float svg    { width: 16px; height: 16px; }
+
 .btn-back {
   display: flex; align-items: center; gap: 6px; border: none; background: none;
   color: var(--primary); font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 700;
