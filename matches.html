@@ -1,373 +1,691 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
-  <script src="config.js"></script>
-  <script>
-    window.grubot = {
-      toast(msg) {
-        const t = document.createElement('div');
-        t.textContent = msg;
-        t.style.cssText = [
-          'position:fixed', 'bottom:24px', 'left:50%',
-          'transform:translateX(-50%)',
-          'background:#0f1f17', 'color:white',
-          'padding:10px 18px', 'border-radius:999px',
-          'font-size:13px', 'font-weight:600', 'z-index:9999'
-        ].join(';');
-        document.body.appendChild(t);
-        setTimeout(() => t.remove(), 2000);
-      }
-    };
-  </script>
-  <meta charset="UTF-8" />
-  <title>Grubot — Partidos</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no" />
-  <meta name="theme-color" content="#059669" />
-  <meta name="mobile-web-app-capable" content="yes" />
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-  <link rel="manifest" href="manifest.json" />
-  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="style.css" />
+    <script src="config.js"></script>
+    <script>
+        window.grubot = {
+            toast(msg) {
+                const t = document.createElement('div');
+                t.textContent = msg;
+                t.style.cssText = [
+                    'position:fixed', 'bottom:24px', 'left:50%',
+                    'transform:translateX(-50%)',
+                    'background:#0f1f17', 'color:white',
+                    'padding:10px 18px', 'border-radius:999px',
+                    'font-size:13px', 'font-weight:600', 'z-index:9999'
+                ].join(';');
+                document.body.appendChild(t);
+                setTimeout(() => t.remove(), 2000);
+            }
+        };
+    </script>
+    <meta charset="UTF-8" />
+    <title>Grubot — Partidos</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no" />
+    <meta name="theme-color" content="#059669" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <link rel="manifest" href="manifest.json" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700&display=swap"
+        rel="stylesheet" />
+    <link rel="stylesheet" href="style.css" />
 </head>
 
 <body>
-<div class="screen-wrap" id="partido-screen">
+    <div class="screen-wrap" id="partido-screen">
 
-  <!-- ═══════════════════════════════════════
+        <!-- ═══════════════════════════════════════
        VIEW 1: MATCH LIST
        ═══════════════════════════════════════ -->
-  <div id="match-list-view">
+        <div id="match-list-view">
 
-    <div class="section-header fade-in">
-      <div>
-        <h2 class="section-title">Tus <span>partidos</span></h2>
-        <p class="section-sub" id="match-count-label">Cargando...</p>
-      </div>
-      <button class="btn-add" id="btn-new-match" title="Crear partido">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-          <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
-        </svg>
-      </button>
-    </div>
+            <div class="section-header fade-in">
+                <div>
+                    <h2 class="section-title">Tus <span>partidos</span></h2>
+                    <p class="section-sub" id="match-count-label">Cargando...</p>
+                </div>
+                <button class="btn-add" id="btn-new-match" title="Crear partido">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <line x1="12" y1="5" x2="12" y2="19" />
+                        <line x1="5" y1="12" x2="19" y2="12" />
+                    </svg>
+                </button>
+            </div>
 
-    <div class="filter-row fade-in stagger-1" id="filter-row">
-      <button class="filter-chip active" data-filter="upcoming">Próximos</button>
-      <button class="filter-chip" data-filter="past">Anteriores</button>
-      <button class="filter-chip" data-filter="all">Todos</button>
-    </div>
+            <div class="filter-row fade-in stagger-1" id="filter-row">
+                <button class="filter-chip active" data-filter="upcoming">Próximos</button>
+                <button class="filter-chip" data-filter="past">Anteriores</button>
+                <button class="filter-chip" data-filter="all">Todos</button>
+            </div>
 
-    <div class="match-list" id="match-list"></div>
+            <div class="match-list" id="match-list"></div>
 
-    <div class="empty-state" id="empty-matches" style="display:none;">
-      <div class="empty-icon">🏟️</div>
-      <h3>Sin partidos</h3>
-      <p>Crea tu primera pichanga con el botón +</p>
-    </div>
+            <div class="empty-state" id="empty-matches" style="display:none;">
+                <div class="empty-icon">🏟️</div>
+                <h3>Sin partidos</h3>
+                <p>Crea tu primera pichanga con el botón +</p>
+            </div>
 
-    <div id="match-skeletons" class="match-list">
-      <div class="match-card-skeleton">
-        <div class="skeleton" style="height:14px;width:70%;border-radius:4px"></div>
-        <div style="display:flex;gap:12px;margin-top:10px;">
-          <div class="skeleton" style="height:12px;width:40%;border-radius:4px"></div>
-          <div class="skeleton" style="height:12px;width:30%;border-radius:4px"></div>
+            <div id="match-skeletons" class="match-list">
+                <div class="match-card-skeleton">
+                    <div class="skeleton" style="height:14px;width:70%;border-radius:4px"></div>
+                    <div style="display:flex;gap:12px;margin-top:10px;">
+                        <div class="skeleton" style="height:12px;width:40%;border-radius:4px"></div>
+                        <div class="skeleton" style="height:12px;width:30%;border-radius:4px"></div>
+                    </div>
+                    <div style="display:flex;gap:8px;margin-top:12px;">
+                        <div class="skeleton" style="height:28px;width:60px;border-radius:999px"></div>
+                        <div class="skeleton" style="height:28px;width:50px;border-radius:999px"></div>
+                    </div>
+                </div>
+                <div class="match-card-skeleton">
+                    <div class="skeleton" style="height:14px;width:55%;border-radius:4px"></div>
+                    <div style="display:flex;gap:12px;margin-top:10px;">
+                        <div class="skeleton" style="height:12px;width:35%;border-radius:4px"></div>
+                        <div class="skeleton" style="height:12px;width:25%;border-radius:4px"></div>
+                    </div>
+                    <div style="display:flex;gap:8px;margin-top:12px;">
+                        <div class="skeleton" style="height:28px;width:60px;border-radius:999px"></div>
+                        <div class="skeleton" style="height:28px;width:50px;border-radius:999px"></div>
+                    </div>
+                </div>
+                <div class="match-card-skeleton">
+                    <div class="skeleton" style="height:14px;width:70%;border-radius:4px"></div>
+                    <div style="display:flex;gap:12px;margin-top:10px;">
+                        <div class="skeleton" style="height:12px;width:40%;border-radius:4px"></div>
+                        <div class="skeleton" style="height:12px;width:30%;border-radius:4px"></div>
+                    </div>
+                    <div style="display:flex;gap:8px;margin-top:12px;">
+                        <div class="skeleton" style="height:28px;width:60px;border-radius:999px"></div>
+                        <div class="skeleton" style="height:28px;width:50px;border-radius:999px"></div>
+                    </div>
+                </div>
+                <div class="match-card-skeleton">
+                    <div class="skeleton" style="height:14px;width:70%;border-radius:4px"></div>
+                    <div style="display:flex;gap:12px;margin-top:10px;">
+                        <div class="skeleton" style="height:12px;width:40%;border-radius:4px"></div>
+                        <div class="skeleton" style="height:12px;width:30%;border-radius:4px"></div>
+                    </div>
+                    <div style="display:flex;gap:8px;margin-top:12px;">
+                        <div class="skeleton" style="height:28px;width:60px;border-radius:999px"></div>
+                        <div class="skeleton" style="height:28px;width:50px;border-radius:999px"></div>
+                    </div>
+                </div>
+            </div>
         </div>
-        <div style="display:flex;gap:8px;margin-top:12px;">
-          <div class="skeleton" style="height:28px;width:60px;border-radius:999px"></div>
-          <div class="skeleton" style="height:28px;width:50px;border-radius:999px"></div>
-        </div>
-      </div>
-      <div class="match-card-skeleton">
-        <div class="skeleton" style="height:14px;width:55%;border-radius:4px"></div>
-        <div style="display:flex;gap:12px;margin-top:10px;">
-          <div class="skeleton" style="height:12px;width:35%;border-radius:4px"></div>
-          <div class="skeleton" style="height:12px;width:25%;border-radius:4px"></div>
-        </div>
-        <div style="display:flex;gap:8px;margin-top:12px;">
-          <div class="skeleton" style="height:28px;width:60px;border-radius:999px"></div>
-          <div class="skeleton" style="height:28px;width:50px;border-radius:999px"></div>
-        </div>
-      </div>
-      <div class="match-card-skeleton">
-        <div class="skeleton" style="height:14px;width:70%;border-radius:4px"></div>
-        <div style="display:flex;gap:12px;margin-top:10px;">
-          <div class="skeleton" style="height:12px;width:40%;border-radius:4px"></div>
-          <div class="skeleton" style="height:12px;width:30%;border-radius:4px"></div>
-        </div>
-        <div style="display:flex;gap:8px;margin-top:12px;">
-          <div class="skeleton" style="height:28px;width:60px;border-radius:999px"></div>
-          <div class="skeleton" style="height:28px;width:50px;border-radius:999px"></div>
-        </div>
-      </div>
-      <div class="match-card-skeleton">
-        <div class="skeleton" style="height:14px;width:70%;border-radius:4px"></div>
-        <div style="display:flex;gap:12px;margin-top:10px;">
-          <div class="skeleton" style="height:12px;width:40%;border-radius:4px"></div>
-          <div class="skeleton" style="height:12px;width:30%;border-radius:4px"></div>
-        </div>
-        <div style="display:flex;gap:8px;margin-top:12px;">
-          <div class="skeleton" style="height:28px;width:60px;border-radius:999px"></div>
-          <div class="skeleton" style="height:28px;width:50px;border-radius:999px"></div>
-        </div>
-      </div>
-    </div>
-  </div>
 
-  <!-- ═══════════════════════════════════════
+        <!-- ═══════════════════════════════════════
        VIEW 2: MATCH DETAIL
        ═══════════════════════════════════════ -->
-  <div id="match-detail-view" style="display:none;">
+        <div id="match-detail-view" style="display:none;">
 
-    <div class="fade-in" style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
-      <button class="btn-back" id="btn-back-list" style="margin-bottom:0;">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M19 12H5"/><path d="m12 19-7-7 7-7"/>
-        </svg>
-        <span>Partidos</span>
-      </button>
-      <button class="btn-edit-float" id="btn-detail-edit" title="Editar partido">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M12 20h9"/>
-          <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/>
-        </svg>
-      </button>
-    </div>
+            <div class="fade-in"
+                style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
+                <button class="btn-back" id="btn-back-list" style="margin-bottom:0;">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <path d="M19 12H5" />
+                        <path d="m12 19-7-7 7-7" />
+                    </svg>
+                    <span>Partidos</span>
+                </button>
+                <button class="btn-edit-float" id="btn-detail-edit" title="Editar partido">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <path d="M12 20h9" />
+                        <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z" />
+                    </svg>
+                </button>
+            </div>
 
-    <div class="match-hero fade-in stagger-1" id="detail-hero">
-      <div class="match-title" id="detail-title">—</div>
-      <div class="match-details">
-        <div class="match-detail-row">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
-          <span id="detail-date">—</span>
+            <div class="match-hero fade-in stagger-1" id="detail-hero">
+                <div class="match-title" id="detail-title">—</div>
+                <div class="match-details">
+                    <div class="match-detail-row">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <rect width="18" height="18" x="3" y="4" rx="2" />
+                            <path d="M16 2v4M8 2v4M3 10h18" />
+                        </svg>
+                        <span id="detail-date">—</span>
+                    </div>
+                    <div class="match-detail-row">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="10" />
+                            <path d="M12 6v6l4 2" />
+                        </svg>
+                        <span id="detail-time">—</span>
+                    </div>
+                    <div class="match-detail-row">
+                        <svg id="icon-location" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z" />
+                            <circle cx="12" cy="10" r="3" />
+                        </svg>
+                        <span id="detail-location">—</span>
+                    </div>
+                    <div class="match-detail-row">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="12" x2="12" y1="2" y2="22" />
+                            <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
+                        </svg>
+                        <span id="detail-price">—</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Status badge + chips -->
+            <div class="fade-in stagger-2"
+                style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;">
+                <span id="detail-status-badge"
+                    style="display:inline-flex;align-items:center;padding:5px 12px;border-radius:999px;background:#d1fae5;color:#065f46;font-size:12px;font-weight:700;white-space:nowrap;">
+                    Abierto · 0/0 confirmados
+                </span>
+                <div style="display:flex;gap:6px;">
+                    <button class="detail-estado-chip" data-estado="abierto">Abierto</button>
+                    <button class="detail-estado-chip" data-estado="cerrado">Cerrado</button>
+                    <button class="detail-estado-chip" data-estado="cancelado">Cancelado</button>
+                </div>
+            </div>
+
+            <!-- Jugadores — full list -->
+            <div class="card fade-in stagger-3">
+                <div class="card-label">Jugadores</div>
+                <div id="detail-player-list"></div>
+            </div>
+
+            <div class="fade-in stagger-4" style="margin-top:4px;margin-bottom:24px;">
+                <button class="btn-primary" id="btn-detail-share">
+                    Enviar lista al grupo
+                </button>
+            </div>
+
         </div>
-        <div class="match-detail-row">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
-          <span id="detail-time">—</span>
-        </div>
-        <div class="match-detail-row">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
-          <span id="detail-location">—</span>
-        </div>
-        <div class="match-detail-row">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" x2="12" y1="2" y2="22"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
-          <span id="detail-price">—</span>
-        </div>
-      </div>
     </div>
 
-    <!-- Status badge + chips -->
-    <div class="fade-in stagger-2" style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;">
-      <span id="detail-status-badge" style="display:inline-flex;align-items:center;padding:5px 12px;border-radius:999px;background:#d1fae5;color:#065f46;font-size:12px;font-weight:700;white-space:nowrap;">
-        Abierto · 0/0 confirmados
-      </span>
-      <div style="display:flex;gap:6px;">
-        <button class="detail-estado-chip" data-estado="abierto">Abierto</button>
-        <button class="detail-estado-chip" data-estado="cerrado">Cerrado</button>
-        <button class="detail-estado-chip" data-estado="cancelado">Cancelado</button>
-      </div>
-    </div>
+    <!-- ── Screen Styles ── -->
+    <style>
+        .section-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 14px;
+        }
 
-    <!-- Jugadores — full list -->
-    <div class="card fade-in stagger-3">
-      <div class="card-label">Jugadores inscritos</div>
-      <div id="detail-player-list"></div>
-    </div>
+        .section-title {
+            font-family: 'Syne', sans-serif;
+            font-size: 22px;
+            font-weight: 800;
+            letter-spacing: -0.02em;
+            color: var(--text-main);
+            line-height: 1.1;
+        }
 
-    <div class="fade-in stagger-4" style="margin-top:4px;margin-bottom:24px;">
-      <button class="btn-primary" id="btn-detail-share">
-        📤&ensp;Enviar lista al grupo
-      </button>
-    </div>
+        .section-title span {
+            color: var(--primary);
+        }
 
-  </div>
-</div>
+        .section-sub {
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-top: 2px;
+        }
 
-<!-- ── Screen Styles ── -->
-<style>
-  .section-header { display:flex;align-items:center;justify-content:space-between;margin-bottom:14px; }
-  .section-title  { font-family:'Syne',sans-serif;font-size:22px;font-weight:800;letter-spacing:-0.02em;color:var(--text-main);line-height:1.1; }
-  .section-title span { color:var(--primary); }
-  .section-sub    { font-size:12px;color:var(--text-muted);margin-top:2px; }
+        .filter-row {
+            display: flex;
+            gap: 6px;
+            margin-bottom: 14px;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: none;
+        }
 
-  .filter-row { display:flex;gap:6px;margin-bottom:14px;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none; }
-  .filter-row::-webkit-scrollbar { display:none; }
+        .filter-row::-webkit-scrollbar {
+            display: none;
+        }
 
-  .filter-chip {
-    padding:6px 14px;border:1.5px solid var(--border);border-radius:999px;
-    background:var(--bg-card);color:var(--text-muted);font-family:inherit;
-    font-size:12px;font-weight:700;white-space:nowrap;cursor:pointer;
-    transition:all 0.15s;touch-action:manipulation;
-  }
-  .filter-chip.active { background:var(--primary);border-color:var(--primary);color:white; }
+        .filter-chip {
+            padding: 6px 14px;
+            border: 1.5px solid var(--border);
+            border-radius: 999px;
+            background: var(--bg-card);
+            color: var(--text-muted);
+            font-family: inherit;
+            font-size: 12px;
+            font-weight: 700;
+            white-space: nowrap;
+            cursor: pointer;
+            transition: all 0.15s;
+            touch-action: manipulation;
+        }
 
-  .match-card {
-    background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-lg);
-    padding:14px 16px;cursor:pointer;
-    transition:border-color 0.15s,box-shadow 0.15s,transform 0.1s;
-    touch-action:manipulation;position:relative;
-    box-shadow:0 2px 8px rgba(15,31,23,0.06),0 1px 2px rgba(15,31,23,0.04);
-  }
-  .match-card + .match-card { margin-top:8px; }
-  .match-card:active { transform:scale(0.985);border-color:var(--primary);box-shadow:0 0 0 3px var(--primary-glow); }
+        .filter-chip.active {
+            background: var(--primary);
+            border-color: var(--primary);
+            color: white;
+        }
 
-  .match-card::before {
-    content:'';position:absolute;left:0;top:12px;bottom:12px;width:3px;
-    border-radius:0 3px 3px 0;background:var(--primary);
-  }
-  
-  .match-card.past { background:#f0f2f1;filter:grayscale(0.3);box-shadow:0 1px 4px rgba(15,31,23,0.03); }
-  .match-card.past::before     { background:var(--text-light); }
-  .match-card.cancelled::before{ background:var(--error); }
+        .match-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 14px 16px;
+            cursor: pointer;
+            transition: border-color 0.15s, box-shadow 0.15s, transform 0.1s;
+            touch-action: manipulation;
+            position: relative;
+            box-shadow: 0 2px 8px rgba(15, 31, 23, 0.06), 0 1px 2px rgba(15, 31, 23, 0.04);
+        }
 
-  .mc-top { display:flex;align-items:flex-start;justify-content:space-between;gap:10px; }
-  .mc-title { font-family:'Syne',sans-serif;font-size:16px;font-weight:100;letter-spacing:-0.01em;color:var(--text-main);line-height:1.2; }
-  .mc-status { padding:2px 8px;border-radius:999px;font-size:10px;font-weight:700;letter-spacing:0.04em;text-transform:uppercase;white-space:nowrap;flex-shrink:0;margin-top:2px; }
-  .mc-status.open      { background:var(--primary-light);color:var(--primary); }
-  .mc-status.closed    { background:var(--warning-light);color:var(--warning); }
-  .mc-status.cancelled { background:var(--error-bg);color:var(--error); }
+        .match-card+.match-card {
+            margin-top: 8px;
+        }
 
-  .mc-info { display:flex;flex-wrap:wrap;gap:4px 14px;margin-top:8px;font-size:12px;color:var(--text-muted); }
-  .mc-info-item { display:flex;align-items:center;gap:4px; }
-  .mc-info-item svg { width:13px;height:13px;color:var(--text-light);flex-shrink:0; }
+        .match-card:active {
+            transform: scale(0.985);
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px var(--primary-glow);
+        }
 
-  .mc-footer { display:flex;align-items:center;justify-content:space-between;margin-top:10px;padding-top:10px;border-top:1px solid var(--border); }
-  .mc-players { display:flex;align-items:center;gap:6px;font-size:12px;font-weight:600;color:var(--text-muted); }
-  .mc-players-bar { width:60px;height:5px;background:var(--bg-input);border-radius:5px;overflow:hidden; }
-  .mc-players-fill { height:100%;background:var(--primary);border-radius:5px;transition:width 0.3s ease; }
-  .mc-arrow { width:24px;height:24px;color:var(--text-light);display:flex;align-items:center;justify-content:center; }
-  .mc-arrow svg { width:16px;height:16px; }
+        .match-card::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 12px;
+            bottom: 12px;
+            width: 3px;
+            border-radius: 0 3px 3px 0;
+            background: var(--primary);
+        }
 
-  .match-card-skeleton { background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-lg);padding:14px 16px; }
-  .match-card-skeleton + .match-card-skeleton { margin-top:8px; }
+        .match-card.past {
+            background: #f0f2f1;
+            filter: grayscale(0.3);
+            box-shadow: 0 1px 4px rgba(15, 31, 23, 0.03);
+        }
 
-  .btn-back {
-    display:flex;align-items:center;gap:6px;border:none;background:none;
-    color:var(--primary);font-family:'DM Sans',sans-serif;font-size:14px;font-weight:700;
-    cursor:pointer;padding:4px 0;touch-action:manipulation;
-  }
-  .btn-back:active { opacity:0.7; }
-  .btn-back svg { width:18px;height:18px; }
+        .match-card.past::before {
+            background: var(--text-light);
+        }
 
-  .btn-edit-float {
-    width:40px;height:40px;border:none;border-radius:25px;
-    background:var(--primary);color:white;
-    display:flex;align-items:center;justify-content:center;
-    cursor:pointer;box-shadow:0 4px 12px rgba(5,150,105,0.3);
-    transition:background 0.15s,transform 0.1s;touch-action:manipulation;flex-shrink:0;
-  }
-  .btn-edit-float:active { background:var(--primary-hover);transform:scale(0.93); }
-  .btn-edit-float svg { width:16px;height:16px; }
+        .match-card.cancelled::before {
+            background: var(--error);
+        }
 
-  .detail-estado-chip {
-    padding:5px 12px;border-radius:999px;
-    border:1.5px solid var(--border);background:var(--bg-input);
-    font-size:11px;font-weight:700;color:var(--text-muted);
-    cursor:pointer;transition:all 0.15s;font-family:inherit;
-    touch-action:manipulation;
-  }
-  .detail-estado-chip.chip-open      { background:#d1fae5;border-color:#059669;color:#065f46; }
-  .detail-estado-chip.chip-cerrado   { background:#fef3c7;border-color:#f59e0b;color:#92400e; }
-  .detail-estado-chip.chip-cancelado { background:#fef2f2;border-color:#fecaca;color:#b91c1c; }
+        .mc-top {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 10px;
+        }
 
-  .detail-player-section-label { font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:var(--text-light);margin:12px 0 4px; }
-  .detail-player-section-label:first-child { margin-top:0; }
+        .mc-title {
+            font-family: 'Syne', sans-serif;
+            font-size: 16px;
+            font-weight: 100;
+            letter-spacing: -0.01em;
+            color: var(--text-main);
+            line-height: 1.2;
+        }
 
-  .detail-player-row { display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border); }
-  .detail-player-row:last-child { border-bottom:none;padding-bottom:0; }
+        .mc-status {
+            padding: 2px 8px;
+            border-radius: 999px;
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+            white-space: nowrap;
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
 
-  .dp-num {
-    width:28px;height:28px;border-radius:8px;
-    display:flex;align-items:center;justify-content:center;
-    font-family:'Syne',sans-serif;font-size:11px;font-weight:800;flex-shrink:0;
-  }
-  .dp-num.tit { background:var(--primary-light);color:var(--primary); }
-  .dp-num.sup { background:var(--warning-light);color:var(--warning); }
-  .dp-name { font-size:13px;font-weight:600;color:var(--text-main);flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap; }
-</style>
+        .mc-status.open {
+            background: var(--primary-light);
+            color: var(--primary);
+        }
 
-<!-- ── Screen Logic ── -->
-<script>
-(function() {
-  const toast = window.grubot?.toast ?? ((msg) => console.log('[toast]', msg));
+        .mc-status.closed {
+            background: var(--warning-light);
+            color: var(--warning);
+        }
 
-  let allMatches    = [];
-  let currentFilter = 'upcoming';
+        .mc-status.cancelled {
+            background: var(--error-bg);
+            color: var(--error);
+        }
 
-  const dias      = ['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'];
-  const diasFull  = ['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'];
-  const meses     = ['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
-  const mesesFull = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+        .mc-info {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 4px 14px;
+            margin-top: 8px;
+            font-size: 12px;
+            color: var(--text-muted);
+        }
 
-  function fmtDateShort(iso) { const d=new Date(iso+'T12:00:00'); return dias[d.getDay()]+' '+d.getDate()+' '+meses[d.getMonth()]; }
-  function fmtDateFull(iso)  { const d=new Date(iso+'T12:00:00'); return diasFull[d.getDay()]+' '+d.getDate()+' de '+mesesFull[d.getMonth()]+', '+d.getFullYear(); }
-  function fmtTime(t)        { if(!t)return''; const[h,m]=t.split(':').map(Number); return((h%12)||12)+':'+String(m).padStart(2,'0')+' '+(h>=12?'PM':'AM'); }
-  function fmtTimeRange(s,e) { return e?fmtTime(s)+' — '+fmtTime(e):fmtTime(s); }
-  function isUpcoming(iso)   { const t=new Date();t.setHours(0,0,0,0);return new Date(iso+'T23:59:59')>=t; }
-  function statusClass(e)    { return e==='abierto'?'open':e==='cancelado'?'cancelled':'closed'; }
-  function statusLabel(e)    { return {abierto:'Abierto',cerrado:'Cerrado',cancelado:'Cancelado'}[e]||e; }
+        .mc-info-item {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
 
-  const statusConfig = {
-    abierto:   { name:'Abierto',   chipClass:'chip-open'      },
-    cerrado:   { name:'Cerrado',   chipClass:'chip-cerrado'   },
-    cancelado: { name:'Cancelado', chipClass:'chip-cancelado' },
-  };
+        .mc-info-item svg {
+            width: 13px;
+            height: 13px;
+            color: var(--text-light);
+            flex-shrink: 0;
+        }
 
-  const badgeColors = {
-    abierto:   'background:#d1fae5;color:#065f46;',
-    cerrado:   'background:#fef3c7;color:#92400e;',
-    cancelado: 'background:#fef2f2;color:#b91c1c;',
-  };
+        .mc-footer {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px solid var(--border);
+        }
 
-  function applyEstado(estado, inscritos, cantidad) {
-    const cfg   = statusConfig[estado] || statusConfig.abierto;
-    const badge = document.getElementById('detail-status-badge');
-    if (badge) {
-      badge.setAttribute('style',
-        'display:inline-flex;align-items:center;padding:5px 12px;border-radius:999px;' +
-        'font-size:12px;font-weight:700;white-space:nowrap;' +
-        (badgeColors[estado] || badgeColors.abierto)
-      );
-      badge.textContent = cfg.name + ' · ' + inscritos + '/' + cantidad + ' confirmados';
-    }
-    document.querySelectorAll('.detail-estado-chip').forEach(c =>
-      c.classList.remove('chip-open','chip-cerrado','chip-cancelado')
-    );
-    const active = document.querySelector(`.detail-estado-chip[data-estado="${estado}"]`);
-    if (active) active.classList.add(cfg.chipClass);
-  }
+        .mc-players {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-muted);
+        }
 
-  // ── Render match list ──
-  function renderList(matches) {
-    const list  = document.getElementById('match-list');
-    const empty = document.getElementById('empty-matches');
-    document.getElementById('match-skeletons').style.display = 'none';
+        .mc-players-bar {
+            width: 60px;
+            height: 6px;
+            background: var(--bg-input);
+            border-radius: 5px;
+            overflow: hidden;
+        }
 
-    let filtered = matches;
-    if (currentFilter==='upcoming') filtered = matches.filter(m => isUpcoming(m.fecha_pichanga));
-    if (currentFilter==='past')     filtered = matches.filter(m => !isUpcoming(m.fecha_pichanga));
+        .mc-players-fill {
+            height: 100%;
+            background: var(--primary);
+            border-radius: 5px;
+            transition: width 0.3s ease;
+        }
 
-    if (!filtered.length) {
-      list.innerHTML = '';
-      empty.style.display = 'block';
-      document.getElementById('match-count-label').textContent = '0 partidos';
-      return;
-    }
+        .mc-arrow {
+            width: 24px;
+            height: 24px;
+            color: var(--text-light);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
 
-    empty.style.display = 'none';
-    document.getElementById('match-count-label').textContent = filtered.length+' partido'+(filtered.length!==1?'s':'');
+        .mc-arrow svg {
+            width: 16px;
+            height: 16px;
+        }
 
-    list.innerHTML = filtered.map((m,i) => {
-      const pct    = m.cantidad ? Math.round((m.inscritos/m.cantidad)*100) : 0;
-      const isPast = !isUpcoming(m.fecha_pichanga);
-      return `
-        <div class="match-card ${isPast?'past':''} ${m.estado==='cancelado'?'cancelled':''} fade-in"
-             style="animation-delay:${Math.min(i*0.04,0.2)}s" data-id="${m.id}">
+        .match-card-skeleton {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 14px 16px;
+        }
+
+        .match-card-skeleton+.match-card-skeleton {
+            margin-top: 8px;
+        }
+
+        .btn-back {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            border: none;
+            background: none;
+            color: var(--primary);
+            font-family: 'DM Sans', sans-serif;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            padding: 4px 0;
+            touch-action: manipulation;
+        }
+
+        .btn-back:active {
+            opacity: 0.7;
+        }
+
+        .btn-back svg {
+            width: 18px;
+            height: 18px;
+        }
+
+        .btn-edit-float {
+            width: 40px;
+            height: 40px;
+            border: none;
+            border-radius: 25px;
+            background: var(--primary);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(5, 150, 105, 0.3);
+            transition: background 0.15s, transform 0.1s;
+            touch-action: manipulation;
+            flex-shrink: 0;
+        }
+
+        .btn-edit-float:active {
+            background: var(--primary-hover);
+            transform: scale(0.93);
+        }
+
+        .btn-edit-float svg {
+            width: 16px;
+            height: 16px;
+        }
+
+        .detail-estado-chip {
+            padding: 5px 12px;
+            border-radius: 999px;
+            border: 1.5px solid var(--border);
+            background: var(--bg-input);
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: all 0.15s;
+            font-family: inherit;
+            touch-action: manipulation;
+        }
+
+        .detail-estado-chip.chip-open {
+            background: #d1fae5;
+            border-color: #059669;
+            color: #065f46;
+        }
+
+        .detail-estado-chip.chip-cerrado {
+            background: #fef3c7;
+            border-color: #f59e0b;
+            color: #92400e;
+        }
+
+        .detail-estado-chip.chip-cancelado {
+            background: #fef2f2;
+            border-color: #fecaca;
+            color: #b91c1c;
+        }
+
+        .detail-player-section-label {
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            color: var(--text-light);
+            margin: 12px 0 4px;
+        }
+
+        .detail-player-section-label:first-child {
+            margin-top: 0;
+        }
+
+        .detail-player-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 0;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .detail-player-row:last-child {
+            border-bottom: none;
+            padding-bottom: 0;
+        }
+
+        .dp-num {
+            width: 28px;
+            height: 28px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Syne', sans-serif;
+            font-size: 11px;
+            font-weight: 800;
+            flex-shrink: 0;
+        }
+
+        .dp-num.tit {
+            background: var(--primary-light);
+            color: var(--primary);
+        }
+
+        .dp-num.sup {
+            background: var(--warning-light);
+            color: var(--warning);
+        }
+
+        .dp-name {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-main);
+            flex: 1;
+            min-width: 0;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+    </style>
+
+    <!-- ── Screen Logic ── -->
+    <script>
+        (function () {
+            const toast = window.grubot?.toast ?? ((msg) => console.log('[toast]', msg));
+
+            let allMatches = [];
+            let currentFilter = 'upcoming';
+
+            const dias = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
+            const diasFull = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
+            const meses = ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic'];
+            const mesesFull = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
+
+            function fmtDateShort(iso) { const d = new Date(iso + 'T12:00:00'); return dias[d.getDay()] + ' ' + d.getDate() + ' ' + meses[d.getMonth()]; }
+            function fmtDateFull(iso) { const d = new Date(iso + 'T12:00:00'); return diasFull[d.getDay()] + ' ' + d.getDate() + ' de ' + mesesFull[d.getMonth()] + ', ' + d.getFullYear(); }
+            function fmtTime(t) { if (!t) return ''; const [h, m] = t.split(':').map(Number); return ((h % 12) || 12) + ':' + String(m).padStart(2, '0') + ' ' + (h >= 12 ? 'PM' : 'AM'); }
+            function fmtTimeRange(s, e) { return e ? fmtTime(s) + ' — ' + fmtTime(e) : fmtTime(s); }
+            function isUpcoming(iso) { const t = new Date(); t.setHours(0, 0, 0, 0); return new Date(iso + 'T23:59:59') >= t; }
+            function statusClass(e) { return e === 'abierto' ? 'open' : e === 'cancelado' ? 'cancelled' : 'closed'; }
+            function statusLabel(e) { return { abierto: 'Abierto', cerrado: 'Cerrado', cancelado: 'Cancelado' }[e] || e; }
+
+            const statusConfig = {
+                abierto: { name: 'Abierto', chipClass: 'chip-open' },
+                cerrado: { name: 'Cerrado', chipClass: 'chip-cerrado' },
+                cancelado: { name: 'Cancelado', chipClass: 'chip-cancelado' },
+            };
+
+            const badgeColors = {
+                abierto: 'background:#d1fae5;color:#065f46;',
+                cerrado: 'background:#fef3c7;color:#92400e;',
+                cancelado: 'background:#fef2f2;color:#b91c1c;',
+            };
+
+            function applyEstado(estado, inscritos, cantidad) {
+                const cfg = statusConfig[estado] || statusConfig.abierto;
+                const badge = document.getElementById('detail-status-badge');
+                if (badge) {
+                    badge.setAttribute('style',
+                        'display:inline-flex;align-items:center;padding:5px 12px;border-radius:999px;' +
+                        'font-size:12px;font-weight:700;white-space:nowrap;' +
+                        (badgeColors[estado] || badgeColors.abierto)
+                    );
+                    badge.textContent = cfg.name + ' · ' + inscritos + ' / ' + cantidad + ' anotados';
+                }
+                document.querySelectorAll('.detail-estado-chip').forEach(c =>
+                    c.classList.remove('chip-open', 'chip-cerrado', 'chip-cancelado')
+                );
+                const active = document.querySelector(`.detail-estado-chip[data-estado="${estado}"]`);
+                if (active) active.classList.add(cfg.chipClass);
+            }
+            function updateLocationIcon(locationText) {
+                const iconLocation = document.getElementById('icon-location');
+
+                // Check if the location is a URL or a virtual meeting
+                if (locationText.startsWith('http') || locationText.toLowerCase().includes('zoom')) {
+                    // Inject a "Link" or "Globe" icon paths
+                    iconLocation.innerHTML = `
+            <circle cx="12" cy="12" r="10"/>
+            <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+            <path d="M2 12h20"/>
+        `;
+                } else {
+                    // Inject the default "Map Pin" icon paths
+                    iconLocation.innerHTML = `
+            <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z" />
+            <circle cx="12" cy="10" r="3" />
+        `;
+                }
+            }
+            // ── Render match list ──
+            function renderList(matches) {
+                const list = document.getElementById('match-list');
+                const empty = document.getElementById('empty-matches');
+                document.getElementById('match-skeletons').style.display = 'none';
+
+                let filtered = matches;
+                if (currentFilter === 'upcoming') filtered = matches.filter(m => isUpcoming(m.fecha_pichanga));
+                if (currentFilter === 'past') filtered = matches.filter(m => !isUpcoming(m.fecha_pichanga));
+
+                if (!filtered.length) {
+                    list.innerHTML = '';
+                    empty.style.display = 'block';
+                    document.getElementById('match-count-label').textContent = '0 partidos';
+                    return;
+                }
+
+                empty.style.display = 'none';
+                document.getElementById('match-count-label').textContent = filtered.length + ' partido' + (filtered.length !== 1 ? 's' : '');
+
+                list.innerHTML = filtered.map((m, i) => {
+                    const pct = m.cantidad ? Math.round((m.inscritos / m.cantidad) * 100) : 0;
+                    const isPast = !isUpcoming(m.fecha_pichanga);
+                    return `
+        <div class="match-card ${isPast ? 'past' : ''} ${m.estado === 'cancelado' ? 'cancelled' : ''} fade-in"
+             style="animation-delay:${Math.min(i * 0.04, 0.2)}s" data-id="${m.id}">
           <div class="mc-top">
             <div class="mc-title">${m.titulo}</div>
             <span class="mc-status ${statusClass(m.estado)}">${statusLabel(m.estado)}</span>
           </div>
           <div class="mc-info">
             <div class="mc-info-item">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
               ${fmtDateShort(m.fecha_pichanga)}
             </div>
             <div class="mc-info-item">
@@ -381,230 +699,231 @@
           </div>
           <div class="mc-footer">
             <div class="mc-players">
-              <span>${m.inscritos}/${m.cantidad}</span>
-              <div class="mc-players-bar"><div class="mc-players-fill" style="width:${pct}%"></div></div>
+                <div class="mc-players-bar"><div class="mc-players-fill" style="width:${pct}%"></div></div>
+                <span>${m.inscritos}/${m.cantidad} inscritos</span>
             </div>
             <div class="mc-arrow">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
             </div>
           </div>
         </div>`;
-    }).join('');
+                }).join('');
 
-    list.querySelectorAll('.match-card').forEach(card => {
-      card.addEventListener('click', () => {
-        const match = allMatches.find(m => m.id === card.dataset.id);
-        if (match) openDetail(match);
-      });
-    });
-  }
+                list.querySelectorAll('.match-card').forEach(card => {
+                    card.addEventListener('click', () => {
+                        const match = allMatches.find(m => m.id === card.dataset.id);
+                        if (match) openDetail(match);
+                    });
+                });
+            }
 
-  document.querySelectorAll('.filter-chip').forEach(chip => {
-    chip.addEventListener('click', () => {
-      document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
-      chip.classList.add('active');
-      currentFilter = chip.dataset.filter;
-      loadMatches();
-    });
-  });
+            document.querySelectorAll('.filter-chip').forEach(chip => {
+                chip.addEventListener('click', () => {
+                    document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+                    chip.classList.add('active');
+                    currentFilter = chip.dataset.filter;
+                    loadMatches();
+                });
+            });
 
-  // ── Open detail ──
-  async function openDetail(m) {
-    document.getElementById('match-list-view').style.display = 'none';
-    const detail = document.getElementById('match-detail-view');
-    detail.style.display        = 'flex';
-    detail.style.flexDirection  = 'column';
-    detail.style.gap            = '12px';
-    detail.style.width          = '100%';
-    document.getElementById('partido-screen').closest('.content')?.scrollTo(0, 0);
+            // ── Open detail ──
+            async function openDetail(m) {
+                document.getElementById('match-list-view').style.display = 'none';
+                const detail = document.getElementById('match-detail-view');
+                detail.style.display = 'flex';
+                detail.style.flexDirection = 'column';
+                detail.style.gap = '12px';
+                detail.style.width = '100%';
+                document.getElementById('partido-screen').closest('.content')?.scrollTo(0, 0);
 
-    document.getElementById('detail-title').textContent     = m.titulo;
-    document.getElementById('detail-date').textContent      = fmtDateFull(m.fecha_pichanga);
-    document.getElementById('detail-time').textContent      = fmtTimeRange(m.hora_inicio, m.hora_fin);
-    document.getElementById('detail-location').textContent  = m.lugar;
-    document.getElementById('detail-price').textContent     = 'S/ '+(m.cuota||0).toFixed(2)+' por persona ('+(m.metodo_pago||'Yape')+')';
+                document.getElementById('detail-title').textContent = m.titulo;
+                document.getElementById('detail-date').textContent = fmtDateFull(m.fecha_pichanga);
+                document.getElementById('detail-time').textContent = fmtTimeRange(m.hora_inicio, m.hora_fin);
+                document.getElementById('detail-location').textContent = m.lugar;
+                document.getElementById('detail-price').textContent = (m.cuota > 0)
+                    ? `S/ ${(m.cuota).toFixed(2)} por persona (${m.metodo_pago || 'Yape'})`
+                    : `S/ ${(m.cuota).toFixed(2)} - Ingreso Libre`;
+                const inscritos = m.inscritos || 0;
+                const cantidad = m.cantidad || 10;
 
-    const inscritos = m.inscritos || 0;
-    const cantidad  = m.cantidad  || 10;
+                detail.dataset.matchId = m.id;
+                detail.dataset.inscritos = inscritos;
+                detail.dataset.cantidad = cantidad;
 
-    detail.dataset.matchId   = m.id;
-    detail.dataset.inscritos = inscritos;
-    detail.dataset.cantidad  = cantidad;
+                applyEstado(m.estado || 'abierto', inscritos, cantidad);
 
-    applyEstado(m.estado || 'abierto', inscritos, cantidad);
+                // Show loading state
+                const playerList = document.getElementById('detail-player-list');
+                playerList.innerHTML = '<div style="text-align:center;padding:16px 0;font-size:13px;color:var(--text-light);">Cargando jugadores...</div>';
 
-    // Show loading state
-    const playerList = document.getElementById('detail-player-list');
-    playerList.innerHTML = '<div style="text-align:center;padding:16px 0;font-size:13px;color:var(--text-light);">Cargando jugadores...</div>';
+                const SUPABASE_URL = window.ENV?.SUPABASE_URL;
+                const SUPABASE_KEY = window.ENV?.SUPABASE_KEY;
 
-    const SUPABASE_URL = window.ENV?.SUPABASE_URL;
-    const SUPABASE_KEY = window.ENV?.SUPABASE_KEY;
+                try {
+                    const jugRes = await fetch(
+                        `${SUPABASE_URL}/rest/v1/jugadores_pichanga?id_pichanga=eq.${m.id}&estado_participacion=eq.anotado&order=fecha_registro.asc&select=id_persona,nombre,suplente`,
+                        { headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${SUPABASE_KEY}` } }
+                    );
+                    if (!jugRes.ok) throw new Error(`jugadores HTTP ${jugRes.status}`);
+                    const jugadores = await jugRes.json();
 
-    try {
-      const jugRes = await fetch(
-        `${SUPABASE_URL}/rest/v1/jugadores_pichanga?id_pichanga=eq.${m.id}&estado_participacion=eq.anotado&order=fecha_registro.asc&select=id_persona,nombre,suplente`,
-        { headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${SUPABASE_KEY}` } }
-      );
-      if (!jugRes.ok) throw new Error(`jugadores HTTP ${jugRes.status}`);
-      const jugadores = await jugRes.json();
+                    if (!jugadores.length) {
+                        playerList.innerHTML = '<div style="text-align:center;padding:16px 0;font-size:13px;color:var(--text-light);">Sin jugadores inscritos aún</div>';
+                        return;
+                    }
 
-      if (!jugadores.length) {
-        playerList.innerHTML = '<div style="text-align:center;padding:16px 0;font-size:13px;color:var(--text-light);">Sin jugadores inscritos aún</div>';
-        return;
-      }
+                    const tit = jugadores.filter(j => !j.suplente);
+                    const sup = jugadores.filter(j => j.suplente);
 
-      const tit = jugadores.filter(j => !j.suplente);
-      const sup = jugadores.filter(j =>  j.suplente);
+                    let html = '';
 
-      let html = '';
-
-      if (tit.length) {
-        html += '<div class="detail-player-section-label">Titulares</div>';
-        html += tit.map((j, i) => `
+                    if (tit.length) {
+                        html += tit.map((j, i) => `
           <div class="detail-player-row">
-            <div class="dp-num tit">${i+1}</div>
+            <div class="dp-num tit">${i + 1}</div>
             <div class="dp-name">${j.nombre || j.id_persona}</div>
           </div>`).join('');
-      }
+                    }
 
-      if (sup.length) {
-        html += '<div class="detail-player-section-label" style="margin-top:14px;">Suplentes</div>';
-        html += sup.map((j, i) => `
+                    if (sup.length) {
+                        html += '<div class="detail-player-section-label" style="margin-top:14px;">Suplentes</div>';
+                        html += sup.map((j, i) => `
           <div class="detail-player-row">
-            <div class="dp-num sup">S${i+1}</div>
+            <div class="dp-num sup">S${i + 1}</div>
             <div class="dp-name">${j.nombre || j.id_persona}</div>
           </div>`).join('');
-      }
+                    }
 
-      playerList.innerHTML = html;
+                    playerList.innerHTML = html;
 
-    } catch (err) {
-      console.error('[Partido] Jugadores fetch error:', err);
-      playerList.innerHTML = '<div style="text-align:center;padding:16px 0;font-size:13px;color:var(--error);">Error al cargar jugadores</div>';
-    }
-  }
+                } catch (err) {
+                    console.error('[Partido] Jugadores fetch error:', err);
+                    playerList.innerHTML = '<div style="text-align:center;padding:16px 0;font-size:13px;color:var(--error);">Error al cargar jugadores</div>';
+                }
+            }
 
-  // ── Estado chip listeners ──
-  document.querySelectorAll('.detail-estado-chip').forEach(chip => {
-    chip.addEventListener('click', () => {
-      const estado     = chip.dataset.estado;
-      const detailEl   = document.getElementById('match-detail-view');
-      const id         = detailEl.dataset.matchId;
-      const inscritos  = detailEl.dataset.inscritos || 0;
-      const cantidad   = detailEl.dataset.cantidad  || 0;
-      const SUPABASE_URL = window.ENV?.SUPABASE_URL;
-      const SUPABASE_KEY = window.ENV?.SUPABASE_KEY;
+            // ── Estado chip listeners ──
+            document.querySelectorAll('.detail-estado-chip').forEach(chip => {
+                chip.addEventListener('click', () => {
+                    const estado = chip.dataset.estado;
+                    const detailEl = document.getElementById('match-detail-view');
+                    const id = detailEl.dataset.matchId;
+                    const inscritos = detailEl.dataset.inscritos || 0;
+                    const cantidad = detailEl.dataset.cantidad || 0;
+                    const SUPABASE_URL = window.ENV?.SUPABASE_URL;
+                    const SUPABASE_KEY = window.ENV?.SUPABASE_KEY;
 
-      applyEstado(estado, inscritos, cantidad);
-      toast('Estado: ' + (statusConfig[estado]?.name || estado));
+                    applyEstado(estado, inscritos, cantidad);
+                    toast('Estado: ' + (statusConfig[estado]?.name || estado));
 
-      if (!SUPABASE_URL || !SUPABASE_KEY || !id) return;
-      fetch(`${SUPABASE_URL}/rest/v1/pichangas?id_pichanga_pub=eq.${id}`, {
-        method:  'PATCH',
-        headers: {
-          apikey:         SUPABASE_KEY,
-          Authorization:  `Bearer ${SUPABASE_KEY}`,
-          'Content-Type': 'application/json',
-          Prefer:         'return=minimal'
-        },
-        body: JSON.stringify({ status: estado })
-      }).catch(err => console.warn('[Partido] Estado update failed:', err.message));
-    });
-  });
+                    if (!SUPABASE_URL || !SUPABASE_KEY || !id) return;
+                    fetch(`${SUPABASE_URL}/rest/v1/pichangas?id_pichanga_pub=eq.${id}`, {
+                        method: 'PATCH',
+                        headers: {
+                            apikey: SUPABASE_KEY,
+                            Authorization: `Bearer ${SUPABASE_KEY}`,
+                            'Content-Type': 'application/json',
+                            Prefer: 'return=minimal'
+                        },
+                        body: JSON.stringify({ status: estado })
+                    }).catch(err => console.warn('[Partido] Estado update failed:', err.message));
+                });
+            });
 
-  // ── Back button ──
-  document.getElementById('btn-back-list').addEventListener('click', () => {
-    const detail = document.getElementById('match-detail-view');
-    detail.style.display        = 'none';
-    detail.style.flexDirection  = '';
-    detail.style.gap            = '';
-    detail.style.width          = '';
-    document.getElementById('match-list-view').style.display = 'block';
-    loadMatches();
-  });
+            // ── Back button ──
+            document.getElementById('btn-back-list').addEventListener('click', () => {
+                const detail = document.getElementById('match-detail-view');
+                detail.style.display = 'none';
+                detail.style.flexDirection = '';
+                detail.style.gap = '';
+                detail.style.width = '';
+                document.getElementById('match-list-view').style.display = 'block';
+                loadMatches();
+            });
 
-  // ── Share button ──
-  document.getElementById('btn-detail-share').addEventListener('click', function() {
-    this.disabled    = true;
-    this.textContent = 'Enviando...';
-    setTimeout(() => {
-      toast('Lista enviada al grupo ✓');
-      this.disabled    = false;
-      this.textContent = '📤  Enviar lista al grupo';
-    }, 800);
-  });
+            // ── Share button ──
+            document.getElementById('btn-detail-share').addEventListener('click', function () {
+                this.disabled = true;
+                this.textContent = 'Enviando...';
+                setTimeout(() => {
+                    toast('Lista enviada al grupo ✓');
+                    this.disabled = false;
+                    this.textContent = '📤  Enviar lista al grupo';
+                }, 800);
+            });
 
-  // ── Edit button ──
-  document.getElementById('btn-detail-edit').addEventListener('click', () => {
-    const id = document.getElementById('match-detail-view').dataset.matchId;
-    window.open('edit.html?id=' + id, '_blank');
-  });
+            // ── Edit button ──
+            document.getElementById('btn-detail-edit').addEventListener('click', () => {
+                const id = document.getElementById('match-detail-view').dataset.matchId;
+                window.open('edit.html?id=' + id, '_blank');
+            });
 
-  // ── New match button ──
-  document.getElementById('btn-new-match').addEventListener('click', () => {
-    window.open('create.html', '_blank');
-  });
+            // ── New match button ──
+            document.getElementById('btn-new-match').addEventListener('click', () => {
+                window.open('create.html', '_blank');
+            });
 
-  // ── Load matches ──
-  async function loadMatches() {
-    const SUPABASE_URL = window.ENV?.SUPABASE_URL;
-    const SUPABASE_KEY = window.ENV?.SUPABASE_KEY;
+            // ── Load matches ──
+            async function loadMatches() {
+                const SUPABASE_URL = window.ENV?.SUPABASE_URL;
+                const SUPABASE_KEY = window.ENV?.SUPABASE_KEY;
 
-    document.getElementById('match-skeletons').style.display = 'block';
-    document.getElementById('match-list').innerHTML          = '';
-    document.getElementById('empty-matches').style.display   = 'none';
-    document.getElementById('match-count-label').textContent = 'Cargando...';
+                document.getElementById('match-skeletons').style.display = 'block';
+                document.getElementById('match-list').innerHTML = '';
+                document.getElementById('empty-matches').style.display = 'none';
+                document.getElementById('match-count-label').textContent = 'Cargando...';
 
-    if (!SUPABASE_URL || !SUPABASE_KEY || SUPABASE_URL.includes('your-project')) {
-      console.warn('[Partido] Supabase not configured — check config.js');
-      document.getElementById('match-skeletons').style.display = 'none';
-      document.getElementById('empty-matches').style.display   = 'block';
-      document.getElementById('match-count-label').textContent = 'Sin configuración';
-      return;
-    }
+                if (!SUPABASE_URL || !SUPABASE_KEY || SUPABASE_URL.includes('your-project')) {
+                    console.warn('[Partido] Supabase not configured — check config.js');
+                    document.getElementById('match-skeletons').style.display = 'none';
+                    document.getElementById('empty-matches').style.display = 'block';
+                    document.getElementById('match-count-label').textContent = 'Sin configuración';
+                    return;
+                }
 
-    try {
-      const res = await fetch(
-        `${SUPABASE_URL}/rest/v1/pichangas?order=fecha_pichanga.desc&limit=50`,
-        { headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${SUPABASE_KEY}` } }
-      );
+                try {
+                    const res = await fetch(
+                        `${SUPABASE_URL}/rest/v1/pichangas?order=fecha_pichanga.desc&limit=50`,
+                        { headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${SUPABASE_KEY}` } }
+                    );
 
-      if (!res.ok) {
-        const body = await res.json().catch(() => null);
-        throw new Error(`HTTP ${res.status} — ${body?.message || body?.error || 'sin detalle'}`);
-      }
+                    if (!res.ok) {
+                        const body = await res.json().catch(() => null);
+                        throw new Error(`HTTP ${res.status} — ${body?.message || body?.error || 'sin detalle'}`);
+                    }
 
-      const rows = await res.json();
-      console.log('[Partido] Loaded', rows.length, 'matches from Supabase');
+                    const rows = await res.json();
+                    console.log('[Partido] Loaded', rows.length, 'matches from Supabase');
 
-      allMatches = rows.map(p => ({
-        id:             p.id_pichanga_pub || p.id,
-        titulo:         p.titulo,
-        fecha_pichanga: p.fecha_pichanga,
-        hora_inicio:    p.hora_inicio,
-        hora_fin:       p.hora_fin,
-        lugar:          p.lugar,
-        cuota:          p.cuota,
-        metodo_pago:    p.metodo_pago,
-        cantidad:       p.cantidad,
-        estado:         p.status || 'abierto',
-        inscritos:      p.total_inscritos || 0,
-        suplentes:      Math.max(0, (p.total_inscritos || 0) - (p.cantidad || 0)),
-      }));
+                    allMatches = rows.map(p => ({
+                        id: p.id_pichanga_pub || p.id,
+                        titulo: p.titulo,
+                        fecha_pichanga: p.fecha_pichanga,
+                        hora_inicio: p.hora_inicio,
+                        hora_fin: p.hora_fin,
+                        lugar: p.lugar,
+                        cuota: p.cuota,
+                        metodo_pago: p.metodo_pago,
+                        cantidad: p.cantidad,
+                        estado: p.status || 'abierto',
+                        inscritos: p.total_inscritos || 0,
+                        suplentes: Math.max(0, (p.total_inscritos || 0) - (p.cantidad || 0)),
+                    }));
 
-      renderList(allMatches);
+                    renderList(allMatches);
 
-    } catch (err) {
-      console.error('[Partido] Load error:', err);
-      document.getElementById('match-skeletons').style.display = 'none';
-      document.getElementById('match-count-label').textContent = 'Error al cargar';
-      document.getElementById('empty-matches').style.display   = 'block';
-      document.getElementById('empty-matches').querySelector('p').textContent = err.message;
-    }
-  }
+                } catch (err) {
+                    console.error('[Partido] Load error:', err);
+                    document.getElementById('match-skeletons').style.display = 'none';
+                    document.getElementById('match-count-label').textContent = 'Error al cargar';
+                    document.getElementById('empty-matches').style.display = 'block';
+                    document.getElementById('empty-matches').querySelector('p').textContent = err.message;
+                }
+            }
 
-  loadMatches();
-})();
-</script>
+            loadMatches();
+        })();
+    </script>
 </body>
+
 </html>
