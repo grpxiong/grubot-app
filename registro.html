@@ -5,503 +5,503 @@
   <title>Registro de Jugador | Grubot</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="style.css">
   <style>
 :root {
-  --primary: #059669;
+  --primary:       #059669;
   --primary-hover: #047857;
-  --primary-dark: #065f46;
-  --primary-light: rgba(5, 150, 105, 0.09);
-  --primary-glow: rgba(5, 150, 105, 0.18);
-
-  --bg: #e8f5e9;
-  --bg-card: #ffffff;
-  --bg-input: #f4f9f6;
-
-  --border: #d1fae5;
-  --border-focus: #059669;
-
-  --text-main: #0f1f17;
-  --text-muted: #64748b;
-  --text-light: #a1b5ab;
-
-  --error: #ef4444;
-  --error-bg: #fef2f2;
-  --error-border: #fecaca;
-
-  --warning: #f59e0b;
-  --warning-light: rgba(245, 158, 11, 0.1);
-
-  --radius-sm: 8px;
-  --radius: 12px;
-  --radius-lg: 16px;
-  --radius-xl: 20px;
-
-  --sab: env(safe-area-inset-bottom, 0px);
-
-  --shadow-primary: 0 6px 16px -4px rgba(5, 150, 105, 0.35);
+  --primary-glow:  rgba(5, 150, 105, 0.15);
+  --bg:            #e8f5e9;
+  --bg-card:       #ffffff;
+  --bg-input:      #f4f9f6;
+  --border:        #d1fae5;
+  --border-focus:  #059669;
+  --text-main:     #0f1f17;
+  --text-muted:    #64748b;
+  --text-light:    #a1b5ab;
+  --error:         #ef4444;
+  --error-bg:      #fef2f2;
+  --error-border:  #fecaca;
+  --shadow-btn:    0 4px 14px rgba(5, 150, 105, 0.3);
 }
 
-    * { box-sizing: border-box; margin: 0; padding: 0; }
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-    body {
-      min-height: 100vh;
-      background: var(--bg);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-family: 'DM Sans', sans-serif;
-      padding: 24px 16px;
-      background-image:
-        radial-gradient(ellipse at 20% 20%, rgba(5,150,105,0.08) 0%, transparent 60%),
-        radial-gradient(ellipse at 80% 80%, rgba(4,120,87,0.06) 0%, transparent 60%);
-    }
+body {
+  min-height: 100vh;
+  background: var(--bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'DM Sans', sans-serif;
+  padding: 24px 16px;
+}
 
-    .card {
-      background: var(--bg-card);
-      border-radius: 28px;
-      width: 100%;
-      max-width: 400px;
-      padding: 40px 36px;
-      box-shadow: var(--shadow);
-      border: 1px solid var(--border);
-      animation: cardIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
-    }
+.wrap {
+  width: 100%;
+  max-width: 360px;
+  animation: fadeUp 0.45s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
 
-    @keyframes cardIn {
-      from { opacity: 0; transform: translateY(24px); }
-      to   { opacity: 1; transform: translateY(0); }
-    }
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
 
-    .header { text-align: center; margin-bottom: 32px; }
-    .header-badge {
-      display: inline-flex; align-items: center; gap: 6px;
-      background: var(--primary-light); color: var(--primary);
-      font-size: 12px; font-weight: 600; padding: 6px 14px;
-      border-radius: 100px; margin-bottom: 16px;
-      letter-spacing: 0.04em; text-transform: uppercase;
-    }
-    .header h1 {
-      font-family: 'Syne', sans-serif;
-      font-size: 25px;
-      font-weight: 800;
-      line-height: 1.2;
-      letter-spacing: -0.02em;
-      margin-bottom: 15px;
-    }
-    .header h1 span { color: var(--primary); }
-    .header p { font-size: 14px; color: var(--text-muted); line-height: 1.5; }
+/* Header */
+.head { text-align: center; margin-bottom: 20px; }
+.head h1 {
+  font-family: 'Syne', sans-serif;
+  font-size: 22px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: var(--text-main);
+  margin-bottom: 6px;
+  line-height: 1.2;
+}
+.head h1 span { color: var(--primary); }
+.head p { font-size: 13px; color: var(--text-muted); line-height: 1.5; }
 
-    .form { display: flex; flex-direction: column; gap: 16px; }
+/* Card */
+.card {
+  background: var(--bg-card);
+  border-radius: 20px;
+  padding: 20px 18px;
+  border: 1px solid var(--border);
+}
 
-    .field { display: flex; flex-direction: column; gap: 6px; }
-    .field label {
-      font-size: 11px; font-weight: 600; color: var(--text-muted);
-      text-transform: uppercase; letter-spacing: 0.07em;
-    }
-    .field input[type="text"] {
-      width: 100%; padding: 13px 16px;
-      border: 1.5px solid var(--border); border-radius: 14px;
-      font-size: 16px; font-family: 'DM Sans', sans-serif; color: var(--text-main);
-      background: var(--bg-muted); outline: none; transition: all 0.2s ease;
-    }
-    .field input[type="text"]:focus {
-      border-color: var(--border-focus); background: white;
-      box-shadow: 0 0 0 4px var(--primary-glow);
-    }
-    .field input[type="text"].error {
-      border-color: var(--error);
-      box-shadow: 0 0 0 4px rgba(239,68,68,0.1);
-    }
-    .field input::placeholder { color: #cbd5e1; font-weight: 400; font-size: 15px; }
+/* Fields */
+.field { display: flex; flex-direction: column; gap: 4px; margin-bottom: 10px; }
+.field:last-of-type { margin-bottom: 0; }
 
-    .divider {
-      display: flex; align-items: center; gap: 10px;
-      color: var(--text-muted); font-size: 11px; font-weight: 600; margin: 2px 0;
-      text-transform: uppercase; letter-spacing: 0.07em;
-    }
-    .divider::before, .divider::after {
-      content: ''; flex: 1; height: 1px; background: var(--border);
-    }
+.lbl {
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--text-light);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
 
-    .date-row { display: grid; grid-template-columns: 1fr 1fr 1.6fr; gap: 8px; }
+.inp {
+  width: 100%;
+  padding: 9px 12px;
+  border: 1.5px solid var(--border);
+  border-radius: 10px;
+  font-size: 15px;
+  font-family: 'DM Sans', sans-serif;
+  color: var(--text-main);
+  background: var(--bg-input);
+  outline: none;
+  transition: border-color 0.15s, box-shadow 0.15s, background 0.15s;
+  -webkit-appearance: none;
+  appearance: none;
+}
+.inp::placeholder { color: #cbd5e1; }
+.inp:focus {
+  border-color: var(--border-focus);
+  background: #fff;
+  box-shadow: 0 0 0 3px var(--primary-glow);
+}
+.inp.center { text-align: center; padding-left: 6px; padding-right: 6px; font-weight: 600; }
+.inp.error  { border-color: var(--error); box-shadow: 0 0 0 3px rgba(239,68,68,0.1); }
 
-    .date-part { display: flex; flex-direction: column; gap: 4px; }
-    .date-part span {
-      font-size: 10px; font-weight: 600; color: var(--text-muted);
-      text-transform: uppercase; letter-spacing: 0.06em; text-align: center;
-    }
-    .date-part input {
-      width: 100%; padding: 13px 6px; text-align: center;
-      border: 1.5px solid var(--border); border-radius: 12px;
-      font-size: 17px; font-weight: 600; font-family: 'DM Sans', sans-serif;
-      color: var(--text-main); background: var(--bg-muted);
-      outline: none; transition: all 0.2s ease;
-      -moz-appearance: textfield;
-    }
-    .date-part input::-webkit-outer-spin-button,
-    .date-part input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
-    .date-part input:focus {
-      border-color: var(--border-focus); background: white;
-      box-shadow: 0 0 0 4px var(--primary-glow);
-    }
-    .date-part input.error {
-      border-color: var(--error);
-      box-shadow: 0 0 0 3px rgba(239,68,68,0.1);
-    }
-    .date-part input::placeholder { color: #cbd5e1; font-weight: 400; font-size: 15px; }
+/* Divider */
+.divider {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 12px 0 10px;
+  color: var(--text-light);
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+.divider::before, .divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+}
 
-    .field-error { font-size: 12px; color: var(--error); display: none; }
-    .field-error.visible { display: block; }
+/* Date row */
+.date-row { display: grid; grid-template-columns: 1fr 1fr 1.4fr; gap: 8px; margin-bottom: 10px; }
+.date-part { display: flex; flex-direction: column; gap: 4px; }
+.date-part .lbl { text-align: center; }
+.date-part input::-webkit-outer-spin-button,
+.date-part input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+.date-part input { -moz-appearance: textfield; }
 
-    .btn-primary {
-      width: 100%; padding: 16px; border: none; border-radius: 14px;
-      background: var(--primary); color: white;
-      font-weight: 700; font-size: 16px; font-family: 'DM Sans', sans-serif;
-      cursor: pointer; margin-top: 4px;
-      transition: transform 0.1s, background 0.2s, box-shadow 0.2s;
-      box-shadow: 0 4px 14px rgba(5,150,105,0.3);
-    }
-    .btn-primary:hover { background: var(--primary-hover); box-shadow: 0 6px 20px rgba(5,150,105,0.4); }
-    .btn-primary:active { transform: scale(0.98); }
-    .btn-primary:disabled { background: #94a3b8; cursor: not-allowed; box-shadow: none; }
+/* Optional row — side by side */
+.opt-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 10px; }
 
-    .error-box {
-      background: var(--error-bg); border: 1.5px solid var(--error-border);
-      border-radius: 14px; padding: 14px 16px; display: none; margin-top: 4px;
-    }
-    .error-box.visible { display: block; }
-    .error-box strong { display: block; font-size: 13px; font-weight: 700; color: var(--error); margin-bottom: 4px; }
-    .error-box code { display: block; font-size: 12px; color: #b91c1c; word-break: break-all; white-space: pre-wrap; font-family: monospace; line-height: 1.5; }
+/* Field errors */
+.field-error { font-size: 11px; color: var(--error); display: none; margin-top: 2px; }
+.field-error.visible { display: block; }
 
-    /* ── SUCCESS SCREEN ── */
-    .success {
-      display: none; flex-direction: column; align-items: center;
-      gap: 20px; text-align: center; padding: 12px 0;
-      animation: cardIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) both;
-    }
-    .success.active { display: flex; }
+/* Error box */
+.error-box {
+  background: var(--error-bg);
+  border: 1.5px solid var(--error-border);
+  border-radius: 10px;
+  padding: 12px 14px;
+  display: none;
+  margin-top: 10px;
+}
+.error-box.visible { display: block; }
+.error-box strong { display: block; font-size: 12px; font-weight: 700; color: var(--error); margin-bottom: 3px; }
+.error-box code { font-size: 11px; color: #b91c1c; word-break: break-all; font-family: monospace; }
 
-    /* Animated check circle */
-    .success-icon {
-      width: 80px;
-      height: 80px;
-      position: relative;
-    }
+/* Submit button */
+.btn-submit {
+  width: 100%;
+  padding: 13px;
+  background: var(--primary);
+  color: white;
+  border: none;
+  border-radius: 12px;
+  font-size: 15px;
+  font-weight: 700;
+  font-family: 'DM Sans', sans-serif;
+  cursor: pointer;
+  margin-top: 14px;
+  box-shadow: var(--shadow-btn);
+  transition: background 0.15s, transform 0.1s, box-shadow 0.15s;
+}
+.btn-submit:hover  { background: var(--primary-hover); }
+.btn-submit:active { transform: scale(0.98); }
+.btn-submit:disabled { background: #94a3b8; cursor: not-allowed; box-shadow: none; transform: none; }
 
-    .check-circle {
-      width: 80px;
-      height: 80px;
-    }
+/* Success screen */
+.success {
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  text-align: center;
+  padding: 8px 0;
+  animation: fadeUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+.success.active { display: flex; }
 
-    .check-circle .circle {
-      stroke: #059669;
-      stroke-width: 3;
-      fill: #059669;
-      stroke-dasharray: 226;
-      stroke-dashoffset: 226;
-      animation: drawCircle 0.5s cubic-bezier(0.16, 1, 0.3, 1) 0.1s forwards;
-    }
+.check-circle { width: 72px; height: 72px; }
 
-    .check-circle .check {
-      stroke: white;
-      stroke-width: 3.5;
-      fill: none;
-      stroke-linecap: round;
-      stroke-linejoin: round;
-      stroke-dasharray: 50;
-      stroke-dashoffset: 50;
-      animation: drawCheck 0.35s cubic-bezier(0.16, 1, 0.3, 1) 0.55s forwards;
-    }
+.check-circle .circle {
+  fill: var(--primary);
+  stroke: var(--primary);
+  stroke-width: 2;
+  stroke-dasharray: 214;
+  stroke-dashoffset: 214;
+  animation: drawCircle 0.5s cubic-bezier(0.16, 1, 0.3, 1) 0.1s forwards;
+}
+.check-circle .check {
+  stroke: white;
+  stroke-width: 3.5;
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-dasharray: 46;
+  stroke-dashoffset: 46;
+  animation: drawCheck 0.3s cubic-bezier(0.16, 1, 0.3, 1) 0.55s forwards;
+}
 
-    @keyframes drawCircle {
-      to { stroke-dashoffset: 0; }
-    }
+@keyframes drawCircle { to { stroke-dashoffset: 0; } }
+@keyframes drawCheck  { to { stroke-dashoffset: 0; } }
 
-    @keyframes drawCheck {
-      to { stroke-dashoffset: 0; }
-    }
+.success h2 {
+  font-family: 'Syne', sans-serif;
+  font-size: 26px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: var(--text-main);
+  line-height: 1.1;
+}
+.success p { font-size: 14px; color: var(--text-muted); line-height: 1.5; }
+.player-name { color: var(--primary); font-weight: 700; }
 
-    /* Success typography */
-    .success h2 {
-      font-family: 'Syne', sans-serif;
-      font-size: 28px;
-      font-weight: 800;
-      letter-spacing: -0.02em;
-      color: var(--text-main);
-      line-height: 1.1;
-    }
-
-    .player-name { color: var(--primary); font-weight: 700; }
-
-    @media (max-width: 480px) {
-      .card { padding: 28px 20px; }
-      .header h1 { font-size: 24px; }
-    }
+@media (max-width: 380px) {
+  .card { padding: 18px 14px; }
+  .head h1 { font-size: 20px; }
+}
   </style>
 </head>
 <body>
-  <div class="card">
+<div class="wrap">
 
-    <div class="header" id="form-header">
-      <h1>Registrate <span>pichangero</span></h1>
-      <p>Regístrate una unica vez, asi para las proximas listas te anotamos automaticamente.</p>
-    </div>
-
-    <div class="form" id="main-form">
-
-      <div class="field">
-        <label for="input-nombre">Nombre completo</label>
-        <input
-          type="text"
-          id="input-nombre"
-          placeholder="Ej: Carlos Ramírez"
-          autocomplete="off"
-          autocapitalize="words"
-          autocorrect="off"
-          spellcheck="false"
-        >
-        <span class="field-error" id="err-nombre">Ingresa tu nombre completo.</span>
-      </div>
-
-      <div class="divider">Fecha de nacimiento</div>
-
-      <div class="field">
-        <div class="date-row">
-          <div class="date-part">
-            <span>Día</span>
-            <input type="tel" id="inp-day" placeholder="14" maxlength="2" inputmode="numeric">
-          </div>
-          <div class="date-part">
-            <span>Mes</span>
-            <input type="tel" id="inp-month" placeholder="08" maxlength="2" inputmode="numeric">
-          </div>
-          <div class="date-part">
-            <span>Año</span>
-            <input type="tel" id="inp-year" placeholder="1995" maxlength="4" inputmode="numeric">
-          </div>
-        </div>
-        <span class="field-error" id="err-fecha">Ingresa una fecha válida.</span>
-      </div>
-
-      <div class="error-box" id="error-box">
-        <strong>Error al registrar</strong>
-        <code id="error-detail"></code>
-      </div>
-
-      <button class="btn-primary" id="btn-submit">Registrarme</button>
-    </div>
-
-    <div class="success" id="success-screen">
-      <div class="success-icon">
-        <svg class="check-circle" viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg">
-          <circle class="circle" cx="40" cy="40" r="36"/>
-          <polyline class="check" points="24,41 35,52 57,30"/>
-        </svg>
-      </div>
-      <h2>¡Bienvenido!</h2>
-      <p>Quedaste registrado como<br><span class="player-name" id="success-name"></span></p>
-      <p style="font-size: 13px; color: var(--text-muted); margin-top: 4px;">Te hemos anotado automáticamente en la pichanga. Ya puedes volver al chat.</p>
-    </div>
-
+  <div class="head" id="form-header">
+    <h1>Registrate <span>pichangero</span></h1>
+    <p>Una vez registrado, te anotamos automáticamente en futuras listas.</p>
   </div>
 
-  <script src="config.js"></script>
-  <script>
-    const SUPABASE_URL     = window.ENV.SUPABASE_URL;
-    const SUPABASE_KEY     = window.ENV.SUPABASE_KEY;
-    const EDGE_FUNCTION_URL = window.ENV.EDGE_FUNCTION_URL;
+  <div class="card" id="main-form">
 
-    const urlParams   = new URLSearchParams(window.location.search);
-    const numRaw      = urlParams.get('num') || urlParams.get('numero') || '';
-    const cleanNumber = numRaw.replace(/\D/g, '');
-    const numero      = cleanNumber ? `+${cleanNumber}` : null;
-    const matchId     = urlParams.get('match') || urlParams.get('match_id') || null;
+    <!-- Nombre -->
+    <div class="field">
+      <label class="lbl" for="input-nombre">Nombre completo</label>
+      <input
+        class="inp"
+        type="text"
+        id="input-nombre"
+        placeholder="Carlos Ramírez"
+        autocomplete="off"
+        autocapitalize="words"
+        autocorrect="off"
+        spellcheck="false"
+      >
+      <span class="field-error" id="err-nombre">Ingresa tu nombre y apellido.</span>
+    </div>
 
-    if (!numero) {
-      document.querySelector('#form-header p').innerHTML +=
-        '<br><strong style="color:var(--error);font-size:12px;">⚠ Error: Falta el teléfono en la URL.</strong>';
+    <!-- Fecha de nacimiento -->
+    <div class="divider">Fecha de nacimiento</div>
+
+    <div class="date-row">
+      <div class="date-part">
+        <span class="lbl">Día</span>
+        <input class="inp center" type="tel" id="inp-day" placeholder="14" maxlength="2" inputmode="numeric">
+      </div>
+      <div class="date-part">
+        <span class="lbl">Mes</span>
+        <input class="inp center" type="tel" id="inp-month" placeholder="08" maxlength="2" inputmode="numeric">
+      </div>
+      <div class="date-part">
+        <span class="lbl">Año</span>
+        <input class="inp center" type="tel" id="inp-year" placeholder="1995" maxlength="4" inputmode="numeric">
+      </div>
+    </div>
+    <span class="field-error" id="err-fecha" style="margin-top:-6px;margin-bottom:10px;">Ingresa una fecha válida.</span>
+
+    <!-- Opcionales -->
+    <div class="divider">Opcional</div>
+
+    <div class="opt-row">
+      <div class="field" style="margin-bottom:0;">
+        <label class="lbl" for="input-placa">Placa del auto</label>
+        <input
+          class="inp"
+          type="text"
+          id="input-placa"
+          placeholder="ABC-123"
+          autocomplete="off"
+          autocapitalize="characters"
+          autocorrect="off"
+          maxlength="7"
+        >
+      </div>
+      <div class="field" style="margin-bottom:0;">
+        <label class="lbl" for="input-doc">DNI</label>
+        <input
+          class="inp"
+          type="text"
+          id="input-doc"
+          placeholder="12345678"
+          autocomplete="off"
+          inputmode="numeric"
+          maxlength="12"
+        >
+      </div>
+    </div>
+
+    <div class="error-box" id="error-box">
+      <strong>Error al registrar</strong>
+      <code id="error-detail"></code>
+    </div>
+
+    <button class="btn-submit" id="btn-submit">Registrarme</button>
+  </div>
+
+  <!-- Success -->
+  <div class="card success" id="success-screen">
+    <svg class="check-circle" viewBox="0 0 72 72" xmlns="http://www.w3.org/2000/svg">
+      <circle class="circle" cx="36" cy="36" r="34"/>
+      <polyline class="check" points="21,37 31,47 52,26"/>
+    </svg>
+    <h2>¡Bienvenido!</h2>
+    <p>Quedaste registrado como<br><span class="player-name" id="success-name"></span></p>
+    <p style="font-size:13px;color:var(--text-light);">Ya puedes volver al chat, te anotamos automáticamente.</p>
+  </div>
+
+</div>
+
+<script src="config.js"></script>
+<script>
+  const SUPABASE_URL      = window.ENV.SUPABASE_URL;
+  const SUPABASE_KEY      = window.ENV.SUPABASE_KEY;
+  const EDGE_FUNCTION_URL = window.ENV.EDGE_FUNCTION_URL;
+
+  const urlParams   = new URLSearchParams(window.location.search);
+  const numRaw      = urlParams.get('num') || urlParams.get('numero') || '';
+  const cleanNumber = numRaw.replace(/\D/g, '');
+  const numero      = cleanNumber ? `+${cleanNumber}` : null;
+  const matchId     = urlParams.get('match') || urlParams.get('match_id') || null;
+
+  if (!numero) {
+    document.querySelector('#form-header p').innerHTML +=
+      '<br><strong style="color:#ef4444;font-size:12px;">⚠ Error: Falta el teléfono en la URL.</strong>';
+  }
+
+  // ── AUTOCAPITALIZE — nombre ──
+  const nombreInput = document.getElementById('input-nombre');
+  function capitalizeWords(s) { return s.replace(/\b\w/g, c => c.toUpperCase()); }
+  nombreInput.addEventListener('input', () => {
+    const pos = nombreInput.selectionStart;
+    const up  = capitalizeWords(nombreInput.value);
+    if (up !== nombreInput.value) { nombreInput.value = up; nombreInput.setSelectionRange(pos, pos); }
+  });
+  nombreInput.addEventListener('blur', () => { nombreInput.value = capitalizeWords(nombreInput.value); });
+
+  // ── AUTOCAPITALIZE — placa ──
+  const placaInput = document.getElementById('input-placa');
+  placaInput.addEventListener('input', () => {
+    const pos = placaInput.selectionStart;
+    const up  = placaInput.value.toUpperCase();
+    if (up !== placaInput.value) { placaInput.value = up; placaInput.setSelectionRange(pos, pos); }
+  });
+
+  // ── DIGITS ONLY — documento ──
+  const docInput = document.getElementById('input-doc');
+  docInput.addEventListener('input', () => {
+    const pos    = docInput.selectionStart;
+    const digits = docInput.value.replace(/\D/g, '');
+    if (digits !== docInput.value) { docInput.value = digits; docInput.setSelectionRange(pos, pos); }
+  });
+
+  // ── DATE INPUTS ──
+  const inpDay   = document.getElementById('inp-day');
+  const inpMonth = document.getElementById('inp-month');
+  const inpYear  = document.getElementById('inp-year');
+
+  function clampAndAdvance(e, max, maxLen, nextEl) {
+    let val = e.target.value.replace(/\D/g, '');
+    if (val.length === maxLen) {
+      const n = parseInt(val);
+      if (n < 1)   val = '01';
+      if (n > max) val = String(max).padStart(maxLen, '0');
+    }
+    e.target.value = val;
+    if (val.length >= maxLen && nextEl) { nextEl.focus(); nextEl.select(); }
+  }
+
+  function clampYear(e) {
+    let val = e.target.value.replace(/\D/g, '');
+    if (val.length === 4) {
+      const n = parseInt(val);
+      if (n < 1920) val = '1920';
+      if (n > 2100) val = '2100';
+    }
+    e.target.value = val;
+  }
+
+  inpDay.addEventListener('input',   e => clampAndAdvance(e, 31, 2, inpMonth));
+  inpMonth.addEventListener('input', e => clampAndAdvance(e, 12, 2, inpYear));
+  inpYear.addEventListener('input',  e => clampYear(e));
+
+  // ── SUBMIT ──
+  document.getElementById('btn-submit').onclick = async () => {
+    const nomEl       = document.getElementById('input-nombre');
+    const errNom      = document.getElementById('err-nombre');
+    const errFecha    = document.getElementById('err-fecha');
+    const errorBox    = document.getElementById('error-box');
+    const errorDetail = document.getElementById('error-detail');
+
+    let valid = true;
+
+    if (!nomEl.value.trim() || nomEl.value.trim().split(/\s+/).length < 2) {
+      nomEl.classList.add('error');
+      errNom.classList.add('visible');
+      errNom.textContent = nomEl.value.trim() === '' ? 'Ingresa tu nombre completo.' : 'Ingresa también tu apellido.';
+      valid = false;
+    } else {
+      nomEl.classList.remove('error');
+      errNom.classList.remove('visible');
     }
 
-    // ── AUTOCAPITALIZE — JS fallback for devices that ignore the attribute ──
-    const nombreInput = document.getElementById('input-nombre');
+    const d  = parseInt(inpDay.value);
+    const mo = parseInt(inpMonth.value);
+    const y  = parseInt(inpYear.value);
+    const dateValid = d >= 1 && d <= 31 && mo >= 1 && mo <= 12 && y >= 1920 && y <= 2020;
 
-    function capitalizeWords(str) {
-      return str.replace(/\b\w/g, c => c.toUpperCase());
+    if (!dateValid) {
+      inpDay.classList.toggle('error',   !(d  >= 1   && d  <= 31));
+      inpMonth.classList.toggle('error', !(mo >= 1   && mo <= 12));
+      inpYear.classList.toggle('error',  !(y  >= 1920 && y <= 2020));
+      errFecha.classList.add('visible');
+      valid = false;
+    } else {
+      inpDay.classList.remove('error');
+      inpMonth.classList.remove('error');
+      inpYear.classList.remove('error');
+      errFecha.classList.remove('visible');
     }
 
-    nombreInput.addEventListener('input', () => {
-      const pos   = nombreInput.selectionStart;
-      const upper = capitalizeWords(nombreInput.value);
-      if (upper !== nombreInput.value) {
-        nombreInput.value = upper;
-        // Restore cursor position after value change
-        nombreInput.setSelectionRange(pos, pos);
-      }
-    });
+    if (!valid) return;
+    errorBox.classList.remove('visible');
 
-    // Also capitalize on blur to catch paste events
-    nombreInput.addEventListener('blur', () => {
-      nombreInput.value = capitalizeWords(nombreInput.value);
-    });
+    const dd         = String(d).padStart(2, '0');
+    const mm         = String(mo).padStart(2, '0');
+    const nombreFull = nomEl.value.trim();
+    const placa      = placaInput.value.trim() || null;
+    const documento  = docInput.value.trim()   || null;
 
-    // ── DATE INPUT LOGIC ──
-    const inpDay   = document.getElementById('inp-day');
-    const inpMonth = document.getElementById('inp-month');
-    const inpYear  = document.getElementById('inp-year');
+    const btn = document.getElementById('btn-submit');
+    btn.disabled    = true;
+    btn.textContent = 'Procesando...';
 
-    function clampAndAdvance(e, max, maxLen, nextEl) {
-      let val = e.target.value.replace(/\D/g, '');
-      if (val.length === maxLen) {
-        const n = parseInt(val);
-        if (n < 1)   val = '01';
-        if (n > max) val = String(max).padStart(maxLen, '0');
-      }
-      e.target.value = val;
-      if (val.length >= maxLen && nextEl) {
-        nextEl.focus();
-        nextEl.select();
-      }
-    }
+    try {
+      // 1. Guardar en tabla personas
+      const resPersona = await fetch(`${SUPABASE_URL}/rest/v1/personas`, {
+        method: 'POST',
+        headers: {
+          'apikey':        SUPABASE_KEY,
+          'Authorization': `Bearer ${SUPABASE_KEY}`,
+          'Content-Type':  'application/json',
+          'Prefer':        'return=representation'
+        },
+        body: JSON.stringify({
+          nombre:     nombreFull,
+          fecha_nac:  `${y}-${mm}-${dd}`,
+          numero:     numero,
+          placa_auto: placa,
+          documento:  documento,
+        })
+      });
 
-    function clampYear(e) {
-      let val = e.target.value.replace(/\D/g, '');
-      if (val.length === 4) {
-        const n = parseInt(val);
-        if (n < 1920) val = '1920';
-        if (n > 2100) val = '2100';
-      }
-      e.target.value = val;
-    }
-
-    inpDay.addEventListener('input',   e => clampAndAdvance(e, 31, 2, inpMonth));
-    inpMonth.addEventListener('input', e => clampAndAdvance(e, 12, 2, inpYear));
-    inpYear.addEventListener('input',  e => clampYear(e));
-
-    // ── SUBMIT ──
-    document.getElementById('btn-submit').onclick = async () => {
-      const nomEl       = document.getElementById('input-nombre');
-      const errNom      = document.getElementById('err-nombre');
-      const errFecha    = document.getElementById('err-fecha');
-      const errorBox    = document.getElementById('error-box');
-      const errorDetail = document.getElementById('error-detail');
-
-      let valid = true;
-
-      // Name validation
-      if (!nomEl.value.trim() || nomEl.value.trim().split(/\s+/).length < 2) {
-        nomEl.classList.add('error');
-        errNom.classList.add('visible');
-        errNom.textContent = nomEl.value.trim() === ''
-          ? 'Ingresa tu nombre completo.'
-          : 'Ingresa también tu apellido.';
-        valid = false;
-      } else {
-        nomEl.classList.remove('error');
-        errNom.classList.remove('visible');
+      if (!resPersona.ok) {
+        const body = await resPersona.json().catch(() => ({}));
+        throw new Error(`Error al guardar perfil: ${body.message || resPersona.status}`);
       }
 
-      // Date validation
-      const d  = parseInt(inpDay.value);
-      const mo = parseInt(inpMonth.value);
-      const y  = parseInt(inpYear.value);
-      const dateValid = d >= 1 && d <= 31 && mo >= 1 && mo <= 12 && y >= 1920 && y <= 2020;
-
-      if (!dateValid) {
-        inpDay.classList.toggle('error',   !(d  >= 1   && d  <= 31));
-        inpMonth.classList.toggle('error', !(mo >= 1   && mo <= 12));
-        inpYear.classList.toggle('error',  !(y  >= 1920 && y <= 2020));
-        errFecha.classList.add('visible');
-        valid = false;
-      } else {
-        inpDay.classList.remove('error');
-        inpMonth.classList.remove('error');
-        inpYear.classList.remove('error');
-        errFecha.classList.remove('visible');
-      }
-
-      if (!valid) return;
-      errorBox.classList.remove('visible');
-
-      const dd         = String(d).padStart(2, '0');
-      const mm         = String(mo).padStart(2, '0');
-      const nombreFull = nomEl.value.trim();
-
-      const btn = document.getElementById('btn-submit');
-      btn.disabled    = true;
-      btn.textContent = 'Procesando...';
-
-      try {
-        // 1. Guardar en tabla personas
-        const resPersona = await fetch(`${SUPABASE_URL}/rest/v1/personas`, {
+      // 2. Invocar edge function para inscribir en la pichanga
+      if (matchId && numero) {
+        await new Promise(r => setTimeout(r, 300));
+        const resEdge = await fetch(EDGE_FUNCTION_URL, {
           method: 'POST',
-          headers: {
-            'apikey':        SUPABASE_KEY,
-            'Authorization': `Bearer ${SUPABASE_KEY}`,
-            'Content-Type':  'application/json',
-            'Prefer':        'return=representation'
-          },
-          body: JSON.stringify({
-            nombre:    nombreFull,
-            fecha_nac: `${y}-${mm}-${dd}`,
-            numero:    numero
-          })
+          headers: { 'Content-Type': 'application/json', 'apikey': SUPABASE_KEY },
+          body: JSON.stringify({ data: { fromNumber: numero, body: `/anotarme ${matchId}` } })
         });
-
-        if (!resPersona.ok) {
-          const body = await resPersona.json().catch(() => ({}));
-          throw new Error(`Error al guardar perfil: ${body.message || resPersona.status}`);
+        const edgeText = await resEdge.text();
+        if (!resEdge.ok) {
+          console.warn(`Edge function HTTP ${resEdge.status}:`, edgeText);
+        } else {
+          try {
+            const edgeResult = JSON.parse(edgeText);
+            if (!edgeResult.ok) console.warn('Edge function ok:false →', edgeResult.message || edgeResult);
+          } catch { console.log('Edge function response (raw):', edgeText); }
         }
-
-        // 2. Invocar edge function para inscribir en la pichanga
-        if (matchId && numero) {
-          await new Promise(r => setTimeout(r, 300));
-
-          console.log(`Invocando edge function: /anotarme ${matchId} para ${numero}`);
-          const resEdge = await fetch(EDGE_FUNCTION_URL, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              'apikey':        SUPABASE_KEY
-            },
-            body: JSON.stringify({
-              data: {
-                fromNumber: numero,
-                body:       `/anotarme ${matchId}`
-              }
-            })
-          });
-
-          const edgeText = await resEdge.text();
-          if (!resEdge.ok) {
-            console.warn(`Edge function HTTP ${resEdge.status}:`, edgeText);
-          } else {
-            try {
-              const edgeResult = JSON.parse(edgeText);
-              console.log('Edge function result:', edgeResult);
-              if (!edgeResult.ok) {
-                console.warn('Edge function devolvió ok:false →', edgeResult.message || edgeResult);
-              }
-            } catch {
-              console.log('Edge function response (raw):', edgeText);
-            }
-          }
-        }
-
-        // 3. Mostrar éxito
-        document.getElementById('form-header').style.display = 'none';
-        document.getElementById('main-form').style.display   = 'none';
-        document.getElementById('success-name').textContent  = nombreFull;
-        document.getElementById('success-screen').classList.add('active');
-
-      } catch (e) {
-        console.error('Error:', e);
-        errorDetail.textContent = e.message;
-        errorBox.classList.add('visible');
-        btn.disabled    = false;
-        btn.textContent = 'Registrarme';
       }
-    };
-  </script>
+
+      // 3. Mostrar éxito
+      document.getElementById('form-header').style.display = 'none';
+      document.getElementById('main-form').style.display   = 'none';
+      document.getElementById('success-name').textContent  = nombreFull;
+      document.getElementById('success-screen').classList.add('active');
+
+    } catch (e) {
+      console.error('Error:', e);
+      errorDetail.textContent = e.message;
+      errorBox.classList.add('visible');
+      btn.disabled    = false;
+      btn.textContent = 'Registrarme';
+    }
+  };
+</script>
 </body>
 </html>
