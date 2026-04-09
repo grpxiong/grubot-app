@@ -117,15 +117,22 @@
        ═══════════════════════════════════════ -->
   <div id="match-detail-view" style="display:none;">
 
-    <button class="btn-back fade-in" id="btn-back-list">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M19 12H5"/><path d="m12 19-7-7 7-7"/>
-      </svg>
-      <span>Partidos</span>
-    </button>
+    <div class="fade-in" style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
+      <button class="btn-back" id="btn-back-list" style="margin-bottom:0;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M19 12H5"/><path d="m12 19-7-7 7-7"/>
+        </svg>
+        <span>Partidos</span>
+      </button>
+      <button class="btn-edit-float" id="btn-detail-edit" title="Editar partido">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 20h9"/>
+          <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/>
+        </svg>
+      </button>
+    </div>
 
     <div class="match-hero fade-in stagger-1" id="detail-hero">
-      <div class="match-badge" id="detail-badge">⚡ Próximo partido</div>
       <div class="match-title" id="detail-title">—</div>
       <div class="match-details">
         <div class="match-detail-row">
@@ -147,42 +154,12 @@
       </div>
     </div>
 
-    <!-- Estado & Cupos merged card -->
-    <div class="card fade-in stagger-2">
-      <div class="card-label">Estado &amp; Cupos</div>
-
-      <div style="display:flex;align-items:center;gap:14px;">
-        <!-- Traffic light -->
-        <div style="display:flex;flex-direction:column;align-items:center;gap:5px;background:var(--bg-input);border:1px solid var(--border);border-radius:20px;padding:8px 6px;flex-shrink:0;">
-          <div id="tl-green" style="width:18px;height:18px;border-radius:50%;background:#059669;opacity:1;transition:opacity 0.2s;"></div>
-          <div id="tl-amber" style="width:18px;height:18px;border-radius:50%;background:#f59e0b;opacity:0.18;transition:opacity 0.2s;"></div>
-          <div id="tl-red"   style="width:18px;height:18px;border-radius:50%;background:#ef4444;opacity:0.18;transition:opacity 0.2s;"></div>
-        </div>
-
-        <!-- Status label + battery -->
-        <div style="flex:1;display:flex;flex-direction:column;gap:10px;">
-          <div>
-            <div style="font-size:15px;font-weight:700;color:var(--text-main);" id="detail-status-name">Abierto</div>
-            <div style="font-size:11px;color:var(--text-light);margin-top:2px;" id="detail-status-hint">El bot acepta inscripciones automáticamente.</div>
-          </div>
-          <div style="display:flex;flex-direction:column;gap:6px;">
-            <div style="display:flex;align-items:center;justify-content:space-between;">
-              <span style="font-size:13px;font-weight:700;color:var(--text-main);" id="detail-battery-count">0 / 0 cupos</span>
-              <span style="font-size:11px;color:var(--text-muted);" id="detail-battery-sub"></span>
-            </div>
-            <div style="display:flex;align-items:center;gap:5px;">
-              <div style="flex:1;height:14px;background:var(--bg-input);border-radius:999px;overflow:hidden;border:1px solid var(--border);">
-                <div id="detail-battery-fill" style="height:100%;border-radius:999px;background:#059669;transition:width 0.4s cubic-bezier(.16,1,.3,1);width:0%;"></div>
-              </div>
-              <div style="width:5px;height:8px;border-radius:0 3px 3px 0;background:var(--border);flex-shrink:0;"></div>
-            </div>
-            <div id="detail-seat-dots" style="display:flex;gap:4px;flex-wrap:wrap;margin-top:2px;"></div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Estado chips -->
-      <div style="display:flex;gap:6px;margin-top:16px;">
+    <!-- Status badge + chips -->
+    <div class="fade-in stagger-2" style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;">
+      <span id="detail-status-badge" style="display:inline-flex;align-items:center;padding:5px 12px;border-radius:999px;background:#d1fae5;color:#065f46;font-size:12px;font-weight:700;white-space:nowrap;">
+        Abierto · 0/0 confirmados
+      </span>
+      <div style="display:flex;gap:6px;">
         <button class="detail-estado-chip" data-estado="abierto">Abierto</button>
         <button class="detail-estado-chip" data-estado="cerrado">Cerrado</button>
         <button class="detail-estado-chip" data-estado="cancelado">Cancelado</button>
@@ -195,21 +172,117 @@
       <div id="detail-player-list"></div>
     </div>
 
-    <div class="fade-in stagger-4" style="position:relative;margin-top:4px;margin-bottom:24px;">
+    <div class="fade-in stagger-4" style="margin-top:4px;margin-bottom:24px;">
       <button class="btn-primary" id="btn-detail-share">
         📤&ensp;Enviar lista al grupo
       </button>
-      <button class="btn-edit-float" id="btn-detail-edit" title="Editar partido">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
-          <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
-        </svg>
-      </button>
     </div>
-  
+
   </div>
 </div>
-  
+
+<!-- ── Screen Styles ── -->
+<style>
+  .section-header { display:flex;align-items:center;justify-content:space-between;margin-bottom:14px; }
+  .section-title  { font-family:'Syne',sans-serif;font-size:22px;font-weight:800;letter-spacing:-0.02em;color:var(--text-main);line-height:1.1; }
+  .section-title span { color:var(--primary); }
+  .section-sub    { font-size:12px;color:var(--text-muted);margin-top:2px; }
+
+  .filter-row { display:flex;gap:6px;margin-bottom:14px;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none; }
+  .filter-row::-webkit-scrollbar { display:none; }
+
+  .filter-chip {
+    padding:6px 14px;border:1.5px solid var(--border);border-radius:999px;
+    background:var(--bg-card);color:var(--text-muted);font-family:inherit;
+    font-size:12px;font-weight:700;white-space:nowrap;cursor:pointer;
+    transition:all 0.15s;touch-action:manipulation;
+  }
+  .filter-chip.active { background:var(--primary);border-color:var(--primary);color:white; }
+
+  .match-card {
+    background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-lg);
+    padding:14px 16px;cursor:pointer;
+    transition:border-color 0.15s,box-shadow 0.15s,transform 0.1s;
+    touch-action:manipulation;position:relative;
+    box-shadow:0 2px 8px rgba(15,31,23,0.06),0 1px 2px rgba(15,31,23,0.04);
+  }
+  .match-card + .match-card { margin-top:8px; }
+  .match-card:active { transform:scale(0.985);border-color:var(--primary);box-shadow:0 0 0 3px var(--primary-glow); }
+
+  .match-card::before {
+    content:'';position:absolute;left:0;top:0;bottom:0;width:3px;
+    border-radius:var(--radius-lg) 0 0 var(--radius-lg);background:var(--primary);
+  }
+  .match-card.past { background:#f0f2f1;filter:grayscale(0.3);box-shadow:0 1px 4px rgba(15,31,23,0.03); }
+  .match-card.past::before     { background:var(--text-light); }
+  .match-card.cancelled::before{ background:var(--error); }
+
+  .mc-top { display:flex;align-items:flex-start;justify-content:space-between;gap:10px; }
+  .mc-title { font-family:'Syne',sans-serif;font-size:16px;font-weight:800;letter-spacing:-0.01em;color:var(--text-main);line-height:1.2; }
+  .mc-status { padding:2px 8px;border-radius:999px;font-size:10px;font-weight:700;letter-spacing:0.04em;text-transform:uppercase;white-space:nowrap;flex-shrink:0;margin-top:2px; }
+  .mc-status.open      { background:var(--primary-light);color:var(--primary); }
+  .mc-status.closed    { background:var(--warning-light);color:var(--warning); }
+  .mc-status.cancelled { background:var(--error-bg);color:var(--error); }
+
+  .mc-info { display:flex;flex-wrap:wrap;gap:4px 14px;margin-top:8px;font-size:12px;color:var(--text-muted); }
+  .mc-info-item { display:flex;align-items:center;gap:4px; }
+  .mc-info-item svg { width:13px;height:13px;color:var(--text-light);flex-shrink:0; }
+
+  .mc-footer { display:flex;align-items:center;justify-content:space-between;margin-top:10px;padding-top:10px;border-top:1px solid var(--border); }
+  .mc-players { display:flex;align-items:center;gap:6px;font-size:12px;font-weight:600;color:var(--text-muted); }
+  .mc-players-bar { width:60px;height:5px;background:var(--bg-input);border-radius:5px;overflow:hidden; }
+  .mc-players-fill { height:100%;background:var(--primary);border-radius:5px;transition:width 0.3s ease; }
+  .mc-arrow { width:24px;height:24px;color:var(--text-light);display:flex;align-items:center;justify-content:center; }
+  .mc-arrow svg { width:16px;height:16px; }
+
+  .match-card-skeleton { background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-lg);padding:14px 16px; }
+  .match-card-skeleton + .match-card-skeleton { margin-top:8px; }
+
+  .btn-back {
+    display:flex;align-items:center;gap:6px;border:none;background:none;
+    color:var(--primary);font-family:'DM Sans',sans-serif;font-size:14px;font-weight:700;
+    cursor:pointer;padding:4px 0;touch-action:manipulation;
+  }
+  .btn-back:active { opacity:0.7; }
+  .btn-back svg { width:18px;height:18px; }
+
+  .btn-edit-float {
+    width:40px;height:40px;border:none;border-radius:25px;
+    background:var(--primary);color:white;
+    display:flex;align-items:center;justify-content:center;
+    cursor:pointer;box-shadow:0 4px 12px rgba(5,150,105,0.3);
+    transition:background 0.15s,transform 0.1s;touch-action:manipulation;flex-shrink:0;
+  }
+  .btn-edit-float:active { background:var(--primary-hover);transform:scale(0.93); }
+  .btn-edit-float svg { width:16px;height:16px; }
+
+  .detail-estado-chip {
+    padding:5px 12px;border-radius:999px;
+    border:1.5px solid var(--border);background:var(--bg-input);
+    font-size:11px;font-weight:700;color:var(--text-muted);
+    cursor:pointer;transition:all 0.15s;font-family:inherit;
+    touch-action:manipulation;
+  }
+  .detail-estado-chip.chip-open      { background:#d1fae5;border-color:#059669;color:#065f46; }
+  .detail-estado-chip.chip-cerrado   { background:#fef3c7;border-color:#f59e0b;color:#92400e; }
+  .detail-estado-chip.chip-cancelado { background:#fef2f2;border-color:#fecaca;color:#b91c1c; }
+
+  .detail-player-section-label { font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:var(--text-light);margin:12px 0 4px; }
+  .detail-player-section-label:first-child { margin-top:0; }
+
+  .detail-player-row { display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border); }
+  .detail-player-row:last-child { border-bottom:none;padding-bottom:0; }
+
+  .dp-num {
+    width:28px;height:28px;border-radius:8px;
+    display:flex;align-items:center;justify-content:center;
+    font-family:'Syne',sans-serif;font-size:11px;font-weight:800;flex-shrink:0;
+  }
+  .dp-num.tit { background:var(--primary-light);color:var(--primary); }
+  .dp-num.sup { background:var(--warning-light);color:var(--warning); }
+  .dp-name { font-size:13px;font-weight:600;color:var(--text-main);flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap; }
+</style>
+
 <!-- ── Screen Logic ── -->
 <script>
 (function() {
@@ -232,39 +305,33 @@
   function statusLabel(e)    { return {abierto:'Abierto',cerrado:'Cerrado',cancelado:'Cancelado'}[e]||e; }
 
   const statusConfig = {
-    abierto:   { name:'Abierto',   hint:'El bot acepta inscripciones automáticamente.', fill:'#059669', tl:'green', chipClass:'chip-open'      },
-    cerrado:   { name:'Cerrado',   hint:'Solo el admin puede agregar jugadores.',        fill:'#f59e0b', tl:'amber', chipClass:'chip-cerrado'    },
-    cancelado: { name:'Cancelado', hint:'Se notificará a los jugadores inscritos.',      fill:'#ef4444', tl:'red',   chipClass:'chip-cancelado'  },
+    abierto:   { name:'Abierto',   chipClass:'chip-open'      },
+    cerrado:   { name:'Cerrado',   chipClass:'chip-cerrado'   },
+    cancelado: { name:'Cancelado', chipClass:'chip-cancelado' },
   };
 
-  function applyEstado(estado) {
-    const cfg = statusConfig[estado] || statusConfig.abierto;
-    document.getElementById('tl-green').style.opacity = cfg.tl==='green' ? '1' : '0.18';
-    document.getElementById('tl-amber').style.opacity = cfg.tl==='amber' ? '1' : '0.18';
-    document.getElementById('tl-red').style.opacity   = cfg.tl==='red'   ? '1' : '0.18';
-    document.getElementById('detail-status-name').textContent       = cfg.name;
-    document.getElementById('detail-status-hint').textContent       = cfg.hint;
-    document.getElementById('detail-battery-fill').style.background = cfg.fill;
+  const badgeColors = {
+    abierto:   'background:#d1fae5;color:#065f46;',
+    cerrado:   'background:#fef3c7;color:#92400e;',
+    cancelado: 'background:#fef2f2;color:#b91c1c;',
+  };
+
+  function applyEstado(estado, inscritos, cantidad) {
+    const cfg   = statusConfig[estado] || statusConfig.abierto;
+    const badge = document.getElementById('detail-status-badge');
+    if (badge) {
+      badge.setAttribute('style',
+        'display:inline-flex;align-items:center;padding:5px 12px;border-radius:999px;' +
+        'font-size:12px;font-weight:700;white-space:nowrap;' +
+        (badgeColors[estado] || badgeColors.abierto)
+      );
+      badge.textContent = cfg.name + ' · ' + inscritos + '/' + cantidad + ' confirmados';
+    }
     document.querySelectorAll('.detail-estado-chip').forEach(c =>
       c.classList.remove('chip-open','chip-cerrado','chip-cancelado')
     );
     const active = document.querySelector(`.detail-estado-chip[data-estado="${estado}"]`);
     if (active) active.classList.add(cfg.chipClass);
-  }
-
-  function renderSeatDots(inscritos, cantidad, suplentes) {
-    const wrap = document.getElementById('detail-seat-dots');
-    let html = '';
-    for (let i=0; i<cantidad; i++) {
-      const s = i<inscritos
-        ? 'background:#059669'
-        : 'background:var(--bg-input);border:1px solid var(--border)';
-      html += `<div style="width:10px;height:10px;border-radius:3px;${s};"></div>`;
-    }
-    for (let i=0; i<suplentes; i++) {
-      html += `<div style="width:10px;height:10px;border-radius:3px;background:#f59e0b;"></div>`;
-    }
-    wrap.innerHTML = html;
   }
 
   // ── Render match list ──
@@ -349,101 +416,67 @@
     detail.style.gap            = '12px';
     detail.style.width          = '100%';
     document.getElementById('partido-screen').closest('.content')?.scrollTo(0, 0);
-  
-    const upcoming = isUpcoming(m.fecha_pichanga);
-    document.getElementById('detail-badge').textContent    = upcoming ? '⚡ Próximo partido' : '📋 Partido finalizado';
-    document.getElementById('detail-title').textContent    = m.titulo;
-    document.getElementById('detail-date').textContent     = fmtDateFull(m.fecha_pichanga);
-    document.getElementById('detail-time').textContent     = fmtTimeRange(m.hora_inicio, m.hora_fin);
-    document.getElementById('detail-location').textContent = m.lugar;
-    document.getElementById('detail-price').textContent    = 'S/ '+(m.cuota||0).toFixed(2)+' por persona ('+(m.metodo_pago||'Yape')+')';
-  
+
+    document.getElementById('detail-title').textContent     = m.titulo;
+    document.getElementById('detail-date').textContent      = fmtDateFull(m.fecha_pichanga);
+    document.getElementById('detail-time').textContent      = fmtTimeRange(m.hora_inicio, m.hora_fin);
+    document.getElementById('detail-location').textContent  = m.lugar;
+    document.getElementById('detail-price').textContent     = 'S/ '+(m.cuota||0).toFixed(2)+' por persona ('+(m.metodo_pago||'Yape')+')';
+
     const inscritos = m.inscritos || 0;
     const cantidad  = m.cantidad  || 10;
-    const suplentes = m.suplentes || 0;
-    const pct       = Math.round((inscritos / cantidad) * 100);
-  
-    document.getElementById('detail-battery-count').textContent = inscritos+' / '+cantidad+' cupos';
-    document.getElementById('detail-battery-sub').textContent   = suplentes > 0 ? '+'+suplentes+' suplente'+(suplentes>1?'s':'') : '';
-    document.getElementById('detail-battery-fill').style.width  = pct+'%';
-  
-    renderSeatDots(inscritos, cantidad, suplentes);
-    applyEstado(m.estado || 'abierto');
-  
-    detail.dataset.matchId = m.id;
-  
-    // Show loading state in player list while fetching
+
+    detail.dataset.matchId   = m.id;
+    detail.dataset.inscritos = inscritos;
+    detail.dataset.cantidad  = cantidad;
+
+    applyEstado(m.estado || 'abierto', inscritos, cantidad);
+
+    // Show loading state
     const playerList = document.getElementById('detail-player-list');
     playerList.innerHTML = '<div style="text-align:center;padding:16px 0;font-size:13px;color:var(--text-light);">Cargando jugadores...</div>';
-  
-    // Fetch jugadores + personas in parallel
+
     const SUPABASE_URL = window.ENV?.SUPABASE_URL;
     const SUPABASE_KEY = window.ENV?.SUPABASE_KEY;
-  
+
     try {
-      // Step 1 — fetch jugadores_pichanga with nombre already populated by trigger
       const jugRes = await fetch(
-        `${SUPABASE_URL}/rest/v1/jugadores_pichanga?id_pichanga=eq.${m.id}&estado_participacion=eq.anotado&order=fecha_registro.asc&select=id_persona,nombre,suplente,estado_pago`,
+        `${SUPABASE_URL}/rest/v1/jugadores_pichanga?id_pichanga=eq.${m.id}&estado_participacion=eq.anotado&order=fecha_registro.asc&select=id_persona,nombre,suplente`,
         { headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${SUPABASE_KEY}` } }
       );
       if (!jugRes.ok) throw new Error(`jugadores HTTP ${jugRes.status}`);
       const jugadores = await jugRes.json();
-      
+
       if (!jugadores.length) {
         playerList.innerHTML = '<div style="text-align:center;padding:16px 0;font-size:13px;color:var(--text-light);">Sin jugadores inscritos aún</div>';
         return;
       }
-      
-      // Step 2 — split titulares / suplentes, use j.nombre directly
+
       const tit = jugadores.filter(j => !j.suplente);
-      const sup  = jugadores.filter(j =>  j.suplente);
-      const emptySlots = Math.max(0, cantidad - tit.length);
-      
-      let html = '<div class="detail-player-section-label">Titulares</div>';
-      
-      html += tit.map((j, i) => {
-        const nombre = j.nombre || j.id_persona;
-        const pagado = j.estado_pago === 'pagado';
-        return `
+      const sup = jugadores.filter(j =>  j.suplente);
+
+      let html = '';
+
+      if (tit.length) {
+        html += '<div class="detail-player-section-label">Titulares</div>';
+        html += tit.map((j, i) => `
           <div class="detail-player-row">
             <div class="dp-num tit">${i+1}</div>
-            <div class="dp-name">${nombre}</div>
-            <span class="dp-badge tit" style="${pagado
-              ? 'background:#d1fae5;color:#065f46;'
-              : 'background:#fef3c7;color:#92400e;'}">
-              ${pagado ? 'Pagado' : 'Pendiente'}
-            </span>
-          </div>`;
-      }).join('');
-      
-      for (let i = 0; i < emptySlots; i++) {
-        html += `
-          <div class="detail-player-row" style="opacity:0.4;">
-            <div class="dp-num tit" style="background:var(--bg-input);color:var(--text-light);border:1px dashed var(--border);">${tit.length + i + 1}</div>
-            <div class="dp-name" style="color:var(--text-light);font-style:italic;">Cupo disponible</div>
-          </div>`;
+            <div class="dp-name">${j.nombre || j.id_persona}</div>
+          </div>`).join('');
       }
-      
+
       if (sup.length) {
         html += '<div class="detail-player-section-label" style="margin-top:14px;">Suplentes</div>';
-        html += sup.map((j, i) => {
-          const nombre = j.nombre || j.id_persona;
-          const pagado = j.estado_pago === 'pagado';
-          return `
-            <div class="detail-player-row">
-              <div class="dp-num sup">S${i+1}</div>
-              <div class="dp-name">${nombre}</div>
-              <span class="dp-badge sup" style="${pagado
-                ? 'background:#d1fae5;color:#065f46;'
-                : 'background:var(--warning-light);color:var(--warning);'}">
-                ${pagado ? 'Pagado' : 'Pendiente'}
-              </span>
-            </div>`;
-        }).join('');
+        html += sup.map((j, i) => `
+          <div class="detail-player-row">
+            <div class="dp-num sup">S${i+1}</div>
+            <div class="dp-name">${j.nombre || j.id_persona}</div>
+          </div>`).join('');
       }
-      
+
       playerList.innerHTML = html;
-  
+
     } catch (err) {
       console.error('[Partido] Jugadores fetch error:', err);
       playerList.innerHTML = '<div style="text-align:center;padding:16px 0;font-size:13px;color:var(--error);">Error al cargar jugadores</div>';
@@ -453,12 +486,15 @@
   // ── Estado chip listeners ──
   document.querySelectorAll('.detail-estado-chip').forEach(chip => {
     chip.addEventListener('click', () => {
-      const estado   = chip.dataset.estado;
+      const estado     = chip.dataset.estado;
+      const detailEl   = document.getElementById('match-detail-view');
+      const id         = detailEl.dataset.matchId;
+      const inscritos  = detailEl.dataset.inscritos || 0;
+      const cantidad   = detailEl.dataset.cantidad  || 0;
       const SUPABASE_URL = window.ENV?.SUPABASE_URL;
       const SUPABASE_KEY = window.ENV?.SUPABASE_KEY;
-      const id       = document.getElementById('match-detail-view').dataset.matchId;
 
-      applyEstado(estado);
+      applyEstado(estado, inscritos, cantidad);
       toast('Estado: ' + (statusConfig[estado]?.name || estado));
 
       if (!SUPABASE_URL || !SUPABASE_KEY || !id) return;
@@ -478,10 +514,10 @@
   // ── Back button ──
   document.getElementById('btn-back-list').addEventListener('click', () => {
     const detail = document.getElementById('match-detail-view');
-    detail.style.display       = 'none';
-    detail.style.flexDirection = '';
-    detail.style.gap           = '';
-    detail.style.width         = '';
+    detail.style.display        = 'none';
+    detail.style.flexDirection  = '';
+    detail.style.gap            = '';
+    detail.style.width          = '';
     document.getElementById('match-list-view').style.display = 'block';
     loadMatches();
   });
@@ -508,16 +544,16 @@
     window.open('create.html', '_blank');
   });
 
-  // ── Load matches from Supabase ──
+  // ── Load matches ──
   async function loadMatches() {
     const SUPABASE_URL = window.ENV?.SUPABASE_URL;
     const SUPABASE_KEY = window.ENV?.SUPABASE_KEY;
 
     document.getElementById('match-skeletons').style.display = 'block';
-    document.getElementById('match-list').innerHTML = '';
-    document.getElementById('empty-matches').style.display = 'none';
+    document.getElementById('match-list').innerHTML          = '';
+    document.getElementById('empty-matches').style.display   = 'none';
     document.getElementById('match-count-label').textContent = 'Cargando...';
-    
+
     if (!SUPABASE_URL || !SUPABASE_KEY || SUPABASE_URL.includes('your-project')) {
       console.warn('[Partido] Supabase not configured — check config.js');
       document.getElementById('match-skeletons').style.display = 'none';
@@ -551,9 +587,8 @@
         metodo_pago:    p.metodo_pago,
         cantidad:       p.cantidad,
         estado:         p.status || 'abierto',
-        inscritos:      p.total_inscritos || 0,        // ← use real column
-        suplentes:      Math.max(0, (p.total_inscritos || 0) - (p.cantidad || 0)), // ← derived
-        jugadores:      [],
+        inscritos:      p.total_inscritos || 0,
+        suplentes:      Math.max(0, (p.total_inscritos || 0) - (p.cantidad || 0)),
       }));
 
       renderList(allMatches);
