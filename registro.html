@@ -317,6 +317,9 @@ body {
     <h2>¡Bienvenido!</h2>
     <p>Quedaste registrado como<br><span class="player-name" id="success-name"></span></p>
     <p style="font-size:13px;color:var(--text-light);">Ya puedes volver al chat, te anotamos automáticamente.</p>
+    <button class="btn-submit" id="btn-ver-partidos" style="margin-top:4px;">
+      Ver mis partidos
+    </button>
   </div>
 
 </div>
@@ -331,7 +334,8 @@ body {
   const numRaw      = urlParams.get('num') || urlParams.get('numero') || '';
   const cleanNumber = numRaw.replace(/\D/g, '');
   const numero      = cleanNumber ? `+${cleanNumber}` : null;
-  const matchId     = urlParams.get('match') || urlParams.get('match_id') || null;
+  const objectId     = urlParams.get('object') || null;
+  const group     = urlParams.get('group') || null;
 
   if (!numero) {
     document.querySelector('#form-header p').innerHTML +=
@@ -348,6 +352,10 @@ body {
   });
   nombreInput.addEventListener('blur', () => { nombreInput.value = capitalizeWords(nombreInput.value); });
 
+  document.getElementById('btn-ver-partidos').addEventListener('click', () => {
+  window.location.replace('https://grubot.online/matches');
+  });
+  
   // ── AUTOCAPITALIZE — placa ──
   const placaInput = document.getElementById('input-placa');
   placaInput.addEventListener('input', () => {
@@ -469,25 +477,6 @@ body {
         throw new Error(`Error al guardar perfil: ${body.message || resPersona.status}`);
       }
 
-      // 2. Invocar edge function para inscribir en la pichanga
-      if (matchId && numero) {
-        await new Promise(r => setTimeout(r, 300));
-        const resEdge = await fetch(EDGE_FUNCTION_URL, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json', 'apikey': SUPABASE_KEY },
-          body: JSON.stringify({ data: { fromNumber: numero, body: `/anotarme ${matchId}` } })
-        });
-        const edgeText = await resEdge.text();
-        if (!resEdge.ok) {
-          console.warn(`Edge function HTTP ${resEdge.status}:`, edgeText);
-        } else {
-          try {
-            const edgeResult = JSON.parse(edgeText);
-            if (!edgeResult.ok) console.warn('Edge function ok:false →', edgeResult.message || edgeResult);
-          } catch { console.log('Edge function response (raw):', edgeText); }
-        }
-      }
-
       // 3. Mostrar éxito
       document.getElementById('form-header').style.display = 'none';
       document.getElementById('main-form').style.display   = 'none';
@@ -502,6 +491,8 @@ body {
       btn.textContent = 'Registrarme';
     }
   };
+
+  
 </script>
 </body>
 </html>
