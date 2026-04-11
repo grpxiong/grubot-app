@@ -476,7 +476,29 @@ body {
         const body = await resPersona.json().catch(() => ({}));
         throw new Error(`Error al guardar perfil: ${body.message || resPersona.status}`);
       }
-
+      
+      if (group) {
+        const resGrupo = await fetch(`${SUPABASE_URL}/rest/v1/organizadores_grupos`, {
+          method: 'POST',
+          headers: {
+            'apikey':        SUPABASE_KEY,
+            'Authorization': `Bearer ${SUPABASE_KEY}`,
+            'Content-Type':  'application/json',
+            'Prefer':        'return=minimal'
+          },
+          body: JSON.stringify({
+            numero:   numero,
+            id_grupo: group,
+          })
+        });
+      
+        if (!resGrupo.ok) {
+          const body = await resGrupo.json().catch(() => ({}));
+          console.warn('Error al registrar en grupo:', body.message || resGrupo.status);
+          // Non-blocking — don't throw, still show success
+        }
+      }
+      
       // 3. Mostrar éxito
       document.getElementById('form-header').style.display = 'none';
       document.getElementById('main-form').style.display   = 'none';
