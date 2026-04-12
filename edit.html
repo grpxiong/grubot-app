@@ -184,9 +184,9 @@
         </div>
     </main>
 
+
     <script src="config.js"></script>
     <script>
-        // ─── CONFIGURACIÓN Y VARIABLES ───
         const SUPABASE_URL = window.ENV.SUPABASE_URL;
         const SUPABASE_KEY = window.ENV.SUPABASE_KEY;
         const params = new URLSearchParams(window.location.search);
@@ -194,81 +194,62 @@
 
         let quotaCents = 0;
 
-        // ─── REFERENCIAS DE UI ───
         const skeleton = document.getElementById('skeleton');
         const editForm = document.getElementById('edit-form');
         const btnSave = document.getElementById('btn-save');
         const errorBox = document.getElementById('error-box');
         const errorDetail = document.getElementById('error-detail');
 
-        // Campos de validación
         const titleInput = document.getElementById('p-title');
         const lugarInput = document.getElementById('p-lugar');
         const quotaInput = document.getElementById('p-quota');
         const nomInput = document.getElementById('p-nom');
         const phoneInput = document.getElementById('p-num');
-        const payPaid = document.getElementById('pay-paid'); // Radio "Con cuota"
+        const payPaid = document.getElementById('pay-paid');
         const pCount = document.getElementById('p-count');
         const playerVal = document.getElementById('player-val');
 
-    // ─── 2. Clear buttons for Nombre and Lugar ───
-    function setupClearButton(btnEl) {
-      const targetId = btnEl.dataset.target;
-      const input = document.getElementById(targetId);
+        // ── Clear buttons ──
+        function setupClearButton(btnEl) {
+            const input = document.getElementById(btnEl.dataset.target);
+            const toggle = () => btnEl.classList.toggle('visible', input.value.length > 0);
+            btnEl.addEventListener('click', () => {
+                input.value = '';
+                btnEl.classList.remove('visible');
+                input.focus();
+                input.dispatchEvent(new Event('input', { bubbles: true }));
+            });
+            input.addEventListener('input', toggle);
+            toggle();
+        }
+        document.querySelectorAll('.btn-clear').forEach(setupClearButton);
 
-      function toggleVisibility() {
-        btnEl.classList.toggle('visible', input.value.length > 0);
-      }
-
-      btnEl.addEventListener('click', () => {
-        input.value = '';
-        btnEl.classList.remove('visible');
-        input.focus();
-        // Dispatch input event so other listeners react
-        input.dispatchEvent(new Event('input', { bubbles: true }));
-      });
-
-      input.addEventListener('input', toggleVisibility);
-      // Initialize on load
-      toggleVisibility();
-    }
-
-    document.querySelectorAll('.btn-clear').forEach(setupClearButton);
-        
-        // ─── LOGICA DE VALIDACIÓN (Habilitar/Deshabilitar botón) ───
+        // ── Validation ──
         function validateForm() {
             const isPaid = payPaid ? payPaid.checked : false;
-
-            // Obligatorios base
             const hasTitle = titleInput.value.trim().length > 0;
             const hasLugar = lugarInput.value.trim().length > 0;
-
             let isValid = hasTitle && hasLugar;
 
-            // Obligatorios condicionales (si es con cuota)
             if (isPaid) {
                 const hasQuota = parseFloat(quotaInput.value) > 0;
                 const hasNom = nomInput.value.trim().length > 0;
-                const hasNum = phoneInput.value.trim().length === 9; // Celular Peruano
-
+                const hasNum = phoneInput.value.trim().length === 9;
                 isValid = isValid && hasQuota && hasNom && hasNum;
             }
 
             btnSave.disabled = !isValid;
         }
 
-        // ─── FORMATO Y EVENTOS DE INPUT ───
-
-        // Título: Solo letras/números y siempre Mayúsculas
+        // ── Input listeners ──
         titleInput.addEventListener('input', () => {
             titleInput.value = titleInput.value.replace(/[^A-Za-z0-9\s#\-_.]/g, '').toUpperCase();
             validateForm();
         });
 
-        // Lugar: Validar al escribir
         lugarInput.addEventListener('input', validateForm);
+        nomInput.addEventListener('input', validateForm);
 
-        // Cuota: Estilo ATM (derecha a izquierda)
         quotaInput.addEventListener('keydown', (e) => {
             const allowed = ['Backspace', 'Delete', 'Tab', 'Escape', 'Enter', 'ArrowLeft', 'ArrowRight'];
             if (allowed.includes(e.key)) {
@@ -288,25 +269,30 @@
             validateForm();
         });
 
-        // Número de pago: Solo 9 dígitos
+        quotaInput.addEventListener('paste', (e) => {
+            e.preventDefault();
+            const pasted = (e.clipboardData || window.clipboardData).getData('text');
+            const num = parseFloat(pasted.replace(/[^0-9.]/g, ''));
+            if (!isNaN(num)) {
+                quotaCents = Math.round(num * 100);
+                quotaInput.value = (quotaCents / 100).toFixed(2);
+                validateForm();
+            }
+        });
+
         phoneInput.addEventListener('input', () => {
             phoneInput.value = phoneInput.value.replace(/\D/g, '').slice(0, 9);
             validateForm();
         });
 
-        // Titular: Validar al escribir
-        nomInput.addEventListener('input', validateForm);
-
-        // Radios de Pago: Validar al cambiar
         document.querySelectorAll('input[name="pay-toggle"]').forEach(radio => {
             radio.addEventListener('change', () => {
-                const isPaid = payPaid.checked;
-                document.getElementById('payment-details').classList.toggle('visible', isPaid);
+                document.getElementById('payment-details').classList.toggle('visible', payPaid.checked);
                 validateForm();
             });
         });
 
-        // Stepper de Jugadores
+        // ── Stepper ──
         document.getElementById('step-minus').onclick = () => {
             let v = parseInt(pCount.value);
             if (v > 2) { v--; pCount.value = v; playerVal.textContent = v; }
@@ -316,29 +302,27 @@
             if (v < 40) { v++; pCount.value = v; playerVal.textContent = v; }
         };
 
-        // ─── GOOGLE PLACES ───
+        // ── Google Places (single definition) ──
         function initAutocomplete() {
             if (!lugarInput) return;
-            const autocomplete = new google.maps.places.Autocomplete(lugarInput, {
+            const ac = new google.maps.places.Autocomplete(lugarInput, {
                 componentRestrictions: { country: 'pe' },
                 fields: ['formatted_address', 'name', 'geometry'],
             });
-
-            autocomplete.addListener('place_changed', () => {
-                const place = autocomplete.getPlace();
+            ac.addListener('place_changed', () => {
+                const place = ac.getPlace();
                 if (!place.geometry) return;
                 const name = place.name || '';
                 const addr = place.formatted_address || '';
-                lugarInput.value = (name && addr && !addr.startsWith(name)) ? `${name} - ${addr}` : (addr || name);
-
-                // Trigger validación y botón de limpiar
-                validateForm();
+                lugarInput.value = (name && addr && !addr.startsWith(name))
+                    ? `${name} - ${addr}` : (addr || name);
                 const clearBtn = lugarInput.parentElement.querySelector('.btn-clear');
                 if (clearBtn) clearBtn.classList.toggle('visible', lugarInput.value.length > 0);
+                validateForm();
             });
         }
 
-        // ─── CARGA DE DATOS ───
+        // ── Load pichanga ──
         async function loadPichanga() {
             if (!recordId) {
                 skeleton.innerHTML = `<p style="color:var(--error);">⚠ ID no válido en la URL.</p>`;
@@ -346,14 +330,14 @@
             }
 
             try {
-                const res = await fetch(`${SUPABASE_URL}/rest/v1/pichangas?id_pichanga_pub=eq.${recordId}`, {
-                    headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${SUPABASE_KEY}` }
-                });
+                const res = await fetch(
+                    `${SUPABASE_URL}/rest/v1/pichangas?id_pichanga_pub=eq.${recordId}`,
+                    { headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${SUPABASE_KEY}` } }
+                );
                 const data = await res.json();
                 const p = data[0];
                 if (!p) throw new Error('Pichanga no encontrada.');
 
-                // Inyectar valores
                 titleInput.value = p.titulo || '';
                 lugarInput.value = p.lugar || '';
                 document.getElementById('p-date').value = p.fecha_pichanga || '';
@@ -363,7 +347,6 @@
                 pCount.value = p.cantidad || 15;
                 playerVal.textContent = p.cantidad || 15;
 
-                // Lógica de cuota inicial
                 if (p.cuota > 0) {
                     payPaid.checked = true;
                     document.getElementById('payment-details').classList.add('visible');
@@ -374,28 +357,32 @@
                     if (p.metodo_pago === 'PLIN') document.getElementById('cb-plin').checked = true;
                 } else {
                     document.getElementById('pay-free').checked = true;
-                    quotaInput.value = "0.00";
+                    quotaInput.value = '0.00';
                 }
+
+                // Trigger clear button visibility after populating
+                document.querySelectorAll('.btn-clear').forEach(btn => {
+                    const input = document.getElementById(btn.dataset.target);
+                    if (input) btn.classList.toggle('visible', input.value.length > 0);
+                });
 
                 skeleton.style.display = 'none';
                 editForm.style.display = 'flex';
-
-                validateForm(); // Habilitar botón si todo está OK
+                validateForm();
 
             } catch (err) {
                 skeleton.innerHTML = `<p style="color:var(--error);">⚠ Error: ${err.message}</p>`;
             }
         }
 
-        // ─── SUBMIT (Guardar cambios) ───
+        // ── Submit ──
         editForm.onsubmit = async (e) => {
             e.preventDefault();
             errorBox.classList.remove('visible');
-
-            const isPaid = payPaid.checked;
             btnSave.disabled = true;
             btnSave.textContent = 'Guardando...';
 
+            const isPaid = payPaid.checked;
             const updateData = {
                 titulo: titleInput.value.trim(),
                 lugar: lugarInput.value.trim(),
@@ -407,32 +394,39 @@
                 cuota: isPaid ? parseFloat(quotaInput.value) : 0,
                 metodo_pago: isPaid ? (document.getElementById('cb-yape').checked ? 'YAPE' : 'PLIN') : 'N/A',
                 numero_pago: isPaid ? phoneInput.value : '',
-                titular_pago: isPaid ? nomInput.value : ''
+                titular_pago: isPaid ? nomInput.value : '',
             };
 
             try {
-                const res = await fetch(`${SUPABASE_URL}/rest/v1/pichangas?id_pichanga_pub=eq.${recordId}`, {
-                    method: 'PATCH',
-                    headers: {
-                        apikey: SUPABASE_KEY,
-                        Authorization: `Bearer ${SUPABASE_KEY}`,
-                        'Content-Type': 'application/json',
-                        'Prefer': 'return=representation'
-                    },
-                    body: JSON.stringify(updateData)
-                });
+                const res = await fetch(
+                    `${SUPABASE_URL}/rest/v1/pichangas?id_pichanga_pub=eq.${recordId}`,
+                    {
+                        method: 'PATCH',
+                        headers: {
+                            apikey: SUPABASE_KEY,
+                            Authorization: `Bearer ${SUPABASE_KEY}`,
+                            'Content-Type': 'application/json',
+                            Prefer: 'return=representation'
+                        },
+                        body: JSON.stringify(updateData)
+                    }
+                );
 
                 if (!res.ok) throw new Error('Error al actualizar en base de datos');
 
-                // Notificar a n8n vía Edge Function
                 const updated = (await res.json())[0];
-                await fetch(`${SUPABASE_URL}/functions/v1/trigger-webhook`, {
+
+                fetch(`${SUPABASE_URL}/functions/v1/trigger-webhook`, {
                     method: 'POST',
-                    headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${SUPABASE_KEY}`, 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ event: 'pichanga_updated', match_id: recordId, pichanga: updated })
+                    headers: {
+                        apikey: SUPABASE_KEY,
+                        Authorization: `Bearer ${SUPABASE_KEY}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ event: 'pichanga_updated', match_id: recordId, pichanga: updated }),
+                    keepalive: true
                 }).catch(err => console.warn('Webhook notification failed', err));
 
-                // Éxito
                 document.getElementById('header-view').style.display = 'none';
                 editForm.style.display = 'none';
                 document.getElementById('success-view').classList.add('active');
@@ -445,11 +439,12 @@
             }
         };
 
-        // ─── INICIALIZACIÓN ───
+        // ── Cancel ──
+        document.getElementById('btn-cancel').onclick = () => window.history.back();
+
+        // ── Init ──
         document.addEventListener('DOMContentLoaded', () => {
             loadPichanga();
-
-            // Carga dinámica de Google Maps
             if (window.ENV?.GOOGLE_MAPS_KEY) {
                 const script = document.createElement('script');
                 script.src = `https://maps.googleapis.com/maps/api/js?key=${window.ENV.GOOGLE_MAPS_KEY}&libraries=places&callback=initAutocomplete`;
@@ -457,8 +452,6 @@
                 document.head.appendChild(script);
             }
         });
-
-        document.getElementById('btn-cancel').onclick = () => window.history.back();
     </script>
 </body>
 
