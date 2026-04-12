@@ -199,9 +199,24 @@
                 <div id="detail-player-list"></div>
             </div>
 
-            <div class="fade-in stagger-4" style="margin-top:4px;margin-bottom:24px;">
-                <button class="btn-primary" id="btn-detail-share">
-                    Enviar lista al grupo
+            <div class="fade-in stagger-4"
+                style="margin-top:4px;margin-bottom:24px;display:flex;flex-direction:column;gap:8px;">
+                <a id="btn-join-whatsapp" href="#" target="_blank" style="display:flex;align-items:center;justify-content:center;gap:8px;
+           background:#25D366;color:white;border:none;border-radius:var(--radius);
+           height:50px;font-size:15px;font-weight:700;font-family:inherit;
+           text-decoration:none;box-shadow:0 6px 16px -4px rgba(37,211,102,0.4);
+           cursor:pointer;touch-action:manipulation;transition:opacity 0.15s;">
+                    <svg viewBox="0 0 24 24" fill="currentColor" style="width:20px;height:20px;">
+                        <path
+                            d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z" />
+                        <path
+                            d="M12 0C5.373 0 0 5.373 0 12c0 2.124.558 4.118 1.532 5.845L0 24l6.335-1.508A11.945 11.945 0 0 0 12 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22c-1.891 0-3.659-.5-5.188-1.373l-.372-.22-3.761.896.952-3.656-.242-.384A9.964 9.964 0 0 1 2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10z" />
+                    </svg>
+                    Anotarme al partido
+                </a>
+                <button class="btn-primary" id="btn-detail-share"
+                    style="background:transparent;color:var(--text-muted);box-shadow:none;font-size:13px;height:40px;">
+                    Retirarme del partido
                 </button>
             </div>
 
@@ -360,14 +375,19 @@
             color: var(--error);
         }
 
-        .mc-info {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 4px 14px;
-            margin-top: 8px;
-            font-size: 12px;
-            color: var(--text-muted);
-        }
+.mc-info {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    margin-top: 8px;
+    font-size: 12px;
+    color: var(--text-muted);
+}
+
+.mc-info-top {
+    display: flex;
+    gap: 14px;
+}
 
         .mc-info-item {
             display: flex;
@@ -684,13 +704,15 @@
             <span class="mc-status ${statusClass(m.estado)}">${statusLabel(m.estado)}</span>
           </div>
           <div class="mc-info">
-            <div class="mc-info-item">
+            <div class="mc-info-top">
+              <div class="mc-info-item">
                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
               ${fmtDateShort(m.fecha_pichanga)}
             </div>
             <div class="mc-info-item">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
               ${fmtTime(m.hora_inicio)}
+            </div>
             </div>
             <div class="mc-info-item">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
@@ -749,6 +771,12 @@
                 detail.dataset.matchId = m.id;
                 detail.dataset.inscritos = inscritos;
                 detail.dataset.cantidad = cantidad;
+
+                const waLink = document.getElementById('btn-join-whatsapp');
+                if (waLink) {
+                    const command = encodeURIComponent(`/anotarme ${m.id}`);
+                    waLink.href = `https://wa.me/51926066602?text=${command}`;
+                }
 
                 applyEstado(m.estado || 'abierto', inscritos, cantidad);
 
@@ -841,15 +869,10 @@
                 loadMatches();
             });
 
-            // ── Share button ──
-            document.getElementById('btn-detail-share').addEventListener('click', function () {
-                this.disabled = true;
-                this.textContent = 'Enviando...';
-                setTimeout(() => {
-                    toast('Lista enviada al grupo ✓');
-                    this.disabled = false;
-                    this.textContent = '📤  Enviar lista al grupo';
-                }, 800);
+            document.getElementById('btn-detail-share').addEventListener('click', () => {
+                const id = document.getElementById('match-detail-view').dataset.matchId;
+                const command = encodeURIComponent(`/retirarme ${id}`);
+                window.open(`https://wa.me/51926066602?text=${command}`, '_blank');
             });
 
             // ── Edit button ──
@@ -901,7 +924,7 @@
                         fecha_pichanga: p.fecha_pichanga,
                         hora_inicio: p.hora_inicio,
                         hora_fin: p.hora_fin,
-                        lugar: p.lugar,
+                        lugar: p.nombre_cancha || 'Lugar no especificado',
                         cuota: p.cuota,
                         metodo_pago: p.metodo_pago,
                         cantidad: p.cantidad,
@@ -911,6 +934,16 @@
                     }));
 
                     renderList(allMatches);
+
+                    const urlId = new URLSearchParams(window.location.search).get('id');
+                    if (urlId) {
+                        const match = allMatches.find(m => m.id === urlId);
+                        if (match) {
+                            openDetail(match);
+                            // Clean URL without reloading
+                            window.history.replaceState({}, '', window.location.pathname);
+                        }
+                    }
 
                 } catch (err) {
                     console.error('[Partido] Load error:', err);
