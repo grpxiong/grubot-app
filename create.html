@@ -84,8 +84,8 @@
                         <span class="label">Inicio</span>
                         <input type="time" id="p-start" class="sel" value="19:00" /></div>
                     <div class="selector-wrap">
-                        <span class="label">Fin</span>
-                        <input type="time" id="p-end" class="sel" value="21:00" /></div>
+                        <span class="label">Fin</span><input type="time" id="p-end" class="sel"
+                            value="21:00" /></div>
                 </div>
                 <div class="grid-2" style="align-items:center;margin-top:2px;">
                     <div class="field">
@@ -409,7 +409,7 @@
 
             if (window.ENV?.GOOGLE_MAPS_KEY) {
                 const script = document.createElement('script');
-                script.src = `https://maps.googleapis.com/maps/api/js?key=${window.ENV.GOOGLE_MAPS_KEY}&libraries=places&callback=initAutocomplete`;
+                script.src = `https://maps.googleapis.com/maps/api/js?key=${window.ENV.GOOGLE_MAPS_KEY}&libraries=places&language=es&region=pe&callback=initAutocomplete`;
                 script.async = true;
                 document.head.appendChild(script);
             } else if (window.google) {
