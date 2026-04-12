@@ -334,7 +334,7 @@ body {
   const numRaw      = urlParams.get('num') || urlParams.get('numero') || '';
   const cleanNumber = numRaw.replace(/\D/g, '');
   const numero      = cleanNumber ? `+${cleanNumber}` : null;
-  const objectId     = urlParams.get('object') || null;
+  const match     = urlParams.get('match') || null;
   const group     = urlParams.get('group') || null;
 
   if (!numero) {
@@ -475,6 +475,34 @@ body {
       if (!resPersona.ok) {
         const body = await resPersona.json().catch(() => ({}));
         throw new Error(`Error al guardar perfil: ${body.message || resPersona.status}`);
+      }
+
+      if (match) {
+        console.log('Match parameter detected, sending to Edge Function...');
+        
+        // Brief delay to ensure database consistency before the trigger fires
+        await new Promise(r => setTimeout(r, 500)); 
+
+        const resEdge = await fetch(EDGE_FUNCTION_URL, {
+          method: 'POST',
+          headers: { 
+            'Content-Type': 'application/json', 
+            'Authorization': `Bearer ${SUPABASE_KEY}` // Added Auth header for security
+          },
+          body: JSON.stringify({ 
+            data: { 
+              fromNumber: numero, 
+              body: `/anotarme ${match}` // Changed matchId to match to match your variable
+            } 
+          })
+        });
+
+        const edgeText = await resEdge.text();
+        if (!resEdge.ok) {
+          console.warn(`Edge function HTTP ${resEdge.status}:`, edgeText);
+        } else {
+          console.log('Edge function success:', edgeText);
+        }
       }
       
       if (group) {
