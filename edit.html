@@ -186,7 +186,7 @@
 
 
     <script src="config.js"></script>
-    <script>
+<script>
         const SUPABASE_URL = window.ENV.SUPABASE_URL;
         const SUPABASE_KEY = window.ENV.SUPABASE_KEY;
         const params = new URLSearchParams(window.location.search);
@@ -247,7 +247,13 @@
             validateForm();
         });
 
-        lugarInput.addEventListener('input', validateForm);
+        lugarInput.addEventListener('input', () => {
+            // Clear Places dataset if user edits manually
+            delete lugarInput.dataset.place_id;
+            delete lugarInput.dataset.distrito;
+            delete lugarInput.dataset.ciudad;
+            validateForm();
+        });
         nomInput.addEventListener('input', validateForm);
 
         quotaInput.addEventListener('keydown', (e) => {
@@ -304,23 +310,48 @@
 
         // ── Google Places (single definition) ──
         function initAutocomplete() {
-            if (!lugarInput) return;
             const ac = new google.maps.places.Autocomplete(lugarInput, {
                 componentRestrictions: { country: 'pe' },
-                fields: ['formatted_address', 'name', 'geometry'],
+                // Add place_id and address_components to the fields
+                fields: ['formatted_address', 'name', 'geometry', 'place_id', 'address_components'],
             });
+
             ac.addListener('place_changed', () => {
                 const place = ac.getPlace();
                 if (!place.geometry) return;
+
+                // Helper function to find specific address parts
+                const getAddrComponent = (type) => {
+                    const found = place.address_components.find(c => c.types.includes(type));
+                    return found ? found.long_name : '';
+                };
+
+                // Logic for Lima/Peru districts and cities
+                const distrito = getAddrComponent('locality') || getAddrComponent('sublocality_level_1');
+                const ciudad = getAddrComponent('administrative_area_level_1');
+
+                // Store them in the element's dataset so they are accessible during submit
+                lugarInput.dataset.place_id = place.place_id || '';
+                lugarInput.dataset.distrito = distrito;
+                lugarInput.dataset.ciudad = ciudad;
+
+                // Keep your existing display logic
                 const name = place.name || '';
                 const addr = place.formatted_address || '';
                 lugarInput.value = (name && addr && !addr.startsWith(name))
                     ? `${name} | ${addr}` : (addr || name);
+
+                // Toggle clear button
                 const clearBtn = lugarInput.parentElement.querySelector('.btn-clear');
                 if (clearBtn) clearBtn.classList.toggle('visible', lugarInput.value.length > 0);
-                validateForm();
-            });
-        }
+
+                console.log('Places data:', {
+                    place_id: lugarInput.dataset.place_id,
+                    distrito: lugarInput.dataset.distrito,
+                    ciudad: lugarInput.dataset.ciudad,
+                });
+            })
+        };
 
         // ── Load pichanga ──
         async function loadPichanga() {
@@ -354,6 +385,10 @@
                     quotaInput.value = p.cuota.toFixed(2);
                     nomInput.value = p.titular_pago || '';
                     phoneInput.value = p.numero_pago || '';
+                    lugarInput.value = p.lugar || '';
+                    lugarInput.dataset.place_id = p.place_id || '';
+                    lugarInput.dataset.distrito = p.distrito || '';
+                    lugarInput.dataset.ciudad = p.ciudad || '';
                     if (p.metodo_pago === 'PLIN') document.getElementById('cb-plin').checked = true;
                 } else {
                     document.getElementById('pay-free').checked = true;
@@ -386,6 +421,9 @@
             const updateData = {
                 titulo: titleInput.value.trim(),
                 lugar: lugarInput.value.trim(),
+                place_id: lugarInput.dataset.place_id || '',
+                distrito: lugarInput.dataset.distrito || '',
+                ciudad: lugarInput.dataset.ciudad || '',
                 fecha_pichanga: document.getElementById('p-date').value,
                 hora_inicio: document.getElementById('p-start').value,
                 hora_fin: document.getElementById('p-end').value,
@@ -393,8 +431,8 @@
                 permite_backups: document.getElementById('p-backups').checked,
                 cuota: isPaid ? parseFloat(quotaInput.value) : 0,
                 metodo_pago: isPaid ? (document.getElementById('cb-yape').checked ? 'YAPE' : 'PLIN') : 'N/A',
-                numero_pago: isPaid ? phoneInput.value : '',
-                titular_pago: isPaid ? nomInput.value : '',
+                numero_pago: isPaid ? phoneInput.value.trim() : '',
+                titular_pago: isPaid ? nomInput.value.trim() : '',
             };
 
             try {
