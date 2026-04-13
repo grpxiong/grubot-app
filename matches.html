@@ -375,19 +375,19 @@
             color: var(--error);
         }
 
-.mc-info {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-    margin-top: 8px;
-    font-size: 12px;
-    color: var(--text-muted);
-}
+        .mc-info {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            margin-top: 8px;
+            font-size: 12px;
+            color: var(--text-muted);
+        }
 
-.mc-info-top {
-    display: flex;
-    gap: 14px;
-}
+        .mc-info-top {
+            display: flex;
+            gap: 14px;
+        }
 
         .mc-info-item {
             display: flex;
@@ -716,7 +716,7 @@
             </div>
             <div class="mc-info-item">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
-              ${m.lugar}
+              ${m.nombre_cancha + ' - ' + m.distrito.toUpperCase() || 'Lugar no especificado'}
             </div>
           </div>
           <div class="mc-footer">
@@ -761,7 +761,7 @@
                 document.getElementById('detail-title').textContent = m.titulo;
                 document.getElementById('detail-date').textContent = fmtDateFull(m.fecha_pichanga);
                 document.getElementById('detail-time').textContent = fmtTimeRange(m.hora_inicio, m.hora_fin);
-                document.getElementById('detail-location').textContent = m.lugar;
+                document.getElementById('detail-location').textContent = m.nombre_cancha + ' (' + m.direccion + ')' || 'Lugar no especificado';
                 document.getElementById('detail-price').textContent = (m.cuota > 0)
                     ? `S/ ${(m.cuota).toFixed(2)} por persona - ${m.metodo_pago || 'Yape'} al ${m.numero_pago || 'no especificado'}`
                     : `Ingreso Libre`;
@@ -927,6 +927,8 @@
                         lugar: p.lugar || 'Lugar no especificado',
                         nombre_cancha: p.nombre_cancha || '',
                         direccion: p.direccion || '',
+                        ciudad: p.ciudad || '',
+                        distrito: p.distrito || '',
                         cuota: p.cuota,
                         metodo_pago: p.metodo_pago,
                         numero_pago: p.numero_pago,
@@ -962,5 +964,3 @@
         })();
     </script>
 </body>
-
-</html>
