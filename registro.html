@@ -378,15 +378,33 @@ body {
   const inpYear  = document.getElementById('inp-year');
 
   function clampAndAdvance(e, max, maxLen, nextEl) {
-    let val = e.target.value.replace(/\D/g, '');
-    if (val.length === maxLen) {
-      const n = parseInt(val);
-      if (n < 1)   val = '01';
-      if (n > max) val = String(max).padStart(maxLen, '0');
-    }
-    e.target.value = val;
-    if (val.length >= maxLen && nextEl) { nextEl.focus(); nextEl.select(); }
+      let val = e.target.value.replace(/\D/g, ''); // Digits only
+      
+      // Auto-advance if max length reached
+      if (val.length >= maxLen) {
+          val = val.slice(0, maxLen); // Ensure no extra digits
+          const n = parseInt(val);
+          
+          // Logical clamping
+          if (n < 1 && val.length === maxLen) val = '01';
+          if (n > max) val = String(max).padStart(maxLen, '0');
+          
+          e.target.value = val;
+          if (nextEl) {
+              nextEl.focus();
+              nextEl.select();
+          }
+      } else {
+          e.target.value = val;
+      }
   }
+  
+  inpDay.addEventListener('input',  e => clampAndAdvance(e, 31, 2, inpMonth));
+  inpMonth.addEventListener('input', e => clampAndAdvance(e, 12, 2, inpYear));
+  inpYear.addEventListener('input',  e => {
+      let val = e.target.value.replace(/\D/g, '').slice(0, 4);
+      e.target.value = val;
+  });
 
   function clampYear(e) {
     let val = e.target.value.replace(/\D/g, '');
@@ -403,147 +421,139 @@ body {
   inpYear.addEventListener('input',  e => clampYear(e));
 
   // ── SUBMIT ──
-  document.getElementById('btn-submit').onclick = async () => {
-    const nomEl       = document.getElementById('input-nombre');
-    const errNom      = document.getElementById('err-nombre');
-    const errFecha    = document.getElementById('err-fecha');
-    const errorBox    = document.getElementById('error-box');
+ document.getElementById('btn-submit').onclick = async () => {
+    const nomEl = document.getElementById('input-nombre');
+    const errNom = document.getElementById('err-nombre');
+    const errFecha = document.getElementById('err-fecha');
+    const errorBox = document.getElementById('error-box');
     const errorDetail = document.getElementById('error-detail');
 
     let valid = true;
 
+    // Validation: Name
     if (!nomEl.value.trim() || nomEl.value.trim().split(/\s+/).length < 2) {
-      nomEl.classList.add('error');
-      errNom.classList.add('visible');
-      errNom.textContent = nomEl.value.trim() === '' ? 'Ingresa tu nombre completo.' : 'Ingresa también tu apellido.';
-      valid = false;
+        nomEl.classList.add('error');
+        errNom.classList.add('visible');
+        errNom.textContent = nomEl.value.trim() === '' ? 'Ingresa tu nombre completo.' : 'Ingresa también tu apellido.';
+        valid = false;
     } else {
-      nomEl.classList.remove('error');
-      errNom.classList.remove('visible');
+        nomEl.classList.remove('error');
+        errNom.classList.remove('visible');
     }
 
-    const d  = parseInt(inpDay.value);
+    // Validation: Date
+    const d = parseInt(inpDay.value);
     const mo = parseInt(inpMonth.value);
-    const y  = parseInt(inpYear.value);
+    const y = parseInt(inpYear.value);
     const dateValid = d >= 1 && d <= 31 && mo >= 1 && mo <= 12 && y >= 1920 && y <= 2020;
 
     if (!dateValid) {
-      inpDay.classList.toggle('error',   !(d  >= 1   && d  <= 31));
-      inpMonth.classList.toggle('error', !(mo >= 1   && mo <= 12));
-      inpYear.classList.toggle('error',  !(y  >= 1920 && y <= 2020));
-      errFecha.classList.add('visible');
-      valid = false;
+        inpDay.classList.toggle('error', !(d >= 1 && d <= 31));
+        inpMonth.classList.toggle('error', !(mo >= 1 && mo <= 12));
+        inpYear.classList.toggle('error', !(y >= 1920 && y <= 2020));
+        errFecha.classList.add('visible');
+        valid = false;
     } else {
-      inpDay.classList.remove('error');
-      inpMonth.classList.remove('error');
-      inpYear.classList.remove('error');
-      errFecha.classList.remove('visible');
+        inpDay.classList.remove('error');
+        inpMonth.classList.remove('error');
+        inpYear.classList.remove('error');
+        errFecha.classList.remove('visible');
     }
 
     if (!valid) return;
     errorBox.classList.remove('visible');
 
-    const dd         = String(d).padStart(2, '0');
-    const mm         = String(mo).padStart(2, '0');
+    const dd = String(d).padStart(2, '0');
+    const mm = String(mo).padStart(2, '0');
     const nombreFull = nomEl.value.trim();
-    const placa      = placaInput.value.trim() || null;
-    const documento  = docInput.value.trim()   || null;
+    const placa = placaInput.value.trim() || null;
+    const documento = docInput.value.trim() || null;
 
     const btn = document.getElementById('btn-submit');
-    btn.disabled    = true;
+    btn.disabled = true;
     btn.textContent = 'Procesando...';
 
     try {
-      // 1. Guardar en tabla personas
-      const resPersona = await fetch(`${SUPABASE_URL}/rest/v1/personas`, {
-        method: 'POST',
-        headers: {
-          'apikey':        SUPABASE_KEY,
-          'Authorization': `Bearer ${SUPABASE_KEY}`,
-          'Content-Type':  'application/json',
-          'Prefer':        'return=representation'
-        },
-        body: JSON.stringify({
-          nombre:     nombreFull,
-          fecha_nac:  `${y}-${mm}-${dd}`,
-          numero:     numero,
-          placa_auto: placa,
-          documento:  documento,
-        })
-      });
+        // 1. Save Profile
+        const resPersona = await fetch(`${SUPABASE_URL}/rest/v1/personas`, {
+            method: 'POST',
+            headers: {
+                'apikey': SUPABASE_KEY,
+                'Authorization': `Bearer ${SUPABASE_KEY}`,
+                'Content-Type': 'application/json',
+                'Prefer': 'return=representation'
+            },
+            body: JSON.stringify({
+                nombre: nombreFull,
+                fecha_nac: `${y}-${mm}-${dd}`,
+                numero: numero,
+                placa_auto: placa,
+                documento: documento,
+            })
+        });
 
-      if (!resPersona.ok) {
-        const body = await resPersona.json().catch(() => ({}));
-        throw new Error(`Error al guardar perfil: ${body.message || resPersona.status}`);
-      }
+        if (!resPersona.ok) {
+            const body = await resPersona.json().catch(() => ({}));
+            throw new Error(`Error al guardar perfil: ${body.message || resPersona.status}`);
+        }
 
-      if (match && numero) {
-        await fetch(EDGE_FUNCTION_URL, {
-          method:    'POST',
-          keepalive: true,
-          headers: {
-            'Content-Type':  'application/json',
-            'apikey':        SUPABASE_KEY,
-            'Authorization': `Bearer ${SUPABASE_KEY}`
-          },
-          body: JSON.stringify({
-            body: {
-              "source":                    "web_registration",
-              "phone":                     numero,
-              "message[add][0][text]":     `/anotarme ${match}`,
-              "message[add][0][type]":     "incoming",
-              "message[add][0][contact_id]": ""
+        // 2. Enroll in Match (Edge Function)
+        if (match && numero) {
+            try {
+                await fetch(EDGE_FUNCTION_URL, {
+                    method: 'POST',
+                    keepalive: true,
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'apikey': SUPABASE_KEY,
+                        'Authorization': `Bearer ${SUPABASE_KEY}`
+                    },
+                    body: JSON.stringify({
+                        body: {
+                            "source": "web_registration",
+                            "phone": numero,
+                            "message[add][0][text]": `/anotarme ${match}`,
+                            "message[add][0][type]": "incoming",
+                            "message[add][0][contact_id]": "WEB_" + Date.now()
+                        }
+                    })
+                });
+            } catch (edgeErr) {
+                console.warn('Edge Function failed, but profile was saved:', edgeErr);
             }
-          })
-        });
-      }
+        }
 
-        const edgeText = await resEdge.text();
-        if (!resEdge.ok) {
-          console.warn(`Edge function HTTP ${resEdge.status}:`, edgeText);
-        } else {
-          console.log('Edge function success:', edgeText);
+        // 3. Register in Group (if applicable)
+        if (group && numero) {
+            await fetch(`${SUPABASE_URL}/rest/v1/organizadores_grupos`, {
+                method: 'POST',
+                headers: {
+                    'apikey': SUPABASE_KEY,
+                    'Authorization': `Bearer ${SUPABASE_KEY}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    numero: numero,
+                    id_grupo: group,
+                })
+            });
         }
-      }
-      
-      if (group) {
-        const resGrupo = await fetch(`${SUPABASE_URL}/rest/v1/organizadores_grupos`, {
-          method: 'POST',
-          headers: {
-            'apikey':        SUPABASE_KEY,
-            'Authorization': `Bearer ${SUPABASE_KEY}`,
-            'Content-Type':  'application/json',
-            'Prefer':        'return=minimal'
-          },
-          body: JSON.stringify({
-            numero:   numero,
-            id_grupo: group,
-          })
-        });
-      
-        if (!resGrupo.ok) {
-          const body = await resGrupo.json().catch(() => ({}));
-          console.warn('Error al registrar en grupo:', body.message || resGrupo.status);
-          // Non-blocking — don't throw, still show success
-        }
-      }
-      
-      // 3. Mostrar éxito
-      document.getElementById('form-header').style.display = 'none';
-      document.getElementById('main-form').style.display   = 'none';
-      document.getElementById('success-name').textContent  = nombreFull;
-      document.getElementById('success-screen').classList.add('active');
+
+        // 4. Show Success UI
+        document.getElementById('form-header').style.display = 'none';
+        document.getElementById('main-form').style.display = 'none';
+        document.getElementById('success-name').textContent = nombreFull;
+        document.getElementById('success-screen').classList.add('active');
 
     } catch (e) {
-      console.error('Error:', e);
-      errorDetail.textContent = e.message;
-      errorBox.classList.add('visible');
-      btn.disabled    = false;
-      btn.textContent = 'Registrarme';
+        console.error('Submit Error:', e);
+        errorDetail.textContent = e.message;
+        errorBox.classList.add('visible');
+        btn.disabled = false;
+        btn.textContent = 'Registrarme';
     }
-  };
+};
 
-  
 </script>
 </body>
 </html>
