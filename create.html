@@ -130,6 +130,7 @@
                         <span class="label">Fin</span><input type="time" id="p-end" class="sel" value="21:00" />
                     </div>
                 </div>
+                <span class="field-msg" id="msg-date">Selecciona una fecha.</span>
                 <div class="grid-2" style="align-items:center;margin-top:2px;">
                     <div class="field">
                         <label class="label">Cupos</label>
@@ -164,6 +165,7 @@
                         <input type="text" id="p-quota" class="ui-input" value="0.00" inputmode="decimal"
                             style="text-align:right;" />
                     </div>
+                    <span class="field-msg" id="msg-quota">Ingresa un monto mayor a 0.</span>
                     <div class="segmented" style="margin-top:4px;">
                         <div>
                             <input type="radio" name="pay-method" id="cb-yape" checked />
@@ -184,11 +186,13 @@
                             <label class="label">Nombre del titular</label>
                             <input type="text" id="p-nom" class="ui-input" value="Andres Tan" autocapitalize="words" />
                         </div>
+                        <span class="field-msg" id="msg-nom">Ingresa el nombre del titular.</span>
                         <div class="field">
                             <label class="label">Número de pago</label>
                             <input type="text" id="p-num" class="ui-input" value="999888777" inputmode="numeric"
                                 maxlength="12" />
                         </div>
+                        <span class="field-msg" id="msg-num">Ingresa un número de 9 dígitos.</span>
                         <button type="button" class="btn-secondary" id="btn-guardar-cobro"
                             style="height:36px;font-size:13px;">Guardar</button>
                     </div>
@@ -283,9 +287,12 @@
         });
 
         lugarInput.addEventListener('input', () => {
-            if (lugarInput.value.trim().length > 0) setMsg('msg-lugar', false, lugarInput);
+            // If they type manually, clear the hidden data so you don't send 
+            // a Place ID that doesn't match the new text.
+            delete lugarInput.dataset.place_id;
+            delete lugarInput.dataset.distrito;
+            delete lugarInput.dataset.ciudad;
         });
-
         document.getElementById('p-date').addEventListener('change', () => {
             if (document.getElementById('p-date').value) setMsg('msg-date', false, document.getElementById('p-date'));
         });
@@ -361,138 +368,164 @@
             if (v < 40) { v++; pCount.value = v; playerVal.textContent = v; }
         };
 
-        // ── Google Places ──
         function initAutocomplete() {
             const ac = new google.maps.places.Autocomplete(lugarInput, {
                 componentRestrictions: { country: 'pe' },
-                fields: ['formatted_address', 'name', 'geometry'],
+                // Add place_id and address_components to the fields
+                fields: ['formatted_address', 'name', 'geometry', 'place_id', 'address_components'],
             });
+
             ac.addListener('place_changed', () => {
                 const place = ac.getPlace();
                 if (!place.geometry) return;
+
+                // Helper function to find specific address parts
+                const getAddrComponent = (type) => {
+                    const found = place.address_components.find(c => c.types.includes(type));
+                    return found ? found.long_name : '';
+                };
+
+                // Logic for Lima/Peru districts and cities
+                const distrito = getAddrComponent('locality') || getAddrComponent('sublocality_level_1');
+                const ciudad = getAddrComponent('administrative_area_level_1');
+
+                // Store them in the element's dataset so they are accessible during submit
+                lugarInput.dataset.place_id = place.place_id || '';
+                lugarInput.dataset.distrito = distrito;
+                lugarInput.dataset.ciudad = ciudad;
+
+                // Keep your existing display logic
                 const name = place.name || '';
                 const addr = place.formatted_address || '';
                 lugarInput.value = (name && addr && !addr.startsWith(name))
                     ? `${name} | ${addr}` : (addr || name);
+
+                // Toggle clear button
                 const clearBtn = lugarInput.parentElement.querySelector('.btn-clear');
                 if (clearBtn) clearBtn.classList.toggle('visible', lugarInput.value.length > 0);
-                if (lugarInput.value.trim().length > 0) setMsg('msg-lugar', false, lugarInput);
-            });
-        }
+
+                console.log('Places data:', {
+                    place_id: lugarInput.dataset.place_id,
+                    distrito: lugarInput.dataset.distrito,
+                    ciudad: lugarInput.dataset.ciudad,
+                });
+            })};
 
         // ── Cobro pill ──
-        const cobroPill = document.getElementById('cobro-pill');
-        const cobroEdit = document.getElementById('cobro-edit');
-        const cobroDisplay = document.getElementById('cobro-display');
+            const cobroPill = document.getElementById('cobro-pill');
+            const cobroEdit = document.getElementById('cobro-edit');
+            const cobroDisplay = document.getElementById('cobro-display');
 
-        document.getElementById('btn-cambiar-cobro').addEventListener('click', () => {
-            cobroPill.style.display = 'none';
-            cobroEdit.style.display = 'flex';
-            nomInput.focus();
-        });
+            document.getElementById('btn-cambiar-cobro').addEventListener('click', () => {
+                cobroPill.style.display = 'none';
+                cobroEdit.style.display = 'flex';
+                nomInput.focus();
+            });
 
-        document.getElementById('btn-guardar-cobro').addEventListener('click', () => {
-            const nom = nomInput.value.trim();
-            const num = phoneInput.value.trim();
-            if (!nom) { setMsg('msg-nom', true, nomInput); return; }
-            if (num.length !== 9) { setMsg('msg-num', true, phoneInput); return; }
-            cobroDisplay.innerHTML = `<strong>${nom}</strong> · ${num}`;
-            cobroEdit.style.display = 'none';
-            cobroPill.style.display = 'flex';
-            setMsg('msg-nom', false, nomInput);
-            setMsg('msg-num', false, phoneInput);
-        });
+            document.getElementById('btn-guardar-cobro').addEventListener('click', () => {
+                const nom = nomInput.value.trim();
+                const num = phoneInput.value.trim();
+                if (!nom) { setMsg('msg-nom', true, nomInput); return; }
+                if (num.length !== 9) { setMsg('msg-num', true, phoneInput); return; }
+                cobroDisplay.innerHTML = `<strong>${nom}</strong> · ${num}`;
+                cobroEdit.style.display = 'none';
+                cobroPill.style.display = 'flex';
+                setMsg('msg-nom', false, nomInput);
+                setMsg('msg-num', false, phoneInput);
+            });
 
-        // ── Submit ──
-        pichangaForm.onsubmit = async (e) => {
-            e.preventDefault();
+            // ── Submit ──
+            pichangaForm.onsubmit = async (e) => {
+                e.preventDefault();
 
-            // Validate and show all messages if invalid
-            const isValid = validateAll(true);
-            if (!isValid) return;
+                // Validate and show all messages if invalid
+                const isValid = validateAll(true);
+                if (!isValid) return;
 
-            btnSave.disabled = true;
-            btnSave.textContent = 'Creando...';
+                btnSave.disabled = true;
+                btnSave.textContent = 'Creando...';
 
-            const isPaid = payPaid.checked;
-            const cbYape = document.getElementById('cb-yape');
-            const payload = {
-                titulo: titleInput.value.trim(),
-                lugar: lugarInput.value.trim(),
-                fecha_pichanga: document.getElementById('p-date').value,
-                hora_inicio: document.getElementById('p-start').value,
-                hora_fin: document.getElementById('p-end').value,
-                cantidad: parseInt(pCount.value),
-                permite_backups: document.getElementById('p-backups').checked,
-                cuota: isPaid ? parseFloat(quotaInput.value) : 0,
-                metodo_pago: isPaid ? (cbYape?.checked ? 'YAPE' : 'PLIN') : 'N/A',
-                numero_pago: isPaid ? phoneInput.value.trim() : '',
-                titular_pago: isPaid ? nomInput.value.trim() : '',
+                const isPaid = payPaid.checked;
+                const cbYape = document.getElementById('cb-yape');
+                const payload = {
+                    titulo: titleInput.value.trim(),
+                    lugar: lugarInput.value.trim(),
+                    place_id: lugarInput.dataset.place_id || '',
+                    distrito: lugarInput.dataset.distrito || '',
+                    ciudad: lugarInput.dataset.ciudad || '',
+                    fecha_pichanga: document.getElementById('p-date').value,
+                    hora_inicio: document.getElementById('p-start').value,
+                    hora_fin: document.getElementById('p-end').value,
+                    cantidad: parseInt(pCount.value),
+                    permite_backups: document.getElementById('p-backups').checked,
+                    cuota: isPaid ? parseFloat(quotaInput.value) : 0,
+                    metodo_pago: isPaid ? (cbYape?.checked ? 'YAPE' : 'PLIN') : 'N/A',
+                    numero_pago: isPaid ? phoneInput.value.trim() : '',
+                    titular_pago: isPaid ? nomInput.value.trim() : '',
+                };
+
+                try {
+                    const res = await fetch(`${SUPABASE_URL}/rest/v1/pichangas`, {
+                        method: 'POST',
+                        headers: {
+                            apikey: SUPABASE_KEY,
+                            Authorization: `Bearer ${SUPABASE_KEY}`,
+                            'Content-Type': 'application/json',
+                            Prefer: 'return=representation'
+                        },
+                        body: JSON.stringify(payload)
+                    });
+
+                    if (!res.ok) {
+                        const errBody = await res.json().catch(() => ({}));
+                        throw new Error(errBody.message || `HTTP ${res.status}`);
+                    }
+
+                    const data = await res.json();
+                    const pichanga = Array.isArray(data) ? data[0] : data;
+                    if (!pichanga) throw new Error('No se recibió confirmación de Supabase');
+
+                    // Webhook — fire and forget
+                    fetch(`${SUPABASE_URL}/functions/v1/trigger-webhook`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            apikey: SUPABASE_KEY,
+                            Authorization: `Bearer ${SUPABASE_KEY}`
+                        },
+                        body: JSON.stringify({ event: 'pichanga_created', pichanga }),
+                        keepalive: true
+                    }).catch(err => console.warn('Webhook error:', err));
+
+                    document.getElementById('header-view').style.display = 'none';
+                    pichangaForm.style.display = 'none';
+                    document.getElementById('success-view').classList.add('active');
+
+                } catch (err) {
+                    console.error('Submit error:', err);
+                    btnSave.disabled = false;
+                    btnSave.textContent = 'Publicar partido';
+                    alert(err.message);
+                }
             };
 
-            try {
-                const res = await fetch(`${SUPABASE_URL}/rest/v1/pichangas`, {
-                    method: 'POST',
-                    headers: {
-                        apikey: SUPABASE_KEY,
-                        Authorization: `Bearer ${SUPABASE_KEY}`,
-                        'Content-Type': 'application/json',
-                        Prefer: 'return=representation'
-                    },
-                    body: JSON.stringify(payload)
-                });
+            // ── Init ──
+            window.onload = () => {
+                const tomorrow = new Date();
+                tomorrow.setDate(tomorrow.getDate() + 1);
+                document.getElementById('p-date').value = tomorrow.toISOString().split('T')[0];
 
-                if (!res.ok) {
-                    const errBody = await res.json().catch(() => ({}));
-                    throw new Error(errBody.message || `HTTP ${res.status}`);
+                if (window.ENV?.GOOGLE_MAPS_KEY) {
+                    const script = document.createElement('script');
+                    script.src = `https://maps.googleapis.com/maps/api/js?key=${window.ENV.GOOGLE_MAPS_KEY}&libraries=places&language=es&region=pe&callback=initAutocomplete`;
+                    script.async = true;
+                    document.head.appendChild(script);
+                } else if (window.google) {
+                    initAutocomplete();
                 }
+            };
 
-                const data = await res.json();
-                const pichanga = Array.isArray(data) ? data[0] : data;
-                if (!pichanga) throw new Error('No se recibió confirmación de Supabase');
-
-                // Webhook — fire and forget
-                fetch(`${SUPABASE_URL}/functions/v1/trigger-webhook`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        apikey: SUPABASE_KEY,
-                        Authorization: `Bearer ${SUPABASE_KEY}`
-                    },
-                    body: JSON.stringify({ event: 'pichanga_created', pichanga }),
-                    keepalive: true
-                }).catch(err => console.warn('Webhook error:', err));
-
-                document.getElementById('header-view').style.display = 'none';
-                pichangaForm.style.display = 'none';
-                document.getElementById('success-view').classList.add('active');
-
-            } catch (err) {
-                console.error('Submit error:', err);
-                btnSave.disabled = false;
-                btnSave.textContent = 'Publicar partido';
-                alert(err.message);
-            }
-        };
-
-        // ── Init ──
-        window.onload = () => {
-            const tomorrow = new Date();
-            tomorrow.setDate(tomorrow.getDate() + 1);
-            document.getElementById('p-date').value = tomorrow.toISOString().split('T')[0];
-
-            if (window.ENV?.GOOGLE_MAPS_KEY) {
-                const script = document.createElement('script');
-                script.src = `https://maps.googleapis.com/maps/api/js?key=${window.ENV.GOOGLE_MAPS_KEY}&libraries=places&language=es&region=pe&callback=initAutocomplete`;
-                script.async = true;
-                document.head.appendChild(script);
-            } else if (window.google) {
-                initAutocomplete();
-            }
-        };
-
-        document.getElementById('btn-cancel').onclick = () => window.history.back();
+            document.getElementById('btn-cancel').onclick = () => window.history.back();
     </script>
 </body>
-
 </html>
