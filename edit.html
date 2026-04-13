@@ -315,7 +315,7 @@
                 const name = place.name || '';
                 const addr = place.formatted_address || '';
                 lugarInput.value = (name && addr && !addr.startsWith(name))
-                    ? `${name} - ${addr}` : (addr || name);
+                    ? `${name} | ${addr}` : (addr || name);
                 const clearBtn = lugarInput.parentElement.querySelector('.btn-clear');
                 if (clearBtn) clearBtn.classList.toggle('visible', lugarInput.value.length > 0);
                 validateForm();
