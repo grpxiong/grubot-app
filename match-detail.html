@@ -238,9 +238,9 @@
       document.getElementById('detail-date').textContent     = fmtDateFull(p.fecha_pichanga);
       document.getElementById('detail-time').textContent     = fmtTimeRange(p.hora_inicio, p.hora_fin);
       document.getElementById('detail-location').textContent = lugar;
-      document.getElementById('detail-price').textContent    = p.cuota > 0
-        ? `S/ ${Number(p.cuota).toFixed(2)} por persona (${p.metodo_pago || 'Yape'})`
-        : 'Ingreso libre';
+      document.getElementById('detail-price').textContent = p.cuota > 0
+          ? `S/ ${(p.cuota).toFixed(2)} por persona - ${p.metodo_pago || 'Yape'} al ${p.numero_pago || 'no especificado'}`
+          : 'Ingreso libre';
 
       // Status badge
       const badge = document.getElementById('detail-status-badge');
