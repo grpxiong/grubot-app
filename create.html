@@ -9,7 +9,6 @@
         rel="stylesheet" />
     <link rel="stylesheet" href="style.css">
     <style>
-        /* Estilos para botones de limpiar y UI */
         .ui-input-wrapper {
             position: relative;
             display: flex;
@@ -46,6 +45,44 @@
         #payment-details.visible {
             display: flex;
         }
+
+        /* ── Inline field error messages ── */
+        .field-msg {
+            font-size: 11px;
+            color: var(--error, #ef4444);
+            margin-top: 4px;
+            display: none;
+            font-weight: 500;
+        }
+
+        .field-msg.visible {
+            display: block;
+        }
+
+        .ui-input.invalid,
+        .sel.invalid {
+            border: 1.5px solid var(--error, #ef4444) !important;
+            box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.12) !important;
+        }
+
+        /* ── Saved pill ── */
+        .saved-pill {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: var(--primary-light);
+            border-radius: var(--radius-sm);
+            padding: 7px 10px;
+            font-size: 13px;
+            color: var(--text-main);
+        }
+
+        .saved-pill .btn-ghost {
+            height: auto;
+            padding: 0;
+            font-size: 11px;
+            color: var(--primary);
+        }
     </style>
 </head>
 
@@ -56,14 +93,18 @@
             <p class="subtitle">Completa los datos y Grubot hará el resto.</p>
         </header>
 
-        <form class="form" id="pichanga-form">
+        <form class="form" id="pichanga-form" novalidate>
+
+            <!-- ── Partido info ── -->
             <div class="card">
                 <div class="field">
                     <label class="label">Nombre del partido</label>
                     <div class="ui-input-wrapper">
-                        <input type="text" id="p-title" class="ui-input" placeholder="PICHANGUITA #07" />
+                        <input type="text" id="p-title" class="ui-input" placeholder="PICHANGUITA #07"
+                            autocapitalize="characters" />
                         <button type="button" class="btn-clear" data-target="p-title">✕</button>
                     </div>
+                    <span class="field-msg" id="msg-title">Completa este campo.</span>
                 </div>
                 <div class="field">
                     <label class="label">Lugar</label>
@@ -71,21 +112,23 @@
                         <input type="text" id="p-lugar" class="ui-input" placeholder="Cancha o Dirección" />
                         <button type="button" class="btn-clear" data-target="p-lugar">✕</button>
                     </div>
+                    <span class="field-msg" id="msg-lugar">Completa este campo.</span>
                 </div>
             </div>
-
             <div class="card">
                 <div class="card-label">Horario y capacidad</div>
                 <div class="selector-row">
                     <div class="selector-wrap">
                         <span class="label">Fecha</span>
-                        <input type="date" id="p-date" class="sel" /></div>
+                        <input type="date" id="p-date" class="sel" />
+                    </div>
                     <div class="selector-wrap">
                         <span class="label">Inicio</span>
-                        <input type="time" id="p-start" class="sel" value="19:00" /></div>
+                        <input type="time" id="p-start" class="sel" value="19:00" />
+                    </div>
                     <div class="selector-wrap">
-                        <span class="label">Fin</span><input type="time" id="p-end" class="sel"
-                            value="21:00" /></div>
+                        <span class="label">Fin</span><input type="time" id="p-end" class="sel" value="21:00" />
+                    </div>
                 </div>
                 <div class="grid-2" style="align-items:center;margin-top:2px;">
                     <div class="field">
@@ -151,10 +194,9 @@
                     </div>
                 </div>
             </div>
-            </div>
 
             <div class="actions">
-                <button type="submit" class="btn-primary" id="btn-save" disabled>Publicar partido</button>
+                <button type="submit" class="btn-primary" id="btn-save">Publicar partido</button>
                 <button type="button" class="btn-ghost" id="btn-cancel">Cancelar</button>
             </div>
 
@@ -164,18 +206,17 @@
             <div class="success-icon">✓</div>
             <h2 style="font-family:'Syne',sans-serif;font-weight:800;">¡Lista creada!</h2>
             <p style="color:var(--text-muted);font-size:14px;">Grubot ya está organizando el partido.</p>
-            <button class="btn-primary" style="margin-top:20px;" onclick="window.history.back()">Volver</button>
+            <button class="btn-primary" style="margin-top:20px;"
+                onclick="window.location.replace('https://grubot.online/matches')">Ver mis partidos</button>
         </div>
     </main>
 
-    <script src="config.js"></script>
     <script src="config.js"></script>
     <script>
         const SUPABASE_URL = window.ENV.SUPABASE_URL;
         const SUPABASE_KEY = window.ENV.SUPABASE_KEY;
         let quotaCents = 0;
 
-        // ── References ──
         const pichangaForm = document.getElementById('pichanga-form');
         const btnSave = document.getElementById('btn-save');
         const titleInput = document.getElementById('p-title');
@@ -187,12 +228,27 @@
         const pCount = document.getElementById('p-count');
         const playerVal = document.getElementById('player-val');
 
-        // ── Validation ──
-        function validateForm() {
+        // ── Show / hide a field message ──
+        function setMsg(id, visible, inputEl) {
+            const msg = document.getElementById(id);
+            if (!msg) return;
+            msg.classList.toggle('visible', visible);
+            if (inputEl) inputEl.classList.toggle('invalid', visible);
+        }
+
+        // ── Validate all fields and show messages ──
+        // Returns true if form is valid
+        function validateAll(showMessages) {
             const isPaid = payPaid.checked;
             const hasTitle = titleInput.value.trim().length > 0;
             const hasLugar = lugarInput.value.trim().length > 0;
             const hasDate = document.getElementById('p-date').value.length > 0;
+
+            if (showMessages) {
+                setMsg('msg-title', !hasTitle, titleInput);
+                setMsg('msg-lugar', !hasLugar, lugarInput);
+                setMsg('msg-date', !hasDate, document.getElementById('p-date'));
+            }
 
             let isValid = hasTitle && hasLugar && hasDate;
 
@@ -200,11 +256,85 @@
                 const hasQuota = parseFloat(quotaInput.value) > 0;
                 const hasNom = nomInput.value.trim().length > 0;
                 const hasNum = phoneInput.value.trim().length === 9;
+
+                if (showMessages) {
+                    setMsg('msg-quota', !hasQuota, quotaInput);
+                    setMsg('msg-nom', !hasNom, nomInput);
+                    setMsg('msg-num', !hasNum, phoneInput);
+                }
+
                 isValid = isValid && hasQuota && hasNom && hasNum;
+            } else {
+                // Clear payment messages if switching to free
+                setMsg('msg-quota', false, quotaInput);
+                setMsg('msg-nom', false, nomInput);
+                setMsg('msg-num', false, phoneInput);
             }
 
-            btnSave.disabled = !isValid;
+            return isValid;
         }
+
+        // ── Clear messages as user fixes fields ──
+        titleInput.addEventListener('input', () => {
+            const pos = titleInput.selectionStart;
+            titleInput.value = titleInput.value.replace(/[^A-Za-z0-9\s#\-_.]/g, '').toUpperCase();
+            titleInput.setSelectionRange(pos, pos);
+            if (titleInput.value.trim().length > 0) setMsg('msg-title', false, titleInput);
+        });
+
+        lugarInput.addEventListener('input', () => {
+            if (lugarInput.value.trim().length > 0) setMsg('msg-lugar', false, lugarInput);
+        });
+
+        document.getElementById('p-date').addEventListener('change', () => {
+            if (document.getElementById('p-date').value) setMsg('msg-date', false, document.getElementById('p-date'));
+        });
+
+        quotaInput.addEventListener('keydown', (e) => {
+            const allowed = ['Backspace', 'Tab', 'Enter', 'ArrowLeft', 'ArrowRight'];
+            if (allowed.includes(e.key)) {
+                if (e.key === 'Backspace') {
+                    e.preventDefault();
+                    quotaCents = Math.floor(quotaCents / 10);
+                    quotaInput.value = (quotaCents / 100).toFixed(2);
+                    if (quotaCents > 0) setMsg('msg-quota', false, quotaInput);
+                }
+                return;
+            }
+            if (!/^[0-9]$/.test(e.key)) { e.preventDefault(); return; }
+            e.preventDefault();
+            if (quotaCents >= 999999) return;
+            quotaCents = quotaCents * 10 + parseInt(e.key, 10);
+            quotaInput.value = (quotaCents / 100).toFixed(2);
+            if (quotaCents > 0) setMsg('msg-quota', false, quotaInput);
+        });
+
+        quotaInput.addEventListener('paste', (e) => {
+            e.preventDefault();
+            const pasted = (e.clipboardData || window.clipboardData).getData('text');
+            const num = parseFloat(pasted.replace(/[^0-9.]/g, ''));
+            if (!isNaN(num)) {
+                quotaCents = Math.round(num * 100);
+                quotaInput.value = (quotaCents / 100).toFixed(2);
+                if (quotaCents > 0) setMsg('msg-quota', false, quotaInput);
+            }
+        });
+
+        nomInput.addEventListener('input', () => {
+            if (nomInput.value.trim().length > 0) setMsg('msg-nom', false, nomInput);
+        });
+
+        phoneInput.addEventListener('input', () => {
+            phoneInput.value = phoneInput.value.replace(/\D/g, '').slice(0, 9);
+            if (phoneInput.value.length === 9) setMsg('msg-num', false, phoneInput);
+        });
+
+        // ── Payment toggle ──
+        document.querySelectorAll('input[name="pay-toggle"]').forEach(r => {
+            r.addEventListener('change', () => {
+                document.getElementById('payment-details').classList.toggle('visible', payPaid.checked);
+            });
+        });
 
         // ── Clear buttons ──
         function setupClearButton(btnEl) {
@@ -220,65 +350,6 @@
             toggle();
         }
         document.querySelectorAll('.btn-clear').forEach(setupClearButton);
-
-        // ── Title: uppercase + filter ──
-        titleInput.addEventListener('input', () => {
-            const pos = titleInput.selectionStart;
-            titleInput.value = titleInput.value.replace(/[^A-Za-z0-9\s#\-_.]/g, '').toUpperCase();
-            titleInput.setSelectionRange(pos, pos);
-            validateForm();
-        });
-
-        // ── Lugar ──
-        lugarInput.addEventListener('input', validateForm);
-
-        // ── Payment toggle ──
-        document.querySelectorAll('input[name="pay-toggle"]').forEach(r => {
-            r.addEventListener('change', () => {
-                document.getElementById('payment-details').classList.toggle('visible', payPaid.checked);
-                validateForm();
-            });
-        });
-
-        // ── ATM quota ──
-        quotaInput.addEventListener('keydown', (e) => {
-            const allowed = ['Backspace', 'Tab', 'Enter', 'ArrowLeft', 'ArrowRight'];
-            if (allowed.includes(e.key)) {
-                if (e.key === 'Backspace') {
-                    e.preventDefault();
-                    quotaCents = Math.floor(quotaCents / 10);
-                    quotaInput.value = (quotaCents / 100).toFixed(2);
-                    validateForm();
-                }
-                return;
-            }
-            if (!/^[0-9]$/.test(e.key)) { e.preventDefault(); return; }
-            e.preventDefault();
-            if (quotaCents >= 999999) return;
-            quotaCents = quotaCents * 10 + parseInt(e.key, 10);
-            quotaInput.value = (quotaCents / 100).toFixed(2);
-            validateForm();
-        });
-
-        quotaInput.addEventListener('paste', (e) => {
-            e.preventDefault();
-            const pasted = (e.clipboardData || window.clipboardData).getData('text');
-            const num = parseFloat(pasted.replace(/[^0-9.]/g, ''));
-            if (!isNaN(num)) {
-                quotaCents = Math.round(num * 100);
-                quotaInput.value = (quotaCents / 100).toFixed(2);
-                validateForm();
-            }
-        });
-
-        // ── Nombre titular ──
-        nomInput.addEventListener('input', validateForm);
-
-        // ── Phone: 9 digits only ──
-        phoneInput.addEventListener('input', () => {
-            phoneInput.value = phoneInput.value.replace(/\D/g, '').slice(0, 9);
-            validateForm();
-        });
 
         // ── Stepper ──
         document.getElementById('step-minus').onclick = () => {
@@ -305,11 +376,11 @@
                     ? `${name} - ${addr}` : (addr || name);
                 const clearBtn = lugarInput.parentElement.querySelector('.btn-clear');
                 if (clearBtn) clearBtn.classList.toggle('visible', lugarInput.value.length > 0);
-                validateForm();
+                if (lugarInput.value.trim().length > 0) setMsg('msg-lugar', false, lugarInput);
             });
         }
 
-        // ── Cobro pill toggle ──
+        // ── Cobro pill ──
         const cobroPill = document.getElementById('cobro-pill');
         const cobroEdit = document.getElementById('cobro-edit');
         const cobroDisplay = document.getElementById('cobro-display');
@@ -317,21 +388,29 @@
         document.getElementById('btn-cambiar-cobro').addEventListener('click', () => {
             cobroPill.style.display = 'none';
             cobroEdit.style.display = 'flex';
-            document.getElementById('p-nom').focus();
+            nomInput.focus();
         });
 
         document.getElementById('btn-guardar-cobro').addEventListener('click', () => {
-            const nom = document.getElementById('p-nom').value.trim();
-            const num = document.getElementById('p-num').value.trim();
-            if (!nom || !num) return;
+            const nom = nomInput.value.trim();
+            const num = phoneInput.value.trim();
+            if (!nom) { setMsg('msg-nom', true, nomInput); return; }
+            if (num.length !== 9) { setMsg('msg-num', true, phoneInput); return; }
             cobroDisplay.innerHTML = `<strong>${nom}</strong> · ${num}`;
             cobroEdit.style.display = 'none';
             cobroPill.style.display = 'flex';
-            validateForm(); // re-validate after saving cobro
+            setMsg('msg-nom', false, nomInput);
+            setMsg('msg-num', false, phoneInput);
         });
+
         // ── Submit ──
         pichangaForm.onsubmit = async (e) => {
             e.preventDefault();
+
+            // Validate and show all messages if invalid
+            const isValid = validateAll(true);
+            if (!isValid) return;
+
             btnSave.disabled = true;
             btnSave.textContent = 'Creando...';
 
@@ -401,11 +480,6 @@
             const tomorrow = new Date();
             tomorrow.setDate(tomorrow.getDate() + 1);
             document.getElementById('p-date').value = tomorrow.toISOString().split('T')[0];
-
-            // date input change should also re-validate
-            document.getElementById('p-date').addEventListener('change', validateForm);
-
-            validateForm();
 
             if (window.ENV?.GOOGLE_MAPS_KEY) {
                 const script = document.createElement('script');
