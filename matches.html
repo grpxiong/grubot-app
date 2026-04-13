@@ -763,8 +763,8 @@
                 document.getElementById('detail-time').textContent = fmtTimeRange(m.hora_inicio, m.hora_fin);
                 document.getElementById('detail-location').textContent = m.lugar;
                 document.getElementById('detail-price').textContent = (m.cuota > 0)
-                    ? `S/ ${(m.cuota).toFixed(2)} por persona (${m.metodo_pago || 'Yape'})`
-                    : `S/ ${(m.cuota).toFixed(2)} - Ingreso Libre`;
+                    ? `S/ ${(m.cuota).toFixed(2)} por persona - ${m.metodo_pago || 'Yape'} al ${m.numero_pago || 'no especificado'}`
+                    : `Ingreso Libre`;
                 const inscritos = m.inscritos || 0;
                 const cantidad = m.cantidad || 10;
 
@@ -924,9 +924,13 @@
                         fecha_pichanga: p.fecha_pichanga,
                         hora_inicio: p.hora_inicio,
                         hora_fin: p.hora_fin,
-                        lugar: p.nombre_cancha || 'Lugar no especificado',
+                        lugar: p.lugar || 'Lugar no especificado',
+                        nombre_cancha: p.nombre_cancha || '',
+                        direccion: p.direccion || '',
                         cuota: p.cuota,
                         metodo_pago: p.metodo_pago,
+                        numero_pago: p.numero_pago,
+                        titular: p.titular || '',
                         cantidad: p.cantidad,
                         estado: p.status || 'abierto',
                         inscritos: p.total_inscritos || 0,
