@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <script src="config.js"></script>
     <script>
@@ -193,8 +194,27 @@
             </div>
 
             <!-- Jugadores — full list -->
-            <div class="card fade-in stagger-3">
-                <div class="card-label">Jugadores</div>
+            <div class="card fade-in stagger-3" id="detail-roster-card">
+                <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;">
+                    <div class="card-label" style="border-bottom:none;padding-bottom:0;">Jugadores</div>
+
+                    <div id="detail-payment-summary"
+                        style="font-size:12px;font-weight:700;color:var(--text-muted);white-space:nowrap;">
+                        0/0 pagados
+                    </div>
+                </div>
+
+                <div class="segmented" id="detail-roster-mode" style="margin-top:2px;">
+                    <div>
+                        <input type="radio" name="roster-mode" id="roster-mode-list" value="lista" checked />
+                        <label class="btn-seg" for="roster-mode-list">Lista</label>
+                    </div>
+                    <div>
+                        <input type="radio" name="roster-mode" id="roster-mode-pay" value="pagos" />
+                        <label class="btn-seg" for="roster-mode-pay">Pagos</label>
+                    </div>
+                </div>
+
                 <div id="detail-player-list"></div>
             </div>
 
@@ -224,292 +244,6 @@
 
     <!-- ── Screen Styles ── -->
     <style>
-        .section-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 14px;
-        }
-
-        .section-title {
-            font-family: 'Syne', sans-serif;
-            font-size: 22px;
-            font-weight: 800;
-            letter-spacing: -0.02em;
-            color: var(--text-main);
-            line-height: 1.1;
-        }
-
-        .section-title span {
-            color: var(--primary);
-        }
-
-        .section-sub {
-            font-size: 12px;
-            color: var(--text-muted);
-            margin-top: 2px;
-        }
-
-        .filter-row {
-            display: flex;
-            gap: 6px;
-            margin-bottom: 14px;
-            overflow-x: auto;
-            -webkit-overflow-scrolling: touch;
-            scrollbar-width: none;
-        }
-
-        .filter-row::-webkit-scrollbar {
-            display: none;
-        }
-
-        .filter-chip {
-            padding: 6px 14px;
-            border: 1.5px solid var(--border);
-            border-radius: 999px;
-            background: var(--bg-card);
-            color: var(--text-muted);
-            font-family: inherit;
-            font-size: 12px;
-            font-weight: 700;
-            white-space: nowrap;
-            cursor: pointer;
-            transition: all 0.15s;
-            touch-action: manipulation;
-        }
-
-        .filter-chip.active {
-            background: var(--primary);
-            border-color: var(--primary);
-            color: white;
-        }
-
-        .match-card {
-            background: var(--bg-card);
-            border: 1px solid var(--border);
-            border-radius: var(--radius-lg);
-            padding: 14px 16px;
-            cursor: pointer;
-            transition: border-color 0.15s, box-shadow 0.15s, transform 0.1s;
-            touch-action: manipulation;
-            position: relative;
-            box-shadow: 0 2px 8px rgba(15, 31, 23, 0.06), 0 1px 2px rgba(15, 31, 23, 0.04);
-        }
-
-        .match-card+.match-card {
-            margin-top: 8px;
-        }
-
-        .match-card:active {
-            transform: scale(0.985);
-            border-color: var(--primary);
-            box-shadow: 0 0 0 3px var(--primary-glow);
-        }
-
-        .match-card::before {
-            content: '';
-            position: absolute;
-            left: 0;
-            top: 12px;
-            bottom: 12px;
-            width: 3px;
-            border-radius: 0 3px 3px 0;
-            background: var(--primary);
-        }
-
-        .match-card.past {
-            background: #f0f2f1;
-            filter: grayscale(0.3);
-            box-shadow: 0 1px 4px rgba(15, 31, 23, 0.03);
-        }
-
-        .match-card.past::before {
-            background: var(--text-light);
-        }
-
-        .match-card.cancelled::before {
-            background: var(--error);
-        }
-
-        .mc-top {
-            display: flex;
-            align-items: flex-start;
-            justify-content: space-between;
-            gap: 10px;
-        }
-
-        .mc-title {
-            font-family: 'Syne', sans-serif;
-            font-size: 16px;
-            font-weight: 100;
-            letter-spacing: -0.01em;
-            color: var(--text-main);
-            line-height: 1.2;
-        }
-
-        .mc-status {
-            padding: 2px 8px;
-            border-radius: 999px;
-            font-size: 10px;
-            font-weight: 700;
-            letter-spacing: 0.04em;
-            text-transform: uppercase;
-            white-space: nowrap;
-            flex-shrink: 0;
-            margin-top: 2px;
-        }
-
-        .mc-status.open {
-            background: var(--primary-light);
-            color: var(--primary);
-        }
-
-        .mc-status.closed {
-            background: var(--warning-light);
-            color: var(--warning);
-        }
-
-        .mc-status.cancelled {
-            background: var(--error-bg);
-            color: var(--error);
-        }
-
-        .mc-info {
-            display: flex;
-            flex-direction: column;
-            gap: 4px;
-            margin-top: 8px;
-            font-size: 12px;
-            color: var(--text-muted);
-        }
-
-        .mc-info-top {
-            display: flex;
-            gap: 14px;
-        }
-
-        .mc-info-item {
-            display: flex;
-            align-items: center;
-            gap: 4px;
-        }
-
-        .mc-info-item svg {
-            width: 13px;
-            height: 13px;
-            color: var(--text-light);
-            flex-shrink: 0;
-        }
-
-        .mc-footer {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-top: 10px;
-            padding-top: 10px;
-            border-top: 1px solid var(--border);
-        }
-
-        .mc-players {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            font-size: 12px;
-            font-weight: 600;
-            color: var(--text-muted);
-        }
-
-        .mc-players-bar {
-            width: 60px;
-            height: 6px;
-            background: var(--bg-input);
-            border-radius: 5px;
-            overflow: hidden;
-        }
-
-        .mc-players-fill {
-            height: 100%;
-            background: var(--primary);
-            border-radius: 5px;
-            transition: width 0.3s ease;
-        }
-
-        .mc-arrow {
-            width: 24px;
-            height: 24px;
-            color: var(--text-light);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .mc-arrow svg {
-            width: 16px;
-            height: 16px;
-        }
-
-        .match-card-skeleton {
-            background: var(--bg-card);
-            border: 1px solid var(--border);
-            border-radius: var(--radius-lg);
-            padding: 14px 16px;
-        }
-
-        .match-card-skeleton+.match-card-skeleton {
-            margin-top: 8px;
-        }
-
-        .btn-back {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            border: none;
-            background: none;
-            color: var(--primary);
-            font-family: 'DM Sans', sans-serif;
-            font-size: 14px;
-            font-weight: 700;
-            cursor: pointer;
-            padding: 4px 0;
-            touch-action: manipulation;
-        }
-
-        .btn-back:active {
-            opacity: 0.7;
-        }
-
-        .btn-back svg {
-            width: 18px;
-            height: 18px;
-        }
-
-        .btn-edit-float {
-            width: 40px;
-            height: 40px;
-            border: none;
-            border-radius: 25px;
-            background: var(--primary);
-            color: white;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            box-shadow: 0 4px 12px rgba(5, 150, 105, 0.3);
-            transition: background 0.15s, transform 0.1s;
-            touch-action: manipulation;
-            flex-shrink: 0;
-        }
-
-        .btn-edit-float:active {
-            background: var(--primary-hover);
-            transform: scale(0.93);
-        }
-
-        .btn-edit-float svg {
-            width: 16px;
-            height: 16px;
-        }
-
         .detail-estado-chip {
             padding: 5px 12px;
             border-radius: 999px;
@@ -541,66 +275,6 @@
             border-color: #fecaca;
             color: #b91c1c;
         }
-
-        .detail-player-section-label {
-            font-size: 10px;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.06em;
-            color: var(--text-light);
-            margin: 12px 0 4px;
-        }
-
-        .detail-player-section-label:first-child {
-            margin-top: 0;
-        }
-
-        .detail-player-row {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            padding: 10px 0;
-            border-bottom: 1px solid var(--border);
-        }
-
-        .detail-player-row:last-child {
-            border-bottom: none;
-            padding-bottom: 0;
-        }
-
-        .dp-num {
-            width: 28px;
-            height: 28px;
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-family: 'Syne', sans-serif;
-            font-size: 11px;
-            font-weight: 800;
-            flex-shrink: 0;
-        }
-
-        .dp-num.tit {
-            background: var(--primary-light);
-            color: var(--primary);
-        }
-
-        .dp-num.sup {
-            background: var(--warning-light);
-            color: var(--warning);
-        }
-
-        .dp-name {
-            font-size: 13px;
-            font-weight: 600;
-            color: var(--text-main);
-            flex: 1;
-            min-width: 0;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-        }
     </style>
 
     <!-- ── Screen Logic ── -->
@@ -610,6 +284,8 @@
 
             let allMatches = [];
             let currentFilter = 'upcoming';
+            let currentDetailPlayers = [];
+            let detailRosterMode = 'lista';
 
             const dias = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
             const diasFull = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
@@ -629,7 +305,6 @@
                 cerrado: { name: 'Cerrado', chipClass: 'chip-cerrado' },
                 cancelado: { name: 'Cancelado', chipClass: 'chip-cancelado' },
             };
-
             const badgeColors = {
                 abierto: 'background:#d1fae5;color:#065f46;',
                 cerrado: 'background:#fef3c7;color:#92400e;',
@@ -653,26 +328,145 @@
                 const active = document.querySelector(`.detail-estado-chip[data-estado="${estado}"]`);
                 if (active) active.classList.add(cfg.chipClass);
             }
-            function updateLocationIcon(locationText) {
-                const iconLocation = document.getElementById('icon-location');
 
-                // Check if the location is a URL or a virtual meeting
+            function updateLocationIcon(locationText) {
+                const icon = document.getElementById('icon-location');
+                if (!icon) return;
                 if (locationText.startsWith('http') || locationText.toLowerCase().includes('zoom')) {
-                    // Inject a "Link" or "Globe" icon paths
-                    iconLocation.innerHTML = `
-            <circle cx="12" cy="12" r="10"/>
-            <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
-            <path d="M2 12h20"/>
-        `;
+                    icon.innerHTML = `<circle cx="12" cy="12" r="10"/>
+                <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+                <path d="M2 12h20"/>`;
                 } else {
-                    // Inject the default "Map Pin" icon paths
-                    iconLocation.innerHTML = `
-            <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z" />
-            <circle cx="12" cy="10" r="3" />
-        `;
+                    icon.innerHTML = `<path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/>
+                <circle cx="12" cy="10" r="3"/>`;
                 }
             }
-            // ── Render match list ──
+
+            // ── Roster rendering ──────────────────────────────────────────
+
+            function renderPlayerRow(player, num, isSup) {
+                const numLabel = isSup ? `S${num}` : `${num}`;
+                const numClass = isSup ? 'sup' : 'tit';
+
+                if (detailRosterMode === 'lista') {
+                    return `
+              <div class="detail-player-row">
+                <div class="dp-num ${numClass}">${numLabel}</div>
+                <div class="dp-name">${player.nombre}</div>
+              </div>`;
+                }
+
+                // Pagos mode
+                const isPaid = player.pagado;
+                return `
+                    <div class="detail-player-row" data-persona="${player.id_persona}">
+                    <div class="dp-num ${numClass}">${numLabel}</div>
+                    <div class="dp-name">${player.nombre}</div>
+                    <button
+                        class="dp-pay-toggle ${isPaid ? 'is-paid' : 'is-unpaid'}"
+                        data-persona="${player.id_persona}"
+                        aria-label="${isPaid ? 'Marcar como no pagado' : 'Marcar como pagado'}"
+                        type="button">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"
+                        style="width:12px;height:12px;">
+                    <path d="M20 6 9 17l-5-5"/>
+                    </svg>
+                    </button>
+                    </div>`;
+            }
+
+            function renderDetailPlayers() {
+                const playerList = document.getElementById('detail-player-list');
+                const summary = document.getElementById('detail-payment-summary');
+                if (!playerList) return;
+
+                const jugadores = currentDetailPlayers;
+                const total = jugadores.length;
+                const paidCount = jugadores.filter(j => j.pagado).length;
+
+                if (summary) {
+                    summary.textContent = `${paidCount}/${total} pagados`;
+                    summary.style.display = detailRosterMode === 'pagos' ? 'inline-flex' : 'none';
+                }
+
+                if (!jugadores.length) {
+                    playerList.innerHTML = '<div style="text-align:center;padding:16px 0;font-size:13px;color:var(--text-light);">Sin jugadores inscritos aún</div>';
+                    return;
+                }
+
+                const tit = jugadores.filter(j => !j.suplente);
+                const sup = jugadores.filter(j => j.suplente);
+                let html = '';
+
+                if (tit.length) {
+                    html += tit.map((j, i) => renderPlayerRow(j, i + 1, false)).join('');
+                }
+                if (sup.length) {
+                    html += '<div class="detail-player-section-label" style="margin-top:14px;">Suplentes</div>';
+                    html += sup.map((j, i) => renderPlayerRow(j, i + 1, true)).join('');
+                }
+
+                playerList.innerHTML = html;
+
+                if (detailRosterMode === 'pagos') {
+                    bindPaymentControls();
+                }
+            }
+
+            function bindPaymentControls() {
+                document.querySelectorAll('.dp-pay-toggle').forEach(btn => {
+                    btn.addEventListener('click', async () => {
+                        const personaId = btn.dataset.persona;
+                        const player = currentDetailPlayers.find(p => String(p.id_persona) === String(personaId));
+                        if (!player) return;
+
+                        const nextPaid = !player.pagado;
+                        player.pagado = nextPaid;
+                        renderDetailPlayers();
+                        toast(nextPaid ? 'Pago marcado ✓' : 'Pago desmarcado');
+
+                        const matchId = document.getElementById('match-detail-view')?.dataset.matchId;
+                        const SUPABASE_URL = window.ENV?.SUPABASE_URL;
+                        const SUPABASE_KEY = window.ENV?.SUPABASE_KEY;
+                        if (!SUPABASE_URL || !SUPABASE_KEY || !matchId) return;
+
+                        try {
+                            const res = await fetch(
+                                `${SUPABASE_URL}/rest/v1/jugadores_pichanga?id_pichanga=eq.${matchId}&id_persona=eq.${personaId}`,
+                                {
+                                    method: 'PATCH',
+                                    headers: {
+                                        apikey: SUPABASE_KEY,
+                                        Authorization: `Bearer ${SUPABASE_KEY}`,
+                                        'Content-Type': 'application/json',
+                                        Prefer: 'return=minimal'
+                                    },
+                                    body: JSON.stringify({ estado_pago: nextPaid ? 'pagado' : 'pendiente' })
+                                }
+                            );
+                            if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                        } catch (err) {
+                            player.pagado = !nextPaid;
+                            renderDetailPlayers();
+                            toast('Error al actualizar pago');
+                            console.warn('[Partido] Pago update failed:', err.message);
+                        }
+                    });
+                });
+            }
+
+            // ── Roster mode toggle ────────────────────────────────────────
+
+            document.querySelectorAll('input[name="roster-mode"]').forEach(radio => {
+                radio.addEventListener('change', () => {
+                    detailRosterMode = radio.value;
+                    renderDetailPlayers();
+                });
+            });
+
+            // ── Match list rendering ──────────────────────────────────────
+
             function renderList(matches) {
                 const list = document.getElementById('match-list');
                 const empty = document.getElementById('empty-matches');
@@ -695,39 +489,42 @@
                 list.innerHTML = filtered.map((m, i) => {
                     const pct = m.cantidad ? Math.round((m.inscritos / m.cantidad) * 100) : 0;
                     const isPast = !isUpcoming(m.fecha_pichanga);
+                    const lugarDisplay = m.nombre_cancha
+                        ? m.nombre_cancha + (m.distrito ? ' — ' + m.distrito.toUpperCase() : '')
+                        : (m.lugar || 'Lugar no especificado');
                     return `
-        <div class="match-card ${isPast ? 'past' : ''} ${m.estado === 'cancelado' ? 'cancelled' : ''} fade-in"
-             style="animation-delay:${Math.min(i * 0.04, 0.2)}s" data-id="${m.id}">
-          <div class="mc-top">
-            <div class="mc-title">${m.titulo}</div>
-            <span class="mc-status ${statusClass(m.estado)}">${statusLabel(m.estado)}</span>
-          </div>
-          <div class="mc-info">
-            <div class="mc-info-top">
-              <div class="mc-info-item">
-                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
-              ${fmtDateShort(m.fecha_pichanga)}
-            </div>
-            <div class="mc-info-item">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
-              ${fmtTime(m.hora_inicio)}
-            </div>
-            </div>
-            <div class="mc-info-item">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
-              ${m.nombre_cancha + ' - ' + m.distrito.toUpperCase() || 'Lugar no especificado'}
-            </div>
-          </div>
-          <div class="mc-footer">
-            <div class="mc-players">
-                <div class="mc-players-bar"><div class="mc-players-fill" style="width:${pct}%"></div></div>
-                <span>${m.inscritos}/${m.cantidad} inscritos</span>
-            </div>
-            <div class="mc-arrow">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
-            </div>
-          </div>
-        </div>`;
+              <div class="match-card ${isPast ? 'past' : ''} ${m.estado === 'cancelado' ? 'cancelled' : ''} fade-in"
+                   style="animation-delay:${Math.min(i * 0.04, 0.2)}s" data-id="${m.id}">
+                <div class="mc-top">
+                  <div class="mc-title">${m.titulo}</div>
+                  <span class="mc-status ${statusClass(m.estado)}">${statusLabel(m.estado)}</span>
+                </div>
+                <div class="mc-info">
+                  <div class="mc-info-top">
+                    <div class="mc-info-item">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+                      ${fmtDateShort(m.fecha_pichanga)}
+                    </div>
+                    <div class="mc-info-item">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+                      ${fmtTime(m.hora_inicio)}
+                    </div>
+                  </div>
+                  <div class="mc-info-item location">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
+                    ${lugarDisplay}
+                  </div>
+                </div>
+                <div class="mc-footer">
+                  <div class="mc-players">
+                    <div class="mc-players-bar"><div class="mc-players-fill" style="width:${pct}%"></div></div>
+                    <span>${m.inscritos}/${m.cantidad} inscritos</span>
+                  </div>
+                  <div class="mc-arrow">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+                  </div>
+                </div>
+              </div>`;
                 }).join('');
 
                 list.querySelectorAll('.match-card').forEach(card => {
@@ -747,8 +544,15 @@
                 });
             });
 
-            // ── Open detail ──
+            // ── Open detail ───────────────────────────────────────────────
+
             async function openDetail(m) {
+                // Reset roster state for new match
+                currentDetailPlayers = [];
+                detailRosterMode = 'lista';
+                const listRadio = document.getElementById('roster-mode-list');
+                if (listRadio) listRadio.checked = true;
+
                 document.getElementById('match-list-view').style.display = 'none';
                 const detail = document.getElementById('match-detail-view');
                 detail.style.display = 'flex';
@@ -760,68 +564,54 @@
                 document.getElementById('detail-title').textContent = m.titulo;
                 document.getElementById('detail-date').textContent = fmtDateFull(m.fecha_pichanga);
                 document.getElementById('detail-time').textContent = fmtTimeRange(m.hora_inicio, m.hora_fin);
-                document.getElementById('detail-location').textContent = m.nombre_cancha + ' (' + m.direccion + ')' || 'Lugar no especificado';
-                document.getElementById('detail-price').textContent = (m.cuota > 0)
-                    ? `S/ ${(m.cuota).toFixed(2)} por persona - ${m.metodo_pago || 'Yape'} al ${m.numero_pago || 'no especificado'}`
-                    : `Ingreso Libre`;
+
+                const lugarText = m.nombre_cancha
+                    ? m.nombre_cancha + (m.direccion ? ' (' + m.direccion + ')' : '')
+                    : (m.lugar || 'Lugar no especificado');
+                document.getElementById('detail-location').textContent = lugarText;
+                updateLocationIcon(lugarText);
+
+                document.getElementById('detail-price').textContent = m.cuota > 0
+                    ? `S/ ${m.cuota.toFixed(2)} por persona — ${m.metodo_pago || 'Yape'} al ${m.numero_pago || 'no especificado'}`
+                    : 'Ingreso libre';
+
                 const inscritos = m.inscritos || 0;
                 const cantidad = m.cantidad || 10;
-
                 detail.dataset.matchId = m.id;
                 detail.dataset.inscritos = inscritos;
                 detail.dataset.cantidad = cantidad;
 
                 const waLink = document.getElementById('btn-join-whatsapp');
-                if (waLink) {
-                    const command = encodeURIComponent(`/anotarme ${m.id}`);
-                    waLink.href = `https://wa.me/51926066602?text=${command}`;
-                }
+                if (waLink) waLink.href = `https://wa.me/51926066602?text=${encodeURIComponent('/anotarme ' + m.id)}`;
 
                 applyEstado(m.estado || 'abierto', inscritos, cantidad);
 
                 // Show loading state
                 const playerList = document.getElementById('detail-player-list');
+                const summary = document.getElementById('detail-payment-summary');
                 playerList.innerHTML = '<div style="text-align:center;padding:16px 0;font-size:13px;color:var(--text-light);">Cargando jugadores...</div>';
+                if (summary) summary.style.display = 'none';
 
                 const SUPABASE_URL = window.ENV?.SUPABASE_URL;
                 const SUPABASE_KEY = window.ENV?.SUPABASE_KEY;
 
                 try {
                     const jugRes = await fetch(
-                        `${SUPABASE_URL}/rest/v1/jugadores_pichanga?id_pichanga=eq.${m.id}&estado_participacion=eq.anotado&order=fecha_registro.asc&select=id_persona,nombre,suplente`,
+                        `${SUPABASE_URL}/rest/v1/jugadores_pichanga?id_pichanga=eq.${m.id}&estado_participacion=eq.anotado&order=fecha_registro.asc&select=id_persona,nombre,suplente,estado_pago`,
                         { headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${SUPABASE_KEY}` } }
                     );
                     if (!jugRes.ok) throw new Error(`jugadores HTTP ${jugRes.status}`);
-                    const jugadores = await jugRes.json();
+                    const raw = await jugRes.json();
 
-                    if (!jugadores.length) {
-                        playerList.innerHTML = '<div style="text-align:center;padding:16px 0;font-size:13px;color:var(--text-light);">Sin jugadores inscritos aún</div>';
-                        return;
-                    }
+                    // Normalise — store pagado as boolean from estado_pago field
+                    currentDetailPlayers = raw.map(j => ({
+                        id_persona: j.id_persona,
+                        nombre: j.nombre || j.id_persona,
+                        suplente: j.suplente,
+                        pagado: j.estado_pago === 'pagado',
+                    }));
 
-                    const tit = jugadores.filter(j => !j.suplente);
-                    const sup = jugadores.filter(j => j.suplente);
-
-                    let html = '';
-
-                    if (tit.length) {
-                        html += tit.map((j, i) => `
-          <div class="detail-player-row">
-            <div class="dp-num tit">${i + 1}</div>
-            <div class="dp-name">${j.nombre || j.id_persona}</div>
-          </div>`).join('');
-                    }
-
-                    if (sup.length) {
-                        html += '<div class="detail-player-section-label" style="margin-top:14px;">Suplentes</div>';
-                        html += sup.map((j, i) => `
-          <div class="detail-player-row">
-            <div class="dp-num sup">S${i + 1}</div>
-            <div class="dp-name">${j.nombre || j.id_persona}</div>
-          </div>`).join('');
-                    }
-
-                    playerList.innerHTML = html;
+                    renderDetailPlayers();
 
                 } catch (err) {
                     console.error('[Partido] Jugadores fetch error:', err);
@@ -829,7 +619,8 @@
                 }
             }
 
-            // ── Estado chip listeners ──
+            // ── Estado chip listeners ─────────────────────────────────────
+
             document.querySelectorAll('.detail-estado-chip').forEach(chip => {
                 chip.addEventListener('click', () => {
                     const estado = chip.dataset.estado;
@@ -857,8 +648,14 @@
                 });
             });
 
-            // ── Back button ──
+            // ── Back button ───────────────────────────────────────────────
+
             document.getElementById('btn-back-list').addEventListener('click', () => {
+                currentDetailPlayers = [];
+                detailRosterMode = 'lista';
+                const listRadio = document.getElementById('roster-mode-list');
+                if (listRadio) listRadio.checked = true;
+
                 const detail = document.getElementById('match-detail-view');
                 detail.style.display = 'none';
                 detail.style.flexDirection = '';
@@ -868,24 +665,24 @@
                 loadMatches();
             });
 
+            // ── Other buttons ─────────────────────────────────────────────
+
             document.getElementById('btn-detail-share').addEventListener('click', () => {
                 const id = document.getElementById('match-detail-view').dataset.matchId;
-                const command = encodeURIComponent(`/retirarme ${id}`);
-                window.open(`https://wa.me/51926066602?text=${command}`, '_blank');
+                window.open(`https://wa.me/51926066602?text=${encodeURIComponent('/retirarme ' + id)}`, '_blank');
             });
 
-            // ── Edit button ──
             document.getElementById('btn-detail-edit').addEventListener('click', () => {
                 const id = document.getElementById('match-detail-view').dataset.matchId;
                 window.open('edit.html?id=' + id, '_blank');
             });
 
-            // ── New match button ──
             document.getElementById('btn-new-match').addEventListener('click', () => {
                 window.open('create.html', '_blank');
             });
 
-            // ── Load matches ──
+            // ── Load matches ──────────────────────────────────────────────
+
             async function loadMatches() {
                 const SUPABASE_URL = window.ENV?.SUPABASE_URL;
                 const SUPABASE_KEY = window.ENV?.SUPABASE_KEY;
@@ -908,7 +705,6 @@
                         `${SUPABASE_URL}/rest/v1/pichangas?order=fecha_pichanga.desc&limit=50`,
                         { headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${SUPABASE_KEY}` } }
                     );
-
                     if (!res.ok) {
                         const body = await res.json().catch(() => null);
                         throw new Error(`HTTP ${res.status} — ${body?.message || body?.error || 'sin detalle'}`);
@@ -931,7 +727,6 @@
                         cuota: p.cuota,
                         metodo_pago: p.metodo_pago,
                         numero_pago: p.numero_pago,
-                        titular: p.titular || '',
                         cantidad: p.cantidad,
                         estado: p.status || 'abierto',
                         inscritos: p.total_inscritos || 0,
@@ -945,7 +740,6 @@
                         const match = allMatches.find(m => m.id === urlId);
                         if (match) {
                             openDetail(match);
-                            // Clean URL without reloading
                             window.history.replaceState({}, '', window.location.pathname);
                         }
                     }
@@ -963,5 +757,5 @@
         })();
     </script>
 </body>
+
 </html>
-    
