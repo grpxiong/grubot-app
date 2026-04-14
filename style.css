@@ -979,6 +979,47 @@ input[type="time"].sel::-webkit-datetime-edit-fields-wrapper {
 .dp-badge.tit { background: var(--primary-light); color: var(--primary); }
 .dp-badge.sup { background: var(--warning-light); color: var(--warning); }
 
+.dp-pay-toggle {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    border: 2px solid var(--border);
+    background: var(--bg-input);
+    color: transparent;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: all 0.15s;
+    touch-action: manipulation;
+    padding: 0;
+}
+
+.dp-pay-toggle.is-paid {
+    background: var(--primary);
+    border-color: var(--primary);
+    color: white;
+}
+
+.dp-pay-toggle.is-unpaid {
+    background: var(--bg-input);
+    border-color: #cbd5e1;
+}
+
+.dp-pay-toggle:active {
+    transform: scale(0.88);
+}
+
+.mc-info-item.location {
+    align-items: flex-start;
+}
+
+.mc-info-item.location svg {
+    margin-top: 1px;
+    flex-shrink: 0;
+}
+
 /* ─── 11. STATUS & FEEDBACK ─── */
 .toast-container {
     position: fixed;
