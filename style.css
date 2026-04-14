@@ -983,7 +983,7 @@ input[type="time"].sel::-webkit-datetime-edit-fields-wrapper {
     width: 24px;
     height: 24px;
     border-radius: 50%;
-    border: 2px solid var(--border);
+    border: 1px solid var(--border);
     background: var(--bg-input);
     color: transparent;
     display: flex;
